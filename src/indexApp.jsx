@@ -1849,6 +1849,402 @@ const renderHighlightedText = (text, goldWords = [], emeraldWords = []) => {
     });
 };
 
+const VERSE_CARD_THEMES = [
+    {
+        id: 'navy_gold',
+        name: 'Royal Navy',
+        bgStart: '#071120',
+        bgMid: '#0F2544',
+        bgEnd: '#060D1A',
+        accent: '#E5B05C',
+        accentSoft: 'rgba(229, 176, 92, 0.18)',
+        textMain: '#FFFFFF',
+        textSub: '#FDE68A',
+        badgeBg: 'rgba(229, 176, 92, 0.2)',
+        previewClass: 'from-[#071120] via-[#0F2544] to-[#060D1A] border-[#E5B05C]'
+    },
+    {
+        id: 'emerald_forest',
+        name: 'Hijau Pisgah',
+        bgStart: '#0D2618',
+        bgMid: '#1B432C',
+        bgEnd: '#091A10',
+        accent: '#FBBF24',
+        accentSoft: 'rgba(251, 191, 36, 0.16)',
+        textMain: '#FFFFFF',
+        textSub: '#A7F3D0',
+        badgeBg: 'rgba(16, 185, 129, 0.22)',
+        previewClass: 'from-[#0D2618] via-[#1B432C] to-[#091A10] border-emerald-400'
+    },
+    {
+        id: 'sunset_sabbath',
+        name: 'Senja Sabat',
+        bgStart: '#2E1035',
+        bgMid: '#6D2346',
+        bgEnd: '#1E0B24',
+        accent: '#FCD34D',
+        accentSoft: 'rgba(252, 211, 77, 0.18)',
+        textMain: '#FFFFFF',
+        textSub: '#FDE68A',
+        badgeBg: 'rgba(251, 146, 60, 0.22)',
+        previewClass: 'from-[#2E1035] via-[#6D2346] to-[#1E0B24] border-amber-300'
+    },
+    {
+        id: 'midnight_purple',
+        name: 'Ungu Agung',
+        bgStart: '#160F30',
+        bgMid: '#2B1E58',
+        bgEnd: '#0D0820',
+        accent: '#F59E0B',
+        accentSoft: 'rgba(245, 158, 11, 0.18)',
+        textMain: '#FFFFFF',
+        textSub: '#DDD6FE',
+        badgeBg: 'rgba(167, 139, 250, 0.2)',
+        previewClass: 'from-[#160F30] via-[#2B1E58] to-[#0D0820] border-purple-400'
+    },
+    {
+        id: 'ivory_classic',
+        name: 'Krem Klasik',
+        bgStart: '#FFFDF9',
+        bgMid: '#F7EFE1',
+        bgEnd: '#EFE2C9',
+        accent: '#9A6519',
+        accentSoft: 'rgba(154, 101, 25, 0.14)',
+        textMain: '#1E293B',
+        textSub: '#78350F',
+        badgeBg: 'rgba(180, 127, 36, 0.15)',
+        previewClass: 'from-[#FFFDF9] via-[#F7EFE1] to-[#EFE2C9] border-amber-700 text-navy-900'
+    }
+];
+
+const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', subtitle = 'SABDA HIDUP • ALKITAB TB' }) => {
+    const canvasRef = React.useRef(null);
+    const [themeId, setThemeId] = React.useState('navy_gold');
+    const [aspect, setAspect] = React.useState('story'); // 'story' (1080x1920) | 'square' (1080x1080)
+    const [customNote, setCustomNote] = React.useState('');
+    const [isSharing, setIsSharing] = React.useState(false);
+
+    const activeTheme = VERSE_CARD_THEMES.find(t => t.id === themeId) || VERSE_CARD_THEMES[0];
+
+    const drawCardToCanvas = React.useCallback(() => {
+        const canvas = canvasRef.current;
+        if (!canvas || !isOpen) return;
+        const ctx = canvas.getContext('2d');
+        const W = 1080;
+        const H = aspect === 'story' ? 1920 : 1080;
+        canvas.width = W;
+        canvas.height = H;
+
+        // 1. Background Gradient
+        const grad = ctx.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, activeTheme.bgStart);
+        grad.addColorStop(0.5, activeTheme.bgMid);
+        grad.addColorStop(1, activeTheme.bgEnd);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        // 2. Ambient Glow Circles
+        ctx.save();
+        const glow1 = ctx.createRadialGradient(W * 0.85, H * 0.15, 20, W * 0.85, H * 0.15, 420);
+        glow1.addColorStop(0, activeTheme.accentSoft);
+        glow1.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = glow1;
+        ctx.fillRect(0, 0, W, H);
+
+        const glow2 = ctx.createRadialGradient(W * 0.15, H * 0.85, 20, W * 0.15, H * 0.85, 460);
+        glow2.addColorStop(0, activeTheme.accentSoft);
+        glow2.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = glow2;
+        ctx.fillRect(0, 0, W, H);
+        ctx.restore();
+
+        // 3. Decorative Outer & Inner Gold Frames
+        const pad = aspect === 'story' ? 64 : 52;
+        ctx.save();
+        ctx.strokeStyle = activeTheme.accent;
+        ctx.globalAlpha = 0.55;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(pad, pad, W - pad * 2, H - pad * 2);
+
+        ctx.globalAlpha = 0.25;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([12, 8]);
+        ctx.strokeRect(pad + 18, pad + 18, W - (pad + 18) * 2, H - (pad + 18) * 2);
+        ctx.restore();
+
+        // 4. Top Header Pill
+        const topY = aspect === 'story' ? 175 : 130;
+        ctx.save();
+        ctx.font = '800 24px system-ui, -apple-system, sans-serif';
+        ctx.fillStyle = activeTheme.accent;
+        ctx.textAlign = 'center';
+        ctx.letterSpacing = '4px';
+        ctx.fillText((subtitle || 'SABDA TUHAN • ALKITAB TB').toUpperCase(), W / 2, topY);
+
+        // Decorative divider line under header
+        ctx.beginPath();
+        ctx.moveTo(W / 2 - 90, topY + 26);
+        ctx.lineTo(W / 2 + 90, topY + 26);
+        ctx.strokeStyle = activeTheme.accent;
+        ctx.globalAlpha = 0.6;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        ctx.restore();
+
+        // 5. Giant Quotation Mark Watermark
+        ctx.save();
+        ctx.font = '900 220px Georgia, serif';
+        ctx.fillStyle = activeTheme.accent;
+        ctx.globalAlpha = 0.15;
+        ctx.textAlign = 'center';
+        ctx.fillText('“', W / 2, aspect === 'story' ? 430 : 290);
+        ctx.restore();
+
+        // 6. Word-Wrap Verse Text Automatically
+        const cleanVerse = (verseText || '').replace(/\s+/g, ' ').trim();
+        const maxTextWidth = W - (pad + 75) * 2;
+        let fontSize = aspect === 'story' ? 50 : 42;
+        if (cleanVerse.length > 350) fontSize = aspect === 'story' ? 34 : 28;
+        else if (cleanVerse.length > 240) fontSize = aspect === 'story' ? 40 : 33;
+        else if (cleanVerse.length > 150) fontSize = aspect === 'story' ? 45 : 37;
+
+        ctx.font = `600 ${fontSize}px Georgia, "Times New Roman", serif`;
+        const words = cleanVerse.split(' ');
+        const lines = [];
+        let currentLine = '';
+
+        for (let i = 0; i < words.length; i++) {
+            const testLine = currentLine ? `${currentLine} ${words[i]}` : words[i];
+            const metrics = ctx.measureText(testLine);
+            if (metrics.width > maxTextWidth && currentLine) {
+                lines.push(currentLine);
+                currentLine = words[i];
+            } else {
+                currentLine = testLine;
+            }
+        }
+        if (currentLine) lines.push(currentLine);
+
+        const lineHeight = Math.round(fontSize * 1.52);
+        const totalTextHeight = lines.length * lineHeight;
+        const centerY = aspect === 'story' ? H * 0.49 : H * 0.48;
+        let startY = centerY - totalTextHeight / 2 + fontSize / 2;
+
+        ctx.save();
+        ctx.fillStyle = activeTheme.textMain;
+        ctx.textAlign = 'center';
+        ctx.font = `600 ${fontSize}px Georgia, "Times New Roman", serif`;
+        lines.forEach((line, idx) => {
+            ctx.fillText(line, W / 2, startY + idx * lineHeight);
+        });
+        ctx.restore();
+
+        // 7. Reference Badge (Book Chapter:Verse)
+        const refY = startY + lines.length * lineHeight + (aspect === 'story' ? 58 : 38);
+        ctx.save();
+        ctx.font = `900 ${aspect === 'story' ? 38 : 34}px system-ui, -apple-system, sans-serif`;
+        ctx.fillStyle = activeTheme.accent;
+        ctx.textAlign = 'center';
+        ctx.fillText(`— ${reference} —`, W / 2, refY);
+        ctx.restore();
+
+        // 8. Optional Personal Reflection / Note
+        if (customNote.trim()) {
+            ctx.save();
+            ctx.font = `italic 600 ${aspect === 'story' ? 28 : 24}px system-ui, -apple-system, sans-serif`;
+            ctx.fillStyle = activeTheme.textSub;
+            ctx.textAlign = 'center';
+            const trimmedNote = customNote.trim().slice(0, 90);
+            ctx.fillText(`"${trimmedNote}"`, W / 2, refY + (aspect === 'story' ? 56 : 42));
+            ctx.restore();
+        }
+
+        // 9. Footer Church Branding Watermark
+        const footerY = H - pad - (aspect === 'story' ? 85 : 60);
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(W / 2 - 210, footerY - 38);
+        ctx.lineTo(W / 2 + 210, footerY - 38);
+        ctx.strokeStyle = activeTheme.accent;
+        ctx.globalAlpha = 0.4;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.globalAlpha = 0.95;
+        ctx.font = '900 24px system-ui, -apple-system, sans-serif';
+        ctx.fillStyle = activeTheme.accent;
+        ctx.textAlign = 'center';
+        ctx.fillText('GMAHK JEMAAT PISGAH BISDAC - BATAM', W / 2, footerY);
+
+        ctx.globalAlpha = 0.75;
+        ctx.font = '700 20px system-ui, -apple-system, sans-serif';
+        ctx.fillStyle = activeTheme.textSub;
+        ctx.fillText('PISGAH BISDAC • Alkitab Digital Jemaat', W / 2, footerY + 32);
+        ctx.restore();
+    }, [isOpen, aspect, activeTheme, verseText, reference, subtitle, customNote]);
+
+    React.useEffect(() => {
+        drawCardToCanvas();
+    }, [drawCardToCanvas]);
+
+    if (!isOpen) return null;
+
+    const handleDownloadImage = () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const safeRef = (reference || 'Ayat').replace(/[^a-zA-Z0-9_-]/g, '-');
+        const link = document.createElement('a');
+        link.download = `Kartu-Ayat-${safeRef}-PisgahBisdac.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    };
+
+    const handleShareImage = async () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        setIsSharing(true);
+        try {
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            if (blob && navigator.canShare) {
+                const safeRef = (reference || 'Ayat').replace(/[^a-zA-Z0-9_-]/g, '-');
+                const file = new File([blob], `Kartu-Ayat-${safeRef}.png`, { type: 'image/png' });
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: `Kartu Ayat ${reference}`,
+                        text: `📖 *${reference}*\n"${verseText}"\n\n🕊️ _GMAHK Jemaat Pisgah BISDAC - Batam_`,
+                        files: [file]
+                    });
+                    setIsSharing(false);
+                    return;
+                }
+            }
+            // Fallback: Download image first & open WA text share
+            handleDownloadImage();
+            const shareText = `📖 *${reference}*\n\n"${verseText}"\n\n🕊️ _GMAHK Jemaat Pisgah BISDAC - Batam_`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+        } catch (e) {
+            console.log('Share image canceled or fallback:', e);
+        }
+        setIsSharing(false);
+    };
+
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fade-in" onClick={onClose}>
+            <div
+                className="bg-white dark:bg-navy-900 border border-navy-100 dark:border-navy-700 rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl my-auto max-h-[94vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-navy-100 dark:border-navy-800">
+                    <div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gold-600 dark:text-gold-400 block">Status WA & Instagram Story</span>
+                        <h3 className="text-base sm:text-lg font-black text-navy-900 dark:text-white flex items-center gap-2">
+                            <Icon name="Sparkles" className="w-5 h-5 text-gold-500" />
+                            Pembuat Kartu Gambar Ayat
+                        </h3>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="w-9 h-9 rounded-full bg-navy-50 dark:bg-navy-800 hover:bg-red-50 dark:hover:bg-red-950/50 text-navy-500 hover:text-red-500 flex items-center justify-center font-bold transition cursor-pointer"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+                    {/* Canvas Preview Column */}
+                    <div className="md:col-span-6 flex flex-col items-center justify-center bg-navy-950/5 dark:bg-navy-950/60 rounded-2xl p-3 border border-navy-100 dark:border-navy-800">
+                        <canvas
+                            ref={canvasRef}
+                            className={`rounded-xl shadow-lg border border-black/10 transition-all ${aspect === 'story' ? 'max-h-[340px] sm:max-h-[390px] w-auto aspect-[9/16]' : 'max-h-[290px] sm:max-h-[330px] w-auto aspect-square'}`}
+                        />
+                        <span className="text-[10px] font-bold text-navy-400 mt-2">
+                            Pratinjau Resolusi HD ({aspect === 'story' ? '1080 × 1920 px • Story/Status' : '1080 × 1080 px • Persegi'})
+                        </span>
+                    </div>
+
+                    {/* Customization Controls Column */}
+                    <div className="md:col-span-6 space-y-4">
+                        {/* Aspect Ratio Picker */}
+                        <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-navy-500 dark:text-navy-300 block mb-1.5">1. Ukuran Gambar</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setAspect('story')}
+                                    className={`py-2.5 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center gap-1.5 cursor-pointer ${aspect === 'story' ? 'bg-gold-500 text-navy-950 border-gold-500 shadow-sm font-black' : 'bg-navy-50 dark:bg-navy-800 text-navy-700 dark:text-navy-200 border-navy-200 dark:border-navy-700'}`}
+                                >
+                                    <span>📱 Status WA / Story (9:16)</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setAspect('square')}
+                                    className={`py-2.5 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center gap-1.5 cursor-pointer ${aspect === 'square' ? 'bg-gold-500 text-navy-950 border-gold-500 shadow-sm font-black' : 'bg-navy-50 dark:bg-navy-800 text-navy-700 dark:text-navy-200 border-navy-200 dark:border-navy-700'}`}
+                                >
+                                    <span>🖼️ Persegi / Feed (1:1)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Theme Picker */}
+                        <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-navy-500 dark:text-navy-300 block mb-1.5">2. Tema Warna Latar</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                {VERSE_CARD_THEMES.map(t => (
+                                    <button
+                                        key={t.id}
+                                        type="button"
+                                        onClick={() => setThemeId(t.id)}
+                                        className={`py-2 px-2.5 rounded-xl text-xs font-bold border-2 transition flex items-center gap-2 cursor-pointer ${themeId === t.id ? 'border-gold-500 ring-2 ring-gold-400/30 bg-gold-50/40 dark:bg-navy-800 font-black' : 'border-navy-100 dark:border-navy-700 bg-white dark:bg-navy-800/60'}`}
+                                    >
+                                        <span className={`w-4 h-4 rounded-full bg-gradient-to-br ${t.previewClass} shrink-0 border`} />
+                                        <span className="truncate text-navy-800 dark:text-navy-100 text-[11px]">{t.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Optional Short Caption */}
+                        <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-navy-500 dark:text-navy-300 block mb-1.5">3. Catatan / Ucapan Singkat (Opsional)</label>
+                            <input
+                                type="text"
+                                maxLength={80}
+                                value={customNote}
+                                onChange={(e) => setCustomNote(e.target.value)}
+                                placeholder="Misal: Selamat Hari Sabat / Tuhan Memberkati..."
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-navy-50 dark:bg-navy-800 border border-navy-200 dark:border-navy-700 text-xs font-semibold text-navy-900 dark:text-white outline-none focus:border-gold-500"
+                            />
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="pt-2 space-y-2">
+                            <button
+                                type="button"
+                                onClick={handleShareImage}
+                                disabled={isSharing}
+                                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer"
+                            >
+                                <i className="fa-brands fa-whatsapp text-base"></i>
+                                <span>{isSharing ? 'Menyiapkan Gambar...' : 'Bagikan Gambar ke WA / Sosmed'}</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleDownloadImage}
+                                className="w-full py-2.5 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-400 text-gold-400 dark:text-navy-950 font-black text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer"
+                            >
+                                <Icon name="Download" className="w-4 h-4" />
+                                <span>Unduh Gambar HD (PNG)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+};
+
 const DailyVerseWidget = ({ setActiveTab }) => {
     const todayIndex = React.useMemo(() => {
         const d = new Date();
@@ -1858,6 +2254,7 @@ const DailyVerseWidget = ({ setActiveTab }) => {
     const [verseIdx, setVerseIdx] = React.useState(todayIndex);
     const [copied, setCopied] = React.useState(false);
     const [audioPlaying, setAudioPlaying] = React.useState(false);
+    const [showCardModal, setShowCardModal] = React.useState(false);
 
     const verse = DAILY_VERSES[verseIdx] || DAILY_VERSES[0];
 
@@ -2003,7 +2400,7 @@ const DailyVerseWidget = ({ setActiveTab }) => {
                     <span>Buka di Alkitab</span>
                     <Icon name="ArrowRight" className="w-3.5 h-3.5 opacity-80 -mr-0.5" />
                 </button>
-                <div className="grid grid-cols-3 sm:flex sm:items-center gap-2 w-full sm:w-auto">
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
                     <button
                         onClick={handleToggleAudio}
                         className={`bg-white/90 dark:bg-navy-800/90 hover:bg-amber-50 dark:hover:bg-navy-700 active:scale-95 text-xs font-bold px-3 py-2.5 rounded-xl transition-all border flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer ${audioPlaying ? 'border-gold-500 text-gold-600 dark:text-gold-400 bg-gold-50/50 animate-pulse' : 'border-amber-200/80 dark:border-navy-600 text-[#2C3F21] dark:text-gray-200'}`}
@@ -2011,6 +2408,14 @@ const DailyVerseWidget = ({ setActiveTab }) => {
                     >
                         <Icon name={audioPlaying ? "Square" : "Volume2"} className={`w-3.5 h-3.5 ${audioPlaying ? 'text-red-500' : 'text-[#D19B45] dark:text-gold-400'}`} />
                         <span>{audioPlaying ? 'Stop' : 'Audio'}</span>
+                    </button>
+                    <button
+                        onClick={() => setShowCardModal(true)}
+                        className="bg-amber-50/90 dark:bg-gold-500/15 hover:bg-amber-100 dark:hover:bg-gold-500/25 active:scale-95 text-amber-900 dark:text-gold-300 text-xs font-extrabold px-3 py-2.5 rounded-xl transition-all border border-amber-300/80 dark:border-gold-500/40 flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                        title="Buat Gambar Kartu Ayat untuk Status WA / IG Story"
+                    >
+                        <Icon name="Sparkles" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" />
+                        <span>Kartu Gambar</span>
                     </button>
                     <button
                         onClick={handleCopy}
@@ -2037,6 +2442,13 @@ const DailyVerseWidget = ({ setActiveTab }) => {
                     </button>
                 </div>
             </div>
+            <VerseImageCardModal
+                isOpen={showCardModal}
+                onClose={() => setShowCardModal(false)}
+                reference={`${verse.bookName} ${verse.chapter}:${verse.verse}`}
+                verseText={verse.text}
+                subtitle={`AYAT HARI INI • ${(verse.theme || 'SABDA HIDUP').toUpperCase()}`}
+            />
         </div>
     );
 };
@@ -13219,6 +13631,97 @@ const ALKITAB_BOOKS = [
     { id: 66, nama: 'Wahyu', singkat: 'Why', pasal: 22, testamen: 'PB' },
 ];
 
+const HIGHLIGHT_PALETTE = {
+    gold: {
+        id: 'gold',
+        label: 'Kuning Emas',
+        dotClass: 'bg-amber-400 border-amber-200 ring-amber-400/50',
+        verseBg: 'bg-amber-100/85 dark:bg-amber-500/20 border-l-4 border-l-amber-500 border border-amber-200/80 dark:border-amber-500/35 shadow-2xs',
+        badgeBg: 'bg-amber-500 text-white',
+        chipBg: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border-amber-300'
+    },
+    emerald: {
+        id: 'emerald',
+        label: 'Hijau Zamrud',
+        dotClass: 'bg-emerald-400 border-emerald-200 ring-emerald-400/50',
+        verseBg: 'bg-emerald-100/85 dark:bg-emerald-500/20 border-l-4 border-l-emerald-500 border border-emerald-200/80 dark:border-emerald-500/35 shadow-2xs',
+        badgeBg: 'bg-emerald-600 text-white',
+        chipBg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 border-emerald-300'
+    },
+    sky: {
+        id: 'sky',
+        label: 'Biru Langit',
+        dotClass: 'bg-sky-400 border-sky-200 ring-sky-400/50',
+        verseBg: 'bg-sky-100/85 dark:bg-sky-500/20 border-l-4 border-l-sky-500 border border-sky-200/80 dark:border-sky-500/35 shadow-2xs',
+        badgeBg: 'bg-sky-600 text-white',
+        chipBg: 'bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-300 border-sky-300'
+    },
+    rose: {
+        id: 'rose',
+        label: 'Merah Muda',
+        dotClass: 'bg-rose-400 border-rose-200 ring-rose-400/50',
+        verseBg: 'bg-rose-100/85 dark:bg-rose-500/20 border-l-4 border-l-rose-500 border border-rose-200/80 dark:border-rose-500/35 shadow-2xs',
+        badgeBg: 'bg-rose-600 text-white',
+        chipBg: 'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300 border-rose-300'
+    }
+};
+
+const BIBLE_YEAR_MONTH_NAMES = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+];
+const BIBLE_YEAR_MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+const BIBLE_YEAR_365_PLAN = (() => {
+    const allChapters = [];
+    ALKITAB_BOOKS.forEach(b => {
+        for (let ch = 1; ch <= b.pasal; ch++) {
+            allChapters.push({ bookId: b.id, bookName: b.nama, singkat: b.singkat, chapter: ch });
+        }
+    });
+    const total = allChapters.length; // 1189 pasal
+    const plan = [];
+    let dayCounter = 0;
+
+    for (let m = 0; m < 12; m++) {
+        const daysInMonth = BIBLE_YEAR_MONTH_DAYS[m];
+        for (let d = 1; d <= daysInMonth; d++) {
+            dayCounter++;
+            const startIdx = Math.floor(((dayCounter - 1) * total) / 365);
+            const endIdx = Math.floor((dayCounter * total) / 365) - 1;
+            const dayChaps = allChapters.slice(startIdx, Math.max(startIdx + 1, endIdx + 1));
+            const first = dayChaps[0];
+            const last = dayChaps[dayChaps.length - 1];
+            let label = '';
+            if (first.bookId === last.bookId) {
+                label = first.chapter === last.chapter
+                    ? `${first.bookName} ${first.chapter}`
+                    : `${first.bookName} ${first.chapter}–${last.chapter}`;
+            } else {
+                label = `${first.bookName} ${first.chapter} – ${last.bookName} ${last.chapter}`;
+            }
+            plan.push({
+                day: dayCounter,
+                month: m + 1,
+                dayOfMonth: d,
+                dateLabel: `${d} ${BIBLE_YEAR_MONTH_NAMES[m]}`,
+                label,
+                chapters: dayChaps
+            });
+        }
+    }
+    return plan;
+})();
+
+const getCurrentDayOfYear365 = () => {
+    const now = new Date();
+    const m = now.getMonth();
+    const d = Math.min(now.getDate(), BIBLE_YEAR_MONTH_DAYS[m]);
+    let dayNum = d;
+    for (let i = 0; i < m; i++) dayNum += BIBLE_YEAR_MONTH_DAYS[i];
+    return Math.max(1, Math.min(365, dayNum));
+};
+
 const Alkitab = ({ setHideGlobalBack }) => {
     const [selectedBook, setSelectedBook] = React.useState(null);
     const [selectedChapter, setSelectedChapter] = React.useState(null);
@@ -13228,6 +13731,208 @@ const Alkitab = ({ setHideGlobalBack }) => {
     const [searchQuery, setSearchQuery] = React.useState('');
     const [searchResults, setSearchResults] = React.useState(null);
     const [isSearching, setIsSearching] = React.useState(false);
+    const [alkitabHomeTab, setAlkitabHomeTab] = React.useState('books'); // 'books' | 'saved' | 'bible_year'
+    const [savedColorFilter, setSavedColorFilter] = React.useState('all');
+    const [highlightsMap, setHighlightsMap] = React.useState(() => {
+        try {
+            const raw = localStorage.getItem('PISGAH_ALKITAB_HIGHLIGHTS');
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    });
+    const [noteModal, setNoteModal] = React.useState(null); // { keys: [], refLabel: '', textPreview: '', initialNote: '', defaultColor: 'gold' }
+    const [noteInputText, setNoteInputText] = React.useState('');
+    const [cardModalData, setCardModalData] = React.useState({ isOpen: false, reference: '', verseText: '', subtitle: 'SABDA TUHAN • ALKITAB TB' });
+    const [bibleYearDone, setBibleYearDone] = React.useState(() => {
+        try {
+            const raw = localStorage.getItem('PISGAH_BIBLE_YEAR_DONE');
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    });
+    const [selectedPlanMonth, setSelectedPlanMonth] = React.useState(() => new Date().getMonth() + 1);
+    const [planFilterMode, setPlanFilterMode] = React.useState('month'); // 'month' | 'unread' | 'completed'
+    const planMonthScrollRef = React.useRef(null);
+    const savedFilterScrollRef = React.useRef(null);
+
+    const [currentBookChapter, setCurrentBookChapter] = React.useState(() => {
+        try {
+            const raw = localStorage.getItem('PISGAH_ALKITAB_CURRENT_CHAPTER');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && parsed.bookId && parsed.chapter) return parsed;
+            }
+        } catch (e) { }
+        const firstBook = ALKITAB_BOOKS[0];
+        return { bookId: firstBook.id, bookName: firstBook.nama, singkat: firstBook.singkat, chapter: 1 };
+    });
+
+    React.useEffect(() => {
+        if (selectedBook) {
+            const ch = selectedChapter || 1;
+            const nextVal = { bookId: selectedBook.id, bookName: selectedBook.nama, singkat: selectedBook.singkat, chapter: ch };
+            setCurrentBookChapter(nextVal);
+            try {
+                localStorage.setItem('PISGAH_ALKITAB_CURRENT_CHAPTER', JSON.stringify(nextVal));
+            } catch (e) { }
+        }
+    }, [selectedBook, selectedChapter]);
+
+    const scrollHorizontalBar = (ref, dir) => {
+        if (!ref?.current) return;
+        ref.current.scrollBy({ left: dir * 180, behavior: 'smooth' });
+    };
+
+    React.useEffect(() => {
+        if (alkitabHomeTab === 'bible_year' && planMonthScrollRef.current) {
+            const activeBtn = planMonthScrollRef.current.querySelector('[data-active-month="true"]');
+            if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
+                activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        }
+    }, [alkitabHomeTab, selectedPlanMonth, planFilterMode]);
+
+    const saveHighlightsToStorage = (nextMap) => {
+        setHighlightsMap(nextMap);
+        try {
+            localStorage.setItem('PISGAH_ALKITAB_HIGHLIGHTS', JSON.stringify(nextMap));
+        } catch (e) { }
+    };
+
+    const handleApplyHighlight = (colorId) => {
+        if (!selectedBook || !selectedChapter || selectedVerses.size === 0) return;
+        const nextMap = { ...highlightsMap };
+        const sortedAyats = Array.from(selectedVerses).sort((a, b) => a - b);
+        sortedAyats.forEach(ayatNum => {
+            const vObj = verses.find(x => x.ayat === ayatNum);
+            if (!vObj) return;
+            const key = `${selectedBook.id}_${selectedChapter}_${ayatNum}`;
+            const existing = nextMap[key];
+            if (colorId === null) {
+                delete nextMap[key];
+            } else {
+                nextMap[key] = {
+                    key,
+                    bookId: selectedBook.id,
+                    bookName: selectedBook.nama,
+                    chapter: selectedChapter,
+                    ayat: ayatNum,
+                    teks: vObj.teks,
+                    color: colorId,
+                    note: existing?.note || '',
+                    updatedAt: Date.now()
+                };
+            }
+        });
+        saveHighlightsToStorage(nextMap);
+        setSelectedVerses(new Set());
+    };
+
+    const handleOpenNoteForSelected = () => {
+        if (!selectedBook || !selectedChapter || selectedVerses.size === 0) return;
+        const sortedAyats = Array.from(selectedVerses).sort((a, b) => a - b);
+        const firstAyat = sortedAyats[0];
+        const firstKey = `${selectedBook.id}_${selectedChapter}_${firstAyat}`;
+        const existing = highlightsMap[firstKey];
+        const vTexts = sortedAyats.map(a => verses.find(x => x.ayat === a)?.teks || '').filter(Boolean);
+        const refLabel = `${selectedBook.nama} ${selectedChapter}:${sortedAyats.join(', ')}`;
+        setNoteInputText(existing?.note || '');
+        setNoteModal({
+            ayats: sortedAyats,
+            bookId: selectedBook.id,
+            bookName: selectedBook.nama,
+            chapter: selectedChapter,
+            refLabel,
+            textPreview: vTexts.join(' '),
+            defaultColor: existing?.color || 'gold'
+        });
+    };
+
+    const handleSaveVerseNote = (e) => {
+        if (e) e.preventDefault();
+        if (!noteModal) return;
+        const nextMap = { ...highlightsMap };
+        if (noteModal.singleKey) {
+            const existing = nextMap[noteModal.singleKey];
+            if (existing) {
+                nextMap[noteModal.singleKey] = {
+                    ...existing,
+                    note: noteInputText.trim(),
+                    updatedAt: Date.now()
+                };
+            }
+        } else if (noteModal.ayats && noteModal.ayats.length > 0) {
+            noteModal.ayats.forEach(ayatNum => {
+                const vObj = verses.find(x => x.ayat === ayatNum);
+                if (!vObj) return;
+                const key = `${noteModal.bookId}_${noteModal.chapter}_${ayatNum}`;
+                const existing = nextMap[key];
+                nextMap[key] = {
+                    key,
+                    bookId: noteModal.bookId,
+                    bookName: noteModal.bookName,
+                    chapter: noteModal.chapter,
+                    ayat: ayatNum,
+                    teks: vObj.teks,
+                    color: existing?.color || noteModal.defaultColor || 'gold',
+                    note: noteInputText.trim(),
+                    updatedAt: Date.now()
+                };
+            });
+        }
+        saveHighlightsToStorage(nextMap);
+        setNoteModal(null);
+        setNoteInputText('');
+        setSelectedVerses(new Set());
+    };
+
+    const handleDeleteSavedHighlight = (key) => {
+        const nextMap = { ...highlightsMap };
+        delete nextMap[key];
+        saveHighlightsToStorage(nextMap);
+    };
+
+    const handleOpenCardForSelected = () => {
+        if (!selectedBook || !selectedChapter || selectedVerses.size === 0) return;
+        const sortedSelected = Array.from(selectedVerses).sort((a, b) => a - b);
+        const textParts = [];
+        for (const ayat of sortedSelected) {
+            const v = verses.find(x => x.ayat === ayat);
+            if (v) textParts.push(sortedSelected.length > 1 ? `[${ayat}] ${v.teks}` : v.teks);
+        }
+        let ranges = [];
+        let start = sortedSelected[0];
+        let end = start;
+        for (let i = 1; i < sortedSelected.length; i++) {
+            if (sortedSelected[i] === end + 1) {
+                end = sortedSelected[i];
+            } else {
+                ranges.push(start === end ? `${start}` : `${start}-${end}`);
+                start = sortedSelected[i];
+                end = start;
+            }
+        }
+        ranges.push(start === end ? `${start}` : `${start}-${end}`);
+        const ayatString = ranges.join(', ');
+        setCardModalData({
+            isOpen: true,
+            reference: `${selectedBook.nama} ${selectedChapter}:${ayatString}`,
+            verseText: textParts.join(' '),
+            subtitle: 'SABDA TUHAN • ALKITAB TB'
+        });
+    };
+
+    const toggleBibleYearDay = (dayNum) => {
+        setBibleYearDone(prev => {
+            const next = prev.includes(dayNum) ? prev.filter(d => d !== dayNum) : [...prev, dayNum];
+            try {
+                localStorage.setItem('PISGAH_BIBLE_YEAR_DONE', JSON.stringify(next));
+            } catch (e) { }
+            return next;
+        });
+    };
     const [fontSize, setFontSize] = React.useState(() => {
         try {
             const saved = parseInt(localStorage.getItem('PISGAH_ALKITAB_FONT_SIZE'), 10);
@@ -13841,71 +14546,155 @@ const Alkitab = ({ setHideGlobalBack }) => {
         );
     };
 
-    const renderDropdowns = () => (
-        <div className="flex-1 w-full flex flex-row items-center gap-1.5 sm:gap-2 bg-white dark:bg-navy-900 px-2 sm:px-3 py-1.5 rounded-2xl shadow-sm border border-navy-100 dark:border-navy-800">
-            {/* KITAB */}
-            <div className="flex-[1.4] min-w-[75px] sm:min-w-[110px]">
-                <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Kitab</label>
-                <select
-                    value={selectedBook?.id || ''}
-                    onChange={(e) => {
-                        const newBook = ALKITAB_BOOKS.find(b => b.id === parseInt(e.target.value));
-                        setSelectedBook(newBook);
-                        setSelectedChapter(1);
-                        setSelectedAyat('');
-                    }}
-                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer truncate"
-                >
-                    <option value="" disabled>Pilih Kitab...</option>
-                    {ALKITAB_BOOKS.map(b => (
-                        <option key={b.id} value={b.id}>{b.nama}</option>
-                    ))}
-                </select>
-            </div>
+    const renderDropdowns = () => {
+        const activeBookObj = selectedBook || ALKITAB_BOOKS.find(b => b.id === currentBookChapter?.bookId) || null;
+        const activeChapterVal = selectedBook ? (selectedChapter || '') : (currentBookChapter?.chapter || '');
+        return (
+            <div className="flex-1 w-full flex flex-row items-center gap-1.5 sm:gap-2 bg-white dark:bg-navy-900 px-2 sm:px-3 py-1.5 rounded-2xl shadow-sm border border-navy-100 dark:border-navy-800">
+                {/* KITAB */}
+                <div className="flex-[1.4] min-w-[75px] sm:min-w-[110px]">
+                    <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Kitab</label>
+                    <select
+                        value={activeBookObj?.id || ''}
+                        onChange={(e) => {
+                            const newBook = ALKITAB_BOOKS.find(b => b.id === parseInt(e.target.value));
+                            if (newBook) {
+                                setSelectedBook(newBook);
+                                setSelectedChapter(1);
+                                setSelectedAyat('');
+                            }
+                        }}
+                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer truncate"
+                    >
+                        <option value="" disabled>Pilih Kitab...</option>
+                        {ALKITAB_BOOKS.map(b => (
+                            <option key={b.id} value={b.id}>{b.nama}</option>
+                        ))}
+                    </select>
+                </div>
 
-            {/* PASAL */}
-            <div className="flex-1 min-w-[50px] sm:min-w-[65px]">
-                <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Pasal</label>
-                <select
-                    value={selectedChapter || ''}
-                    onChange={(e) => {
-                        setSelectedChapter(parseInt(e.target.value));
-                        setSelectedAyat('');
-                    }}
-                    disabled={!selectedBook}
-                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <option value="" disabled>--</option>
-                    {selectedBook && Array.from({ length: selectedBook.pasal }, (_, i) => i + 1).map(ch => (
-                        <option key={ch} value={ch}>{ch}</option>
-                    ))}
-                </select>
-            </div>
+                {/* PASAL */}
+                <div className="flex-1 min-w-[50px] sm:min-w-[65px]">
+                    <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Pasal</label>
+                    <select
+                        value={activeChapterVal}
+                        onChange={(e) => {
+                            const chNum = parseInt(e.target.value);
+                            if (!selectedBook && activeBookObj) {
+                                setSelectedBook(activeBookObj);
+                            }
+                            setSelectedChapter(chNum);
+                            setSelectedAyat('');
+                        }}
+                        disabled={!activeBookObj}
+                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <option value="" disabled>--</option>
+                        {activeBookObj && Array.from({ length: activeBookObj.pasal }, (_, i) => i + 1).map(ch => (
+                            <option key={ch} value={ch}>{ch}</option>
+                        ))}
+                    </select>
+                </div>
 
-            {/* AYAT */}
-            <div className="flex-1 min-w-[50px] sm:min-w-[65px]">
-                <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Ayat</label>
-                <select
-                    value={selectedAyat || ''}
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        if (val) scrollToVerse(val);
-                    }}
-                    disabled={!selectedChapter || verses.length === 0}
-                    className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <option value="">--</option>
-                    {verses.filter(v => v.type === 'content').map(v => (
-                        <option key={`opt-${v.ayat}`} value={v.ayat}>{v.ayat}</option>
-                    ))}
-                </select>
+                {/* AYAT */}
+                <div className="flex-1 min-w-[50px] sm:min-w-[65px]">
+                    <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Ayat</label>
+                    <select
+                        value={selectedAyat || ''}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            if (val) scrollToVerse(val);
+                        }}
+                        disabled={!selectedChapter || verses.length === 0}
+                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <option value="">--</option>
+                        {verses.filter(v => v.type === 'content').map(v => (
+                            <option key={`opt-${v.ayat}`} value={v.ayat}>{v.ayat}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
-        </div>
+        );
+    };
+
+    const savedHighlightsList = React.useMemo(() => {
+        return Object.values(highlightsMap || {}).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    }, [highlightsMap]);
+
+    const filteredSavedHighlights = React.useMemo(() => {
+        return savedHighlightsList.filter(item => {
+            if (savedColorFilter === 'all') return true;
+            if (savedColorFilter === 'notes') return Boolean(item.note && item.note.trim());
+            return item.color === savedColorFilter;
+        });
+    }, [savedHighlightsList, savedColorFilter]);
+
+    const todayDayOfYear = React.useMemo(() => getCurrentDayOfYear365(), []);
+    const calendarPlanItem = React.useMemo(() => BIBLE_YEAR_365_PLAN[todayDayOfYear - 1] || BIBLE_YEAR_365_PLAN[0], [todayDayOfYear]);
+    const activePlanItem = React.useMemo(() => {
+        if (currentBookChapter?.bookId && currentBookChapter?.chapter) {
+            const matched = BIBLE_YEAR_365_PLAN.find(item =>
+                item.chapters.some(ch => ch.bookId === currentBookChapter.bookId && ch.chapter === currentBookChapter.chapter)
+            );
+            if (matched) return matched;
+        }
+        return calendarPlanItem;
+    }, [currentBookChapter, calendarPlanItem]);
+    const bibleYearPct = Math.round((bibleYearDone.length / 365) * 100);
+
+    const renderAlkitabModals = () => (
+        <>
+            {noteModal && createPortal(
+                <div className="fixed inset-0 z-[9998] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in" onClick={() => setNoteModal(null)}>
+                    <div className="bg-white dark:bg-navy-900 border border-navy-100 dark:border-navy-700 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between pb-3 mb-3 border-b border-navy-100 dark:border-navy-800">
+                            <div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gold-600 dark:text-gold-400 block">Renungan & Catatan Pribadi</span>
+                                <h3 className="text-base font-black text-navy-900 dark:text-white">{noteModal.refLabel}</h3>
+                            </div>
+                            <button onClick={() => setNoteModal(null)} className="w-8 h-8 rounded-full bg-navy-50 dark:bg-navy-800 text-navy-500 hover:text-red-500 flex items-center justify-center font-bold cursor-pointer">✕</button>
+                        </div>
+                        {noteModal.textPreview && (
+                            <p className="text-xs italic text-navy-600 dark:text-navy-300 bg-navy-50/70 dark:bg-navy-800/60 p-3 rounded-xl border-l-3 border-gold-500 mb-3 line-clamp-3">
+                                "{noteModal.textPreview}"
+                            </p>
+                        )}
+                        <form onSubmit={handleSaveVerseNote} className="space-y-3">
+                            <div>
+                                <label className="text-[11px] font-black uppercase tracking-wider text-navy-500 dark:text-navy-300 block mb-1.5">Tulis Catatan / Renungan Ayat</label>
+                                <textarea
+                                    rows="4"
+                                    autoFocus
+                                    value={noteInputText}
+                                    onChange={(e) => setNoteInputText(e.target.value)}
+                                    placeholder="Tulis berkat rohani, poin khotbah, atau doa dari ayat ini..."
+                                    className="w-full p-3 rounded-xl bg-navy-50 dark:bg-navy-800 border border-navy-200 dark:border-navy-700 text-xs sm:text-sm font-medium text-navy-900 dark:text-white outline-none focus:border-gold-500 resize-none"
+                                />
+                            </div>
+                            <div className="flex items-center justify-end gap-2 pt-2">
+                                <button type="button" onClick={() => setNoteModal(null)} className="px-4 py-2 rounded-xl bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-300 text-xs font-bold cursor-pointer">Batal</button>
+                                <button type="submit" className="px-5 py-2 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 text-xs font-black shadow-sm cursor-pointer">Simpan Catatan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>,
+                document.body
+            )}
+            <VerseImageCardModal
+                isOpen={cardModalData.isOpen}
+                onClose={() => setCardModalData(prev => ({ ...prev, isOpen: false }))}
+                reference={cardModalData.reference}
+                verseText={cardModalData.verseText}
+                subtitle={cardModalData.subtitle}
+            />
+        </>
     );
 
     if (!selectedBook) {
         return (
             <div className="animate-fade-in pb-10">
+                {renderAlkitabModals()}
                 <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-3 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 flex flex-col gap-2.5 transition-all">
                     <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
                         <button
@@ -13937,6 +14726,41 @@ const Alkitab = ({ setHideGlobalBack }) => {
                             </button>
                         )}
                     </form>
+
+                    {/* Tab Navigasi Fitur Alkitab (Daftar Kitab | Stabilo & Tersimpan | Rencana Baca 1 Tahun) */}
+                    <div className="grid grid-cols-3 gap-1.5 sm:gap-2 bg-navy-100/70 dark:bg-navy-900/90 p-1 rounded-2xl border border-navy-200/60 dark:border-navy-800">
+                        <button
+                            type="button"
+                            onClick={() => { setAlkitabHomeTab('books'); setSearchResults(null); }}
+                            className={`py-2 px-2 sm:px-3 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${alkitabHomeTab === 'books' ? 'bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-sm' : 'text-navy-600 dark:text-navy-300 hover:text-navy-900'}`}
+                        >
+                            <Icon name="Book" className="w-3.5 h-3.5 text-gold-500 shrink-0" />
+                            <span className="truncate">66 Kitab</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setAlkitabHomeTab('saved'); setSearchResults(null); }}
+                            className={`py-2 px-2 sm:px-3 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${alkitabHomeTab === 'saved' ? 'bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-sm' : 'text-navy-600 dark:text-navy-300 hover:text-navy-900'}`}
+                        >
+                            <Icon name="Bookmark" className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                            <span className="truncate">Stabilo ({savedHighlightsList.length})</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setAlkitabHomeTab('bible_year');
+                                setSearchResults(null);
+                                if (activePlanItem?.month) {
+                                    setPlanFilterMode('month');
+                                    setSelectedPlanMonth(activePlanItem.month);
+                                }
+                            }}
+                            className={`py-2 px-2 sm:px-3 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${alkitabHomeTab === 'bible_year' ? 'bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-sm' : 'text-navy-600 dark:text-navy-300 hover:text-navy-900'}`}
+                        >
+                            <Icon name="Calendar" className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                            <span className="truncate">Rencana Baca ({bibleYearPct}%)</span>
+                        </button>
+                    </div>
                 </div>
                 <div className="mt-6">
                     {searchResults ? (
@@ -13972,6 +14796,319 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                     })}
                                 </div>
                             )}
+                        </div>
+                    ) : alkitabHomeTab === 'saved' ? (
+                        <div className="space-y-4">
+                            <div className="bg-white dark:bg-navy-900 rounded-2xl p-4 sm:p-5 border border-navy-100 dark:border-navy-800 shadow-sm">
+                                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                    <div>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-gold-600 dark:text-gold-400 block">Koleksi Pribadi Jemaat</span>
+                                        <h3 className="text-base sm:text-lg font-black text-navy-900 dark:text-white flex items-center gap-2">
+                                            <Icon name="Bookmark" className="w-5 h-5 text-gold-500" />
+                                            Ayat Tersimpan, Stabilo & Catatan
+                                        </h3>
+                                    </div>
+                                    <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-gold-50 dark:bg-gold-500/15 text-gold-700 dark:text-gold-300 border border-gold-200 dark:border-gold-500/30">
+                                        {savedHighlightsList.length} Ayat Ditandai
+                                    </span>
+                                </div>
+
+                                {/* Filter Warna Stabilo */}
+                                <div className="relative flex items-center gap-1 min-w-0 max-w-full">
+                                    <div
+                                        ref={savedFilterScrollRef}
+                                        className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 min-w-0 flex-1 scroll-smooth"
+                                        style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', overscrollBehaviorX: 'contain' }}
+                                        onTouchStart={(e) => e.stopPropagation()}
+                                        onTouchMove={(e) => e.stopPropagation()}
+                                    >
+                                        <button
+                                            onClick={() => setSavedColorFilter('all')}
+                                            className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${savedColorFilter === 'all' ? 'bg-navy-900 text-gold-400 dark:bg-gold-500 dark:text-navy-950' : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300'}`}
+                                        >
+                                            Semua ({savedHighlightsList.length})
+                                        </button>
+                                        {Object.values(HIGHLIGHT_PALETTE).map(pal => {
+                                            const count = savedHighlightsList.filter(x => x.color === pal.id).length;
+                                            return (
+                                                <button
+                                                    key={pal.id}
+                                                    onClick={() => setSavedColorFilter(pal.id)}
+                                                    className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 flex items-center gap-1.5 border transition cursor-pointer ${savedColorFilter === pal.id ? pal.chipBg + ' ring-2 ring-gold-400/40 font-black' : 'bg-white dark:bg-navy-800 text-navy-600 dark:text-navy-300 border-navy-100 dark:border-navy-700'}`}
+                                                >
+                                                    <span className={`w-2.5 h-2.5 rounded-full ${pal.dotClass}`} />
+                                                    <span>{pal.label} ({count})</span>
+                                                </button>
+                                            );
+                                        })}
+                                        <button
+                                            onClick={() => setSavedColorFilter('notes')}
+                                            className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${savedColorFilter === 'notes' ? 'bg-navy-900 text-gold-400 dark:bg-gold-500 dark:text-navy-950' : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300'}`}
+                                        >
+                                            📝 Ada Catatan ({savedHighlightsList.filter(x => x.note && x.note.trim()).length})
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {filteredSavedHighlights.length === 0 ? (
+                                <div className="bg-white dark:bg-navy-900 rounded-2xl p-8 text-center border border-navy-100 dark:border-navy-800">
+                                    <Icon name="Bookmark" className="w-10 h-10 text-navy-300 mx-auto mb-2" />
+                                    <p className="font-bold text-navy-700 dark:text-navy-200 text-sm">Belum ada ayat yang distabilo atau disimpan pada kategori ini.</p>
+                                    <p className="text-xs text-navy-400 mt-1">Buka salah satu kitab & pasal, ketuk ayat yang ingin ditandai, lalu pilih warna Stabilo atau Catatan di bagian bawah layar.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {filteredSavedHighlights.map(item => {
+                                        const pal = HIGHLIGHT_PALETTE[item.color] || HIGHLIGHT_PALETTE.gold;
+                                        return (
+                                            <div key={item.key} className={`rounded-2xl p-4 transition-all ${pal.verseBg} bg-white dark:bg-navy-800`}>
+                                                <div className="flex items-center justify-between gap-2 mb-2">
+                                                    <button
+                                                        onClick={() => processDirectTarget({ bookName: item.bookName, bookId: item.bookId, chapter: item.chapter, verse: item.ayat })}
+                                                        className="inline-flex items-center gap-1.5 font-black text-xs sm:text-sm text-navy-900 dark:text-white hover:text-gold-600 dark:hover:text-gold-400 cursor-pointer"
+                                                    >
+                                                        <span className={`w-2.5 h-2.5 rounded-full ${pal.dotClass}`} />
+                                                        <span>{item.bookName} {item.chapter}:{item.ayat}</span>
+                                                        <Icon name="ArrowRight" className="w-3.5 h-3.5 opacity-60" />
+                                                    </button>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <button
+                                                            onClick={() => setCardModalData({
+                                                                isOpen: true,
+                                                                reference: `${item.bookName} ${item.chapter}:${item.ayat}`,
+                                                                verseText: item.teks,
+                                                                subtitle: 'AYAT PILIHAN • ALKITAB TB'
+                                                            })}
+                                                            className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-navy-900/90 hover:bg-gold-50 text-amber-800 dark:text-gold-300 text-[11px] font-extrabold border border-amber-300/70 dark:border-gold-500/30 flex items-center gap-1 cursor-pointer"
+                                                            title="Buat Kartu Gambar Status WA"
+                                                        >
+                                                            <Icon name="Sparkles" className="w-3 h-3 text-gold-500" />
+                                                            <span>Kartu Gambar</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setNoteInputText(item.note || '');
+                                                                setNoteModal({
+                                                                    singleKey: item.key,
+                                                                    refLabel: `${item.bookName} ${item.chapter}:${item.ayat}`,
+                                                                    textPreview: item.teks
+                                                                });
+                                                            }}
+                                                            className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-navy-900/90 hover:bg-navy-50 text-navy-700 dark:text-navy-200 text-[11px] font-bold border border-navy-200 dark:border-navy-700 cursor-pointer"
+                                                            title="Tambah / Edit Catatan"
+                                                        >
+                                                            📝 Catatan
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteSavedHighlight(item.key)}
+                                                            className="p-1.5 rounded-lg bg-white/80 dark:bg-navy-900/80 hover:bg-red-50 text-navy-400 hover:text-red-500 border border-navy-100 dark:border-navy-700 cursor-pointer"
+                                                            title="Hapus Stabilo"
+                                                        >
+                                                            <Icon name="Trash" className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <p
+                                                    onClick={() => processDirectTarget({ bookName: item.bookName, bookId: item.bookId, chapter: item.chapter, verse: item.ayat })}
+                                                    className="text-sm text-navy-900 dark:text-navy-100 leading-relaxed cursor-pointer"
+                                                >
+                                                    "{item.teks}"
+                                                </p>
+                                                {item.note && (
+                                                    <div className="mt-2.5 p-2.5 rounded-xl bg-white/80 dark:bg-navy-950/70 border border-navy-200/60 dark:border-navy-700 text-xs text-navy-700 dark:text-gold-200">
+                                                        <span className="font-black uppercase tracking-wider text-[10px] text-gold-600 dark:text-gold-400 block mb-0.5">📝 Catatan Pribadi:</span>
+                                                        {item.note}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    ) : alkitabHomeTab === 'bible_year' ? (
+                        <div className="space-y-4">
+                            {/* Kartu Bacaan Hari Ini & Progress Tahunan */}
+                            <div className="bg-gradient-to-br from-[#1C3318] via-[#254221] to-[#132411] text-white rounded-3xl p-5 sm:p-6 shadow-xl border border-emerald-500/30">
+                                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                    <div>
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-[10px] font-black uppercase tracking-widest mb-1.5">
+                                            📅 Program Tahun Alkitab (Bible Year • 365 Hari)
+                                        </span>
+                                        <h3 className="text-lg sm:text-xl font-black text-white">
+                                            Bacaan Hari Ini ({activePlanItem.dateLabel} • Hari ke-{activePlanItem.day})
+                                        </h3>
+                                        <p className="text-xs sm:text-sm text-emerald-200 font-bold mt-0.5">
+                                            Pasal Saat Ini: <span className="text-gold-300 font-black">{currentBookChapter.bookName} {currentBookChapter.chapter}</span>
+                                            <span className="mx-1.5 opacity-60">•</span>
+                                            Target Harian: <span className="text-gold-300 font-black">{activePlanItem.label}</span>
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => toggleBibleYearDay(activePlanItem.day)}
+                                        className={`px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm flex items-center gap-2 transition shadow-md cursor-pointer ${bibleYearDone.includes(activePlanItem.day) ? 'bg-emerald-500 text-white border border-emerald-300' : 'bg-gold-500 hover:bg-gold-400 text-navy-950'}`}
+                                    >
+                                        <Icon name="CheckCircle" className="w-4 h-4" />
+                                        <span>{bibleYearDone.includes(activePlanItem.day) ? 'Selesai Dibaca Hari Ini ✅' : 'Tandai Selesai Hari Ini'}</span>
+                                    </button>
+                                </div>
+
+                                {/* Tombol Cepat Buka Pasal Hari Ini (Sinkron dengan Pasal Buku Saat Ini) */}
+                                <div className="flex flex-wrap items-center gap-2 mb-4">
+                                    <span className="text-[11px] font-bold text-emerald-200/90 mr-1">Buka langsung pasal hari ini:</span>
+                                    {activePlanItem.chapters.map((ch, idx) => {
+                                        const isCurrentCh = ch.bookId === currentBookChapter?.bookId && ch.chapter === currentBookChapter?.chapter;
+                                        return (
+                                            <button
+                                                key={idx}
+                                                onClick={() => processDirectTarget({ bookName: ch.bookName, bookId: ch.bookId, chapter: ch.chapter, verse: 1 })}
+                                                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold border transition cursor-pointer flex items-center gap-1 ${isCurrentCh ? 'bg-gold-500 text-navy-950 border-gold-300 shadow-md ring-2 ring-gold-300/60' : 'bg-white/15 hover:bg-gold-500 hover:text-navy-950 text-white border-white/20'}`}
+                                                title={isCurrentCh ? `Pasal Buku Saat Ini: ${ch.bookName} ${ch.chapter}` : `Buka ${ch.bookName} ${ch.chapter}`}
+                                            >
+                                                <Icon name="BookOpen" className="w-3.5 h-3.5" />
+                                                <span>{ch.bookName} {ch.chapter}</span>
+                                                {isCurrentCh && <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-navy-950/20 ml-0.5">Saat Ini</span>}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Progress Bar Tahunan */}
+                                <div className="bg-black/25 rounded-2xl p-3.5 border border-white/10">
+                                    <div className="flex items-center justify-between text-xs font-bold mb-1.5">
+                                        <span className="text-emerald-100">Progres Ketuntasan Baca Alkitab 1 Tahun</span>
+                                        <span className="text-gold-300 font-black">{bibleYearDone.length} / 365 Hari ({bibleYearPct}%)</span>
+                                    </div>
+                                    <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-gold-400 to-emerald-400 rounded-full transition-all duration-500"
+                                            style={{ width: `${Math.max(2, bibleYearPct)}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Filter Bulan Rencana Baca (Bisa di-slide horizontal di Mobile & dengan tombol geser) */}
+                            <div className="bg-white dark:bg-navy-900 rounded-2xl p-3 sm:p-4 border border-navy-100 dark:border-navy-800 shadow-sm min-w-0 max-w-full">
+                                <div className="flex items-center justify-between mb-2 px-1">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-navy-400 dark:text-navy-400">
+                                        Pilih Bulan / Status Bacaan (Geser ➔)
+                                    </span>
+                                    <div className="flex items-center gap-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => scrollHorizontalBar(planMonthScrollRef, -1)}
+                                            className="w-6 h-6 rounded-lg bg-navy-50 dark:bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-navy-600 dark:text-navy-300 flex items-center justify-center text-xs font-black cursor-pointer active:scale-95 transition"
+                                            aria-label="Geser Kiri"
+                                            title="Geser Kiri"
+                                        >
+                                            ‹
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => scrollHorizontalBar(planMonthScrollRef, 1)}
+                                            className="w-6 h-6 rounded-lg bg-navy-50 dark:bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-navy-600 dark:text-navy-300 flex items-center justify-center text-xs font-black cursor-pointer active:scale-95 transition"
+                                            aria-label="Geser Kanan"
+                                            title="Geser Kanan"
+                                        >
+                                            ›
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    ref={planMonthScrollRef}
+                                    className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 min-w-0 w-full scroll-smooth select-none"
+                                    style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', overscrollBehaviorX: 'contain' }}
+                                    onTouchStart={(e) => e.stopPropagation()}
+                                    onTouchMove={(e) => e.stopPropagation()}
+                                >
+                                    {BIBLE_YEAR_MONTH_NAMES.map((mName, mIdx) => {
+                                        const mNum = mIdx + 1;
+                                        const isActive = planFilterMode === 'month' && selectedPlanMonth === mNum;
+                                        return (
+                                            <button
+                                                key={mName}
+                                                type="button"
+                                                data-active-month={isActive ? 'true' : 'false'}
+                                                onClick={() => { setPlanFilterMode('month'); setSelectedPlanMonth(mNum); }}
+                                                className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${isActive ? 'bg-gold-500 text-navy-950 font-black shadow-2xs' : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300 hover:bg-navy-100'}`}
+                                            >
+                                                {mName}
+                                            </button>
+                                        );
+                                    })}
+                                    <button
+                                        type="button"
+                                        onClick={() => setPlanFilterMode('unread')}
+                                        className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${planFilterMode === 'unread' ? 'bg-amber-500 text-navy-950 font-black' : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300'}`}
+                                    >
+                                        Belum Dibaca ({365 - bibleYearDone.length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPlanFilterMode('completed')}
+                                        className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${planFilterMode === 'completed' ? 'bg-emerald-600 text-white font-black' : 'bg-navy-50 dark:bg-navy-800 text-navy-600 dark:text-navy-300'}`}
+                                    >
+                                        Selesai ({bibleYearDone.length})
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Daftar Hari Rencana Baca */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {BIBLE_YEAR_365_PLAN.filter(item => {
+                                    if (planFilterMode === 'unread') return !bibleYearDone.includes(item.day);
+                                    if (planFilterMode === 'completed') return bibleYearDone.includes(item.day);
+                                    return item.month === selectedPlanMonth;
+                                }).map(item => {
+                                    const isDone = bibleYearDone.includes(item.day);
+                                    const isToday = item.day === activePlanItem.day;
+                                    return (
+                                        <div
+                                            key={item.day}
+                                            className={`rounded-2xl p-3.5 border transition flex flex-col justify-between gap-2.5 ${isDone ? 'bg-emerald-50/60 dark:bg-emerald-950/25 border-emerald-300/80 dark:border-emerald-700/50' : isToday ? 'bg-gold-50/70 dark:bg-gold-500/10 border-2 border-gold-400 shadow-sm' : 'bg-white dark:bg-navy-900 border-navy-100 dark:border-navy-800'}`}
+                                        >
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-navy-100 dark:bg-navy-800 text-navy-700 dark:text-gold-300">
+                                                            Hari {item.day} • {item.dateLabel}
+                                                        </span>
+                                                        {isToday && (
+                                                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-gold-500 text-navy-950">
+                                                                Hari Ini
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="font-black text-sm sm:text-base text-navy-900 dark:text-white mt-1">
+                                                        {item.label}
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => toggleBibleYearDay(item.day)}
+                                                    className={`px-2.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1 shrink-0 transition cursor-pointer ${isDone ? 'bg-emerald-600 text-white' : 'bg-navy-50 dark:bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-navy-600 dark:text-navy-300 border border-navy-200 dark:border-navy-700'}`}
+                                                    title={isDone ? 'Batal Tandai Selesai' : 'Tandai Sudah Dibaca'}
+                                                >
+                                                    <Icon name="Check" className="w-3.5 h-3.5" />
+                                                    <span>{isDone ? 'Selesai' : 'Tandai'}</span>
+                                                </button>
+                                            </div>
+                                            <div className="flex flex-wrap gap-1.5 pt-1 border-t border-navy-100/60 dark:border-navy-800">
+                                                {item.chapters.map((ch, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={() => processDirectTarget({ bookName: ch.bookName, bookId: ch.bookId, chapter: ch.chapter, verse: 1 })}
+                                                        className="px-2.5 py-1 rounded-lg bg-navy-50 dark:bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-navy-700 dark:text-navy-200 text-[11px] font-bold transition cursor-pointer"
+                                                    >
+                                                        📖 {ch.singkat} {ch.chapter}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     ) : (
                         <>
@@ -14039,7 +15176,8 @@ const Alkitab = ({ setHideGlobalBack }) => {
 
     if (selectedBook && selectedChapter) {
         return (
-            <div className="animate-fade-in pb-36 sm:pb-40 md:pb-24">
+            <div className="animate-fade-in pb-44 sm:pb-48 md:pb-32">
+                {renderAlkitabModals()}
                 {/* Sticky Header: Tombol Panah (Kiri), Kotak Kitab (Tengah), Tombol Home (Kanan) */}
                 <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 transition-all">
                     <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
@@ -14181,6 +15319,9 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                     }
                                     const isSelected = selectedVerses.has(a.ayat);
                                     const isPlayingThis = activePlayingAyat === a.ayat;
+                                    const vKey = `${selectedBook.id}_${selectedChapter}_${a.ayat}`;
+                                    const hl = highlightsMap[vKey];
+                                    const pal = hl ? (HIGHLIGHT_PALETTE[hl.color] || HIGHLIGHT_PALETTE.gold) : null;
                                     return (
                                         <div
                                             key={a.ayat}
@@ -14188,10 +15329,12 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                             style={{ scrollMarginTop: '160px' }}
                                             onClick={() => toggleVerse(a.ayat)}
                                             className={`flex gap-3 sm:gap-4 items-start group transition-all duration-300 rounded-[1.25rem] p-3 md:p-4 -mx-3 md:-mx-4 cursor-pointer select-none ${isSelected
-                                                ? 'bg-gold-50 dark:bg-gold-500/10 shadow-sm border border-gold-200 dark:border-gold-500/30'
+                                                ? 'bg-gold-50 dark:bg-gold-500/15 shadow-sm border-2 border-gold-400 dark:border-gold-500/60 ring-2 ring-gold-400/20'
                                                 : isPlayingThis
                                                     ? 'bg-gold-100/80 dark:bg-gold-500/20 shadow-md border-2 border-gold-400 dark:border-gold-500 ring-2 ring-gold-400/30'
-                                                    : 'hover:bg-navy-50/70 dark:hover:bg-navy-800/60 border border-transparent'
+                                                    : pal
+                                                        ? pal.verseBg
+                                                        : 'hover:bg-navy-50/70 dark:hover:bg-navy-800/60 border border-transparent'
                                                 }`}
                                         >
                                             <span
@@ -14199,7 +15342,9 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                                     ? 'bg-[#D19B45] text-white'
                                                     : isPlayingThis
                                                         ? 'bg-gold-500 text-white animate-pulse'
-                                                        : 'text-navy-500 bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700'
+                                                        : pal
+                                                            ? pal.badgeBg
+                                                            : 'text-navy-500 bg-white dark:bg-navy-800 border border-navy-100 dark:border-navy-700'
                                                     }`}
                                                 style={{ fontSize: Math.max(10, fontSize - 6) + 'px', width: '2.5em', height: '2.5em', marginTop: '0.25em' }}
                                             >
@@ -14209,9 +15354,29 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                                     a.ayat
                                                 )}
                                             </span>
-                                            <p className="text-navy-800 dark:text-navy-100 leading-relaxed transition-all flex-1" style={{ fontSize: fontSize + 'px' }}>
-                                                {a.teks}
-                                            </p>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-navy-800 dark:text-navy-100 leading-relaxed transition-all" style={{ fontSize: fontSize + 'px' }}>
+                                                    {a.teks}
+                                                </p>
+                                                {hl && hl.note && (
+                                                    <div
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setNoteInputText(hl.note || '');
+                                                            setNoteModal({
+                                                                singleKey: vKey,
+                                                                refLabel: `${selectedBook.nama} ${selectedChapter}:${a.ayat}`,
+                                                                textPreview: a.teks
+                                                            });
+                                                        }}
+                                                        className="mt-2 p-2.5 rounded-xl bg-white/85 dark:bg-navy-950/75 border border-navy-200/70 dark:border-navy-700 text-xs text-navy-700 dark:text-gold-200 hover:border-gold-400 transition"
+                                                        title="Klik untuk mengedit catatan"
+                                                    >
+                                                        <span className="font-black uppercase tracking-wider text-[10px] text-gold-600 dark:text-gold-400 block mb-0.5">📝 Catatan Pribadi:</span>
+                                                        {hl.note}
+                                                    </div>
+                                                )}
+                                            </div>
 
                                             {/* Tombol Dengarkan Ayat Ini Cepat */}
                                             <button
@@ -14298,108 +15463,171 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     )}
 
                     {/* Toolbar Pemutar Audio Mengambang (Floating Audio Player) */}
-                    {ttsState !== 'idle' && (
-                        <div className="fixed floating-alkitab-bar left-0 right-0 z-[48] flex justify-center px-3 sm:px-4 pointer-events-none animate-slide-up">
-                            <div className="pointer-events-auto bg-navy-950/95 dark:bg-navy-900/95 backdrop-blur-md text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl sm:rounded-full shadow-2xl border border-gold-500/40 flex items-center gap-2 sm:gap-4 max-w-lg w-full justify-between">
-                                {/* Info Ayat Aktif */}
-                                <div
-                                    onClick={() => activePlayingAyat && scrollToVerse(activePlayingAyat)}
-                                    className="flex items-center gap-2 min-w-0 cursor-pointer group"
-                                    title="Klik untuk menuju posisi ayat"
-                                >
-                                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gold-500/20 flex items-center justify-center shrink-0 border border-gold-500/40">
-                                        <Icon name="Volume2" className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-400 ${ttsState === 'playing' ? 'animate-pulse' : ''}`} />
-                                    </div>
-                                    <div className="truncate max-w-[130px] sm:max-w-[220px]">
-                                        <div className="text-[9px] sm:text-[10px] uppercase font-black tracking-wider text-gold-400 truncate">
-                                            {ttsState === 'playing' ? 'Sedang Membaca' : 'Audio Dijeda'}
+                    {ttsState !== 'idle' && createPortal(
+                        <>
+                            <style>{`
+                                .floating-alkitab-bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 100px) !important; }
+                                @media (min-width: 768px) { .floating-alkitab-bar { bottom: 24px !important; } }
+                                .floating-quick-actions-container { opacity: 0 !important; pointer-events: none !important; transform: translateY(40px) !important; }
+                            `}</style>
+                            <div className="fixed floating-alkitab-bar left-0 right-0 z-[54] flex justify-center px-3 sm:px-4 pointer-events-none animate-slide-up">
+                                <div className="pointer-events-auto bg-navy-950/95 dark:bg-navy-900/95 backdrop-blur-md text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl sm:rounded-full shadow-2xl border border-gold-500/40 flex items-center gap-2 sm:gap-4 max-w-lg w-full justify-between">
+                                    {/* Info Ayat Aktif */}
+                                    <div
+                                        onClick={() => activePlayingAyat && scrollToVerse(activePlayingAyat)}
+                                        className="flex items-center gap-2 min-w-0 cursor-pointer group"
+                                        title="Klik untuk menuju posisi ayat"
+                                    >
+                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gold-500/20 flex items-center justify-center shrink-0 border border-gold-500/40">
+                                            <Icon name="Volume2" className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold-400 ${ttsState === 'playing' ? 'animate-pulse' : ''}`} />
                                         </div>
-                                        <div className="text-[11px] sm:text-xs font-bold text-white group-hover:text-gold-300 transition-colors truncate">
-                                            {selectedBook.nama} {selectedChapter}{activePlayingAyat ? ` : Ayat ${activePlayingAyat}` : ''}
+                                        <div className="truncate max-w-[130px] sm:max-w-[220px]">
+                                            <div className="text-[9px] sm:text-[10px] uppercase font-black tracking-wider text-gold-400 truncate">
+                                                {ttsState === 'playing' ? 'Sedang Membaca' : 'Audio Dijeda'}
+                                            </div>
+                                            <div className="text-[11px] sm:text-xs font-bold text-white group-hover:text-gold-300 transition-colors truncate">
+                                                {selectedBook.nama} {selectedChapter}{activePlayingAyat ? ` : Ayat ${activePlayingAyat}` : ''}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* Controls */}
-                                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-                                    {/* Prev Verse */}
-                                    <button
-                                        onClick={handlePrevAudioVerse}
-                                        className="p-1.5 sm:p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition cursor-pointer"
-                                        title="Ayat Sebelumnya"
-                                    >
-                                        <Icon name="SkipBack" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                    </button>
+                                    {/* Controls */}
+                                    <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                                        {/* Prev Verse */}
+                                        <button
+                                            onClick={handlePrevAudioVerse}
+                                            className="p-1.5 sm:p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition cursor-pointer"
+                                            title="Ayat Sebelumnya"
+                                        >
+                                            <Icon name="SkipBack" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                        </button>
 
-                                    {/* Play / Pause */}
-                                    <button
-                                        onClick={handleToggleChapterTTS}
-                                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gold-500 hover:bg-gold-400 active:scale-95 text-navy-950 flex items-center justify-center font-black transition shadow-md cursor-pointer"
-                                        title={ttsState === 'playing' ? "Jeda" : "Lanjutkan"}
-                                    >
-                                        <Icon name={ttsState === 'playing' ? "Pause" : "Play"} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
-                                    </button>
+                                        {/* Play / Pause */}
+                                        <button
+                                            onClick={handleToggleChapterTTS}
+                                            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gold-500 hover:bg-gold-400 active:scale-95 text-navy-950 flex items-center justify-center font-black transition shadow-md cursor-pointer"
+                                            title={ttsState === 'playing' ? "Jeda" : "Lanjutkan"}
+                                        >
+                                            <Icon name={ttsState === 'playing' ? "Pause" : "Play"} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
+                                        </button>
 
-                                    {/* Next Verse */}
-                                    <button
-                                        onClick={handleNextAudioVerse}
-                                        className="p-1.5 sm:p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition cursor-pointer"
-                                        title="Ayat Berikutnya"
-                                    >
-                                        <Icon name="SkipForward" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                    </button>
+                                        {/* Next Verse */}
+                                        <button
+                                            onClick={handleNextAudioVerse}
+                                            className="p-1.5 sm:p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition cursor-pointer"
+                                            title="Ayat Berikutnya"
+                                        >
+                                            <Icon name="SkipForward" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                        </button>
 
-                                    {/* Speed Toggle */}
-                                    <button
-                                        onClick={handleToggleTtsRate}
-                                        className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[9px] sm:text-xs font-black text-gold-300 transition cursor-pointer"
-                                        title="Ubah Kecepatan Suara (0.8x, 0.9x, 1x, 1.15x, 1.2x)"
-                                    >
-                                        {ttsRate}x
-                                    </button>
+                                        {/* Speed Toggle */}
+                                        <button
+                                            onClick={handleToggleTtsRate}
+                                            className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[9px] sm:text-xs font-black text-gold-300 transition cursor-pointer"
+                                            title="Ubah Kecepatan Suara (0.8x, 0.9x, 1x, 1.15x, 1.2x)"
+                                        >
+                                            {ttsRate}x
+                                        </button>
 
-                                    {/* Stop */}
-                                    <button
-                                        onClick={handleStopTTS}
-                                        className="p-1.5 sm:p-2 rounded-full hover:bg-red-500/20 text-red-400 hover:text-red-300 transition cursor-pointer ml-0.5"
-                                        title="Hentikan Pembacaan"
-                                    >
-                                        <Icon name="Square" className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
-                                    </button>
+                                        {/* Stop */}
+                                        <button
+                                            onClick={handleStopTTS}
+                                            className="p-1.5 sm:p-2 rounded-full hover:bg-red-500/20 text-red-400 hover:text-red-300 transition cursor-pointer ml-0.5"
+                                            title="Hentikan Pembacaan"
+                                        >
+                                            <Icon name="Square" className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </>,
+                        document.body
                     )}
 
-                    {/* Bar Aksi Ayat Terpilih (Dengarkan & Bagikan) */}
-                    {selectedVerses.size > 0 && ttsState === 'idle' && (
-                        <div className="fixed floating-alkitab-bar left-0 right-0 z-[48] flex justify-center px-3 sm:px-4 pointer-events-none animate-slide-up">
-                            <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 bg-navy-950/95 dark:bg-navy-900/95 backdrop-blur-md p-1.5 sm:p-2 rounded-full shadow-2xl border border-navy-700/80">
-                                <button
-                                    onClick={handlePlaySelectedVerses}
-                                    className="bg-gold-500 hover:bg-gold-400 text-navy-950 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full font-black text-xs sm:text-sm shadow-md flex items-center gap-1.5 sm:gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
-                                    title={`Dengarkan ${selectedVerses.size} Ayat Terpilih`}
-                                >
-                                    <Icon name="Volume2" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                    <span>Dengarkan ({selectedVerses.size})</span>
-                                </button>
-                                <button
-                                    onClick={handleShareVerses}
-                                    className="bg-[#4A7045] hover:bg-[#3A5836] text-white px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold text-xs sm:text-sm shadow-md flex items-center gap-1.5 sm:gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
-                                    title={`Bagikan ${selectedVerses.size} Ayat`}
-                                >
-                                    <Icon name="Share" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                    <span>Bagikan ({selectedVerses.size})</span>
-                                </button>
-                                <button
-                                    onClick={() => setSelectedVerses(new Set())}
-                                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center transition cursor-pointer text-xs ml-0.5"
-                                    title="Batal Memilih"
-                                >
-                                    ✕
-                                </button>
+                    {/* Bar Aksi Ayat Terpilih (Stabilo Warna, Catatan, Kartu Gambar, Dengarkan & Bagikan) */}
+                    {selectedVerses.size > 0 && ttsState === 'idle' && createPortal(
+                        <>
+                            <style>{`
+                                .floating-alkitab-bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 100px) !important; }
+                                @media (min-width: 768px) { .floating-alkitab-bar { bottom: 24px !important; } }
+                                .floating-quick-actions-container { opacity: 0 !important; pointer-events: none !important; transform: translateY(40px) !important; }
+                            `}</style>
+                            <div className="fixed floating-alkitab-bar left-0 right-0 z-[54] flex justify-center px-2.5 sm:px-4 pointer-events-none animate-slide-up">
+                                <div className="pointer-events-auto flex flex-col gap-2 bg-navy-950/95 dark:bg-navy-900/95 backdrop-blur-md p-2.5 sm:p-3 rounded-3xl shadow-2xl border border-gold-500/40 max-w-xl w-full">
+                                    {/* Baris 1: Pilihan Warna Stabilo & Catatan Pribadi */}
+                                    <div className="flex items-center justify-between gap-2 pb-2 border-b border-white/10">
+                                        <div className="flex items-center gap-1.5 sm:gap-2">
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-gold-300 mr-0.5">Stabilo:</span>
+                                            {Object.values(HIGHLIGHT_PALETTE).map(pal => (
+                                                <button
+                                                    key={pal.id}
+                                                    type="button"
+                                                    onClick={() => handleApplyHighlight(pal.id)}
+                                                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 ${pal.dotClass} hover:scale-110 active:scale-95 transition-transform cursor-pointer shadow-sm`}
+                                                    title={`Stabilo ${pal.label}`}
+                                                />
+                                            ))}
+                                            {Array.from(selectedVerses).some(aNum => Boolean(highlightsMap[`${selectedBook.id}_${selectedChapter}_${aNum}`])) && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleApplyHighlight(null)}
+                                                    className="px-2 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/35 text-red-300 text-[10px] font-bold transition cursor-pointer ml-0.5"
+                                                    title="Hapus Stabilo pada Ayat Terpilih"
+                                                >
+                                                    Hapus
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <button
+                                                type="button"
+                                                onClick={handleOpenNoteForSelected}
+                                                className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-gold-300 text-[11px] font-extrabold flex items-center gap-1 transition cursor-pointer"
+                                                title="Tambah Catatan Pribadi pada Ayat Ini"
+                                            >
+                                                <span>📝 Catatan</span>
+                                            </button>
+                                            <button
+                                                onClick={() => setSelectedVerses(new Set())}
+                                                className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center transition cursor-pointer text-xs"
+                                                title="Batal Memilih"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Baris 2: Tombol Aksi (Dengarkan, Kartu Gambar Status WA, Bagikan Teks) */}
+                                    <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                                        <button
+                                            onClick={handlePlaySelectedVerses}
+                                            className="bg-gold-500 hover:bg-gold-400 text-navy-950 px-2.5 sm:px-4 py-2 rounded-2xl font-black text-[11px] sm:text-xs shadow-md flex items-center justify-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
+                                            title={`Dengarkan ${selectedVerses.size} Ayat Terpilih`}
+                                        >
+                                            <Icon name="Volume2" className="w-3.5 h-3.5 shrink-0" />
+                                            <span className="truncate">Suara ({selectedVerses.size})</span>
+                                        </button>
+                                        <button
+                                            onClick={handleOpenCardForSelected}
+                                            className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-navy-950 px-2.5 sm:px-4 py-2 rounded-2xl font-black text-[11px] sm:text-xs shadow-md flex items-center justify-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
+                                            title="Buat Gambar Kartu Ayat untuk Status WA / IG Story"
+                                        >
+                                            <Icon name="Sparkles" className="w-3.5 h-3.5 shrink-0" />
+                                            <span className="truncate">Kartu Gambar</span>
+                                        </button>
+                                        <button
+                                            onClick={handleShareVerses}
+                                            className="bg-[#4A7045] hover:bg-[#3A5836] text-white px-2.5 sm:px-4 py-2 rounded-2xl font-bold text-[11px] sm:text-xs shadow-md flex items-center justify-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
+                                            title={`Bagikan Teks ${selectedVerses.size} Ayat`}
+                                        >
+                                            <Icon name="Share" className="w-3.5 h-3.5 shrink-0" />
+                                            <span className="truncate">Bagikan ({selectedVerses.size})</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </>,
+                        document.body
                     )}
                 </div>
             </div>
@@ -15470,7 +16698,7 @@ const FloatingQuickActions = ({ isSyncing, setSyncTrigger, setShowSyncNotif, set
     }, []);
 
     return (
-        <div className="print:hidden no-print">
+        <div className="print:hidden no-print floating-quick-actions-container transition-all duration-200">
             {/* Floating Sync Button */}
             <button
                 onClick={() => {

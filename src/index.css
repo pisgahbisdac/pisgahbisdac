@@ -5178,11 +5178,11 @@ button:disabled,
 
 /* Posisi Floating Action Bar & Audio Player Alkitab agar berada rapi di atas Bottom Navigation Menu pada Mobile */
 .floating-alkitab-bar {
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 118px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 100px) !important;
 }
 
 @media (min-width: 768px) {
   .floating-alkitab-bar {
-    bottom: 24px;
+    bottom: 24px !important;
   }
 }
