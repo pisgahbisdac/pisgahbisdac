@@ -4242,9 +4242,61 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         <DailyVerseWidget setActiveTab={setActiveTab} />
                     </div>
 
-                    {/* ROW 2: CARI TUGAS PELAYANAN SAYA & KOTAK PENGUMUMAN JEMAAT (BERSEBELAHAN) */}
-                    <div className={`grid grid-cols-1 ${!isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
+                    {/* ROW 2: SABAT KHUSUS (GAMBAR 1) & PELAYANAN JEMAAT (GAMBAR 2) BERSEBELAHAN */}
+                    <div className={`grid grid-cols-1 ${(showPerjamuan || showPerpuluhan) ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
+                        {/* GAMBAR 1: SABAT PERJAMUAN / SABAT PERPULUHAN */}
+                        {(showPerjamuan || showPerpuluhan) && (() => {
+                            const isPerjamuanEarlier = new Date(perjamuanYMD) <= new Date(perpuluhanYMD);
+                            return (
+                                <div className="flex flex-col gap-4 w-full h-full justify-between">
+                                    {showPerjamuan && (
+                                        <div className={`bg-gradient-to-br from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-6 md:p-8 rounded-[2rem] shadow-xl flex flex-col justify-between gap-4 relative overflow-hidden animate-fade-in border-2 border-[#C18B35] dark:border-gold-400 h-full ${!isPerjamuanEarlier && showPerpuluhan ? 'order-2' : 'order-1'}`}>
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 dark:bg-navy-900/10 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 dark:bg-navy-900/5 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+                                            <div className="relative z-10 text-white dark:text-navy-900">
+                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 dark:bg-navy-900/20 text-white dark:text-navy-900 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-white/30">
+                                                    <Icon name="Gift" className="w-3.5 h-3.5" /> Sabat Perjamuan
+                                                </div>
+                                                <p className="text-2xl md:text-3xl font-extrabold opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
+                                                {perjamuanNote && <p className="text-xs md:text-sm font-medium mt-2 opacity-90 whitespace-pre-wrap leading-relaxed">{perjamuanNote}</p>}
+                                            </div>
+                                            <div className="relative z-10 pt-2 flex justify-end">
+                                                <button onClick={() => setActiveTab('jadwal')} className="bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all w-full sm:w-auto text-center cursor-pointer">
+                                                    Lihat Petugas
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {showPerpuluhan && (
+                                        <div className={`bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-6 md:p-8 rounded-[2rem] shadow-xl border-2 border-[#3A5836] dark:border-navy-700/50 flex flex-col justify-between gap-4 relative overflow-hidden animate-fade-in h-full ${isPerjamuanEarlier && showPerjamuan ? 'order-2' : 'order-1'}`}>
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gold-400/10 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-gold-400/5 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+                                            <div className="relative z-10 text-white">
+                                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D19B45]/20 text-[#D19B45] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-[#D19B45]/40">
+                                                    <Icon name="Gift" className="w-3.5 h-3.5" /> Sabat Perpuluhan
+                                                </div>
+                                                <p className="text-2xl md:text-3xl text-white dark:text-navy-200 font-extrabold tracking-tight">{formatIndoDate(perpuluhanYMD)}</p>
+                                                {perpuluhanNote && <p className="text-xs md:text-sm font-medium mt-2 opacity-90 text-white/90 dark:text-navy-300 whitespace-pre-wrap leading-relaxed">{perpuluhanNote}</p>}
+                                            </div>
+                                            <div className="relative z-10 pt-2 flex justify-end">
+                                                <button onClick={() => setActiveTab('persembahan')} className="bg-[#D19B45] hover:bg-[#C18B35] dark:bg-gold-400 dark:hover:bg-gold-300 text-white dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-black shadow-md hover:shadow-lg transition-all w-full sm:w-auto text-center cursor-pointer">
+                                                    Transfer Perpuluhan
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })()}
+
+                        {/* GAMBAR 2: CARI & KONFIRMASI TUGAS PELAYANAN SAYA */}
                         <QuickDutyFinderWidget jadwalDB={jadwalDB} setActiveTab={setActiveTab} dataPejabat={dataPejabat} />
+                    </div>
+
+                    {/* ROW 3: POKOK DOA ONLINE & KOTAK PENGUMUMAN JEMAAT */}
+                    <div className={`grid grid-cols-1 ${!isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
+                        <PrayerRequestWallWidget dataPejabat={dataPejabat} compact={true} />
 
                         {/* KOTAK PENGUMUMAN */}
                         {(!isPengumumanReallyEmpty()) && (
@@ -4284,47 +4336,8 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         )}
                     </div>
 
-                    {/* ROW 2B: KOTAK POKOK DOA ONLINE & KALENDER/ULANG TAHUN JEMAAT */}
-                    <PrayerRequestWallWidget dataPejabat={dataPejabat} compact={true} />
+                    {/* ROW 3B: KALENDER/ULANG TAHUN JEMAAT */}
                     <BirthdayAndCalendarWidget />
-
-                    {/* ROW 3: SABAT PERJAMUAN & PERPULUHAN SECTION (Jika Aktif) */}
-                    {(showPerjamuan || showPerpuluhan) && (() => {
-                        const isPerjamuanEarlier = new Date(perjamuanYMD) <= new Date(perpuluhanYMD);
-                        return (
-                            <div className="flex flex-col gap-4 w-full">
-                                {showPerjamuan && (
-                                    <div className={`bg-gradient-to-br from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-5 md:p-6 rounded-[2rem] shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in border-2 border-[#C18B35] dark:border-gold-400 ${!isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 dark:bg-navy-900/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 dark:bg-navy-900/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                                        <div className="relative z-10 text-center sm:text-left text-white dark:text-navy-900">
-                                            <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5"><Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perjamuan</h3>
-                                            <p className="text-2xl md:text-3xl font-extrabold opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
-                                            {perjamuanNote && <p className="text-sm font-medium mt-2 opacity-90 whitespace-pre-wrap leading-tight">{perjamuanNote}</p>}
-                                        </div>
-                                        <button onClick={() => setActiveTab('jadwal')} className="relative z-10 bg-[#4A7045] hover:bg-[#3A5836] dark:bg-navy-900 dark:hover:bg-navy-800 text-white dark:text-gold-400 px-6 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">Lihat Petugas</button>
-                                    </div>
-                                )}
-
-                                {showPerpuluhan && (
-                                    <div className={`bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-5 md:p-6 rounded-[2rem] shadow-xl border-2 border-[#3A5836] dark:border-navy-700/50 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden animate-fade-in ${isPerjamuanEarlier ? 'order-2' : 'order-1'}`}>
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gold-400/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-gold-400/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                                        <div className="relative z-10 text-center sm:text-left">
-                                            <h3 className="font-black text-[1.15rem] leading-none uppercase tracking-widest flex items-center justify-center sm:justify-start mb-1.5 text-[#D19B45] dark:text-gold-400">
-                                                <Icon name="Gift" className="w-4 h-4 mr-2" /> Sabat Perpuluhan
-                                            </h3>
-                                            <p className="text-2xl md:text-3xl text-white dark:text-navy-200 font-extrabold tracking-tight">{formatIndoDate(perpuluhanYMD)}</p>
-                                            {perpuluhanNote && <p className="text-sm font-medium mt-2 opacity-90 text-white/90 dark:text-navy-300 whitespace-pre-wrap leading-tight">{perpuluhanNote}</p>}
-                                        </div>
-                                        <button onClick={() => setActiveTab('persembahan')} className="relative z-10 bg-[#D19B45] hover:bg-[#C18B35] dark:bg-gold-400 dark:hover:bg-gold-300 text-white dark:text-navy-900 px-6 py-3 rounded-xl text-sm font-black shadow-md hover:shadow-lg transition-all shrink-0 w-full sm:w-auto">
-                                            Transfer Perpuluhan
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })()}
 
                     {/* ROW 4: ACARA TERDEKAT & VISI MISI */}
                     <div className={`grid grid-cols-1 ${eventsToDisplay.length > 0 ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
