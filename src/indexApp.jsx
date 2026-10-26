@@ -4294,50 +4294,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         <QuickDutyFinderWidget jadwalDB={jadwalDB} setActiveTab={setActiveTab} dataPejabat={dataPejabat} />
                     </div>
 
-                    {/* ROW 3: POKOK DOA ONLINE (PERSEKUTUAN DOA RABU & PASTORAL) & AGENDA & PERHATIAN JEMAAT BERSEBELAHAN */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                        <PrayerRequestWallWidget dataPejabat={dataPejabat} compact={true} />
-                        <BirthdayAndCalendarWidget />
-                    </div>
-
-                    {/* ROW 3B: KOTAK PENGUMUMAN JEMAAT */}
-                    {(!isPengumumanReallyEmpty()) && (
-                        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
-                            <div>
-                                <div className="flex items-center justify-between gap-3 mb-2">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
-                                        <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman Jemaat
-                                    </span>
-                                    <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
-                                        Pekan Ini
-                                    </span>
-                                </div>
-
-                                <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight mb-4">
-                                    {pengumuman.header || "Pengumuman Pekan Ini"}
-                                </h3>
-
-                                <div
-                                    className="bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed overflow-y-auto custom-scrollbar font-medium min-h-[160px] max-h-[320px]"
-                                    dangerouslySetInnerHTML={{ __html: pengumuman.isi }}
-                                ></div>
-                            </div>
-
-                            <div className="pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between text-[11px] text-[#596B4D] dark:text-gray-400">
-                                <span>GMAHK Jemaat Pisgah BISDAC</span>
-                                <button
-                                    type="button"
-                                    onClick={() => setActiveTab('warta')}
-                                    className="font-bold text-[#4A7045] dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
-                                >
-                                    <span>Buka Portal Warta</span>
-                                    <Icon name="ChevronRight" className="w-3 h-3" />
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ROW 4: ACARA TERDEKAT & VISI MISI */}
+                    {/* ROW 3: ACARA TERDEKAT & VISI MISI (GAMBAR 1) */}
                     <div className={`grid grid-cols-1 ${eventsToDisplay.length > 0 ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
 
                         {/* ACARA TERDEKAT */}
@@ -4505,6 +4462,49 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                             </div>
                         </div>
                     </div>
+
+                    {/* ROW 4: POKOK DOA ONLINE (PERSEKUTUAN DOA RABU & PASTORAL) & AGENDA & PERHATIAN JEMAAT BERSEBELAHAN (GAMBAR 2) */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                        <PrayerRequestWallWidget dataPejabat={dataPejabat} compact={true} />
+                        <BirthdayAndCalendarWidget />
+                    </div>
+
+                    {/* ROW 5: KOTAK PENGUMUMAN JEMAAT */}
+                    {(!isPengumumanReallyEmpty()) && (
+                        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
+                            <div>
+                                <div className="flex items-center justify-between gap-3 mb-2">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
+                                        <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman Jemaat
+                                    </span>
+                                    <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                                        Pekan Ini
+                                    </span>
+                                </div>
+
+                                <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight mb-4">
+                                    {pengumuman.header || "Pengumuman Pekan Ini"}
+                                </h3>
+
+                                <div
+                                    className="bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed overflow-y-auto custom-scrollbar font-medium min-h-[160px] max-h-[320px]"
+                                    dangerouslySetInnerHTML={{ __html: pengumuman.isi }}
+                                ></div>
+                            </div>
+
+                            <div className="pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between text-[11px] text-[#596B4D] dark:text-gray-400">
+                                <span>GMAHK Jemaat Pisgah BISDAC</span>
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab('warta')}
+                                    className="font-bold text-[#4A7045] dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                >
+                                    <span>Buka Portal Warta</span>
+                                    <Icon name="ChevronRight" className="w-3 h-3" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
 
                     {/* ROW 5: WARTA JEMAAT, PUSTAKA & VIDEO */}
