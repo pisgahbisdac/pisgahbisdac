@@ -166,9 +166,8 @@ self.addEventListener('fetch', (e) => {
 
         // Jika navigasi halaman HTML offline, fallback ke index.html yang sudah di-cache
         if (e.request.mode === 'navigate') {
-          return caches.match('./index.html') || caches.match('./');
-        }
-        return null;
-      })
+          rerurccx.html') || caches.match('./);
+  return null;
+})u
   );
 });
