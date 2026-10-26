@@ -144,7 +144,7 @@ function doPost(e) {
 }
 
 // =========================================================================
-// HELPER: KONVERSI LINK LAMA KE LINK AMAN (THUMBNAIL)
+// HELPER: KONVERSI LINK LAMA KE LINK AMAN (THUMBNAIL / DIRECT CDN)
 // =========================================================================
 function makeSafeImageUrl(url) {
   if (!url) return "";
@@ -157,10 +157,16 @@ function makeSafeImageUrl(url) {
     return copy;
   }
   if (typeof url !== 'string') return "";
-  if (url.includes('drive.google.com/uc') && url.includes('id=')) {
-    const idMatch = url.match(/id=([^&]+)/);
-    if (idMatch && idMatch[1]) {
-      return "https://drive.google.com/thumbnail?id=" + idMatch[1] + "&sz=w1200";
+  
+  // Format Google Drive: drive.google.com/uc?id=, drive.google.com/thumbnail?id=, drive.google.com/file/d/
+  if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+    const ucMatch = url.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
+    if (ucMatch && ucMatch[1]) {
+      return "https://lh3.googleusercontent.com/d/" + ucMatch[1];
+    }
+    const fileDMatch = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+    if (fileDMatch && fileDMatch[1]) {
+      return "https://lh3.googleusercontent.com/d/" + fileDMatch[1];
     }
   }
   return url;
@@ -193,12 +199,19 @@ function processMultipleImages(gambarUrlStr, judul) {
         let safeTitle = judul ? judul.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30) : "Gambar";
         let fileName = "Warta_" + safeTitle + "_" + (i + 1) + "_" + hash + ".jpg";
         let uploadedUrl = uploadFileToDrive(url, fileName, targetFolderId);
-        if (uploadedUrl) processedUrls.push(uploadedUrl);
+        if (uploadedUrl) {
+          processedUrls.push(uploadedUrl);
+        } else if (url.length <= 48000) {
+          processedUrls.push(url);
+        }
       } catch (err) {
-        // Cegah kegagalan simpan warta jika operasi Drive bermasalah
+        // Cegah hilangnya foto jika operasi Drive bermasalah, tetap simpan base64 jika muat di sel Sheets
+        if (url && url.length <= 48000) {
+          processedUrls.push(url);
+        }
       }
     } else if (url) {
-      processedUrls.push(url);
+      processedUrls.push(makeSafeImageUrl(url));
     }
   }
   return processedUrls.join('|||');
@@ -711,7 +724,7 @@ function uploadFileToDrive(base64Data, fileName, customFolderId) {
     const existingFiles = folder.getFilesByName(fileName);
     if (existingFiles.hasNext()) {
       const existingFile = existingFiles.next();
-      return "https://drive.google.com/thumbnail?id=" + existingFile.getId() + "&sz=w1200";
+      return "https://lh3.googleusercontent.com/d/" + existingFile.getId();
     }
 
     let type = 'image/jpeg';
@@ -731,9 +744,13 @@ function uploadFileToDrive(base64Data, fileName, customFolderId) {
     const blob = Utilities.newBlob(byteCharacters, type, fileName);
     const file = folder.createFile(blob);
 
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    try {
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (eShare) {
+      console.warn("Peringatan setSharing Drive: " + eShare);
+    }
 
-    return "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1200";
+    return "https://lh3.googleusercontent.com/d/" + file.getId();
   } catch (e) {
     throw new Error("Gagal upload ke Drive: " + e.message);
   }

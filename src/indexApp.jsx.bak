@@ -252,9 +252,38 @@ const decodeHTML = (html) => {
 };
 
 // Fungsi kompresi gambar otomatis sebelum diupload (Mencegah Limit Size Apps Script & Menjaga Transparansi PNG/WebP)
-const compressImage = (file, maxWidth = 1200) => {
+const compressImage = (file, maxWidth = 1200, quality = 0.65) => {
     return new Promise((resolve, reject) => {
         if (!file) return resolve('');
+
+        // Jika input sudah berupa string base64 / data URL
+        if (typeof file === 'string' && file.startsWith('data:image')) {
+            const img = new Image();
+            img.onerror = () => resolve(file);
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth) {
+                    height = Math.round(height * (maxWidth / width));
+                    width = maxWidth;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0, width, height);
+                try {
+                    const q = quality || 0.65;
+                    const res = canvas.toDataURL('image/jpeg', q);
+                    resolve(res);
+                } catch (e) {
+                    resolve(file);
+                }
+            };
+            img.src = file;
+            return;
+        }
 
         const mimeType = (file.type || '').toLowerCase();
         const fileName = (file.name || '').toLowerCase();
@@ -311,12 +340,19 @@ const compressImage = (file, maxWidth = 1200) => {
                 }
 
                 // JIKA GAMBAR TRANSPARAN:
-                // Gunakan format PNG agar transparansi tetap 100% terjaga dan tidak berubah menjadi hitam/putih!
+                // Prioritaskan WebP agar hemat memori namun tetap menjaga transparansi
                 if (hasTransparency) {
+                    try {
+                        const webpData = canvas.toDataURL('image/webp', quality || 0.7);
+                        if (webpData && webpData.startsWith('data:image/webp')) {
+                            resolve(webpData);
+                            return;
+                        }
+                    } catch (e) { }
                     resolve(canvas.toDataURL('image/png'));
                 } else {
                     // Jika tidak transparan (foto biasa), kompres sebagai JPEG untuk menghemat ukuran memori
-                    resolve(canvas.toDataURL('image/jpeg', 0.65));
+                    resolve(canvas.toDataURL('image/jpeg', quality || 0.65));
                 }
             };
             img.src = event.target.result;
@@ -360,15 +396,20 @@ const getGoogleDriveFileId = (url) => {
 };
 
 const handleImageErrorFallback = (e, originalUrl) => {
-    const driveId = getGoogleDriveFileId(originalUrl || (e.target && e.target.src));
-    if (driveId && e.target) {
-        if (e.target.src.includes('drive.google.com/thumbnail')) {
+    if (!e || !e.target) return;
+    const driveId = getGoogleDriveFileId(originalUrl || e.target.src);
+    if (driveId) {
+        const currentSrc = e.target.src || '';
+        if (!e.target.dataset.triedFallback) {
+            e.target.dataset.triedFallback = '1';
+            if (currentSrc.includes('lh3.googleusercontent.com')) {
+                e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
+                return;
+            }
             e.target.src = `https://lh3.googleusercontent.com/d/${driveId}`;
-            return;
-        }
-        if (e.target.src.includes('lh3.googleusercontent.com')) {
-            e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w800`;
-            return;
+        } else if (e.target.dataset.triedFallback === '1') {
+            e.target.dataset.triedFallback = '2';
+            e.target.src = `https://drive.google.com/uc?export=view&id=${driveId}`;
         }
     }
 };
@@ -381,7 +422,7 @@ const formatImageUrl = (url) => {
 
     const driveId = getGoogleDriveFileId(trimmed);
     if (driveId) {
-        return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
+        return `https://lh3.googleusercontent.com/d/${driveId}`;
     }
 
     // Mengembalikan string Base64 murni jika kehilangan awalan data:image/ saat dikirim
@@ -402,7 +443,7 @@ const getCoverFallback = (b) => {
     if (b.cover && typeof b.cover === 'string' && b.cover.trim() !== '' && !b.cover.includes('hopesoftware.org')) {
         const coverDriveId = getGoogleDriveFileId(b.cover);
         if (coverDriveId) {
-            return `https://drive.google.com/thumbnail?id=${coverDriveId}&sz=w1000`;
+            return `https://lh3.googleusercontent.com/d/${coverDriveId}`;
         }
         const fmt = formatImageUrl(b.cover);
         if (fmt) {
@@ -414,13 +455,13 @@ const getCoverFallback = (b) => {
     // 2. JIKA KOSONG: Otomatis diambil dari halaman awal dokumen PDF buku (Google Drive)
     const pdfDriveId = getGoogleDriveFileId(b.pdfUrl || b.fileUrl || b.url || b.link || b.driveUrl);
     if (pdfDriveId) {
-        return `https://drive.google.com/thumbnail?id=${pdfDriveId}&sz=w1000`;
+        return `https://lh3.googleusercontent.com/d/${pdfDriveId}`;
     }
 
     // 3. Cek jika b.id sendiri adalah file ID Google Drive
     const idDriveId = getGoogleDriveFileId(b.id);
     if (idDriveId) {
-        return `https://drive.google.com/thumbnail?id=${idDriveId}&sz=w1000`;
+        return `https://lh3.googleusercontent.com/d/${idDriveId}`;
     }
 
     // 4. JIKA TIDAK ADA HALAMAN SAMPUL / KOSONG / TIDAK ADA LINK: Gunakan default sesuai kategori
@@ -430,9 +471,14 @@ const getCoverFallback = (b) => {
 const handleBookCoverError = (e, book) => {
     if (!e || !e.target) return;
 
-    // 1. Jika URL thumbnail drive.google.com gagal (misal 403 atau blocked), coba mirror lh3.googleusercontent.com
+    // 1. Jika URL thumbnail drive.google.com / lh3 gagal, coba mirror alternatifnya
     const driveId = getGoogleDriveFileId(book?.cover) || getGoogleDriveFileId(book?.pdfUrl || book?.fileUrl || book?.url || book?.link || (e.target && e.target.src));
-    if (driveId && e.target.src && e.target.src.includes('drive.google.com/thumbnail') && !e.target.src.includes('lh3.googleusercontent.com')) {
+    if (driveId && !e.target.dataset.triedMirror) {
+        e.target.dataset.triedMirror = '1';
+        if (e.target.src.includes('lh3.googleusercontent.com')) {
+            e.target.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
+            return;
+        }
         e.target.src = `https://lh3.googleusercontent.com/d/${driveId}`;
         return;
     }
@@ -4302,7 +4348,15 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         <div key={idx} onClick={() => { setSelectedWarta(warta); setActiveTab('warta'); }} className="rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 overflow-hidden transition-all duration-300 hover:border-[#4A7045] dark:hover:border-gold-500 hover:shadow-md cursor-pointer flex flex-col group shadow-sm">
                                             <div className="h-48 overflow-hidden relative m-2.5 rounded-[1.25rem]">
                                                 {thumb ? (
-                                                    <img src={thumb} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={info.cleanTitle} />
+                                                    <img
+                                                        src={thumb}
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                        alt={info.cleanTitle}
+                                                        referrerPolicy="no-referrer"
+                                                        onError={(e) => handleImageErrorFallback(e, thumb)}
+                                                    />
                                                 ) : (
                                                     <div className="w-full h-full bg-[#E5E9D8] dark:bg-navy-900 flex items-center justify-center text-[#4A7045] dark:text-navy-600 transition-colors">
                                                         <Icon name="Image" className="w-12 h-12 opacity-30" />
@@ -7794,7 +7848,12 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                                                         src={url}
                                                         className="relative z-10 max-h-full w-auto h-full object-contain cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.01] print:max-h-[340px] print:mx-auto print:rounded-xl print:border print:border-navy-100"
                                                         alt={`${info.cleanTitle} - Gambar ${idx + 1}`}
-                                                        onError={() => handleImageError(`detail-${idx}`)}
+                                                        onError={(e) => {
+                                                            handleImageErrorFallback(e, url);
+                                                            if (e.target && e.target.dataset && e.target.dataset.triedFallback === '2') {
+                                                                handleImageError(`detail-${idx}`);
+                                                            }
+                                                        }}
                                                         onClick={() => setLightboxIndex(idx)}
                                                         referrerPolicy="no-referrer"
                                                     />
@@ -7925,7 +7984,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                                     >
                                         <div className="aspect-video rounded-xl overflow-hidden bg-navy-50 dark:bg-navy-950 mb-3 relative">
                                             {itemThumb ? (
-                                                <img src={itemThumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={itemInfo.cleanTitle} referrerPolicy="no-referrer" />
+                                                <img src={itemThumb} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={itemInfo.cleanTitle} referrerPolicy="no-referrer" onError={(e) => handleImageErrorFallback(e, itemThumb)} />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-navy-300 dark:text-navy-700">
                                                     <Icon name="Image" className="w-8 h-8 opacity-40" />
@@ -8260,6 +8319,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                                                     className="relative z-10 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                                     alt={featInfo.cleanTitle}
                                                     referrerPolicy="no-referrer"
+                                                    onError={(e) => handleImageErrorFallback(e, featThumb)}
                                                 />
                                             </div>
                                         ) : (
@@ -8379,6 +8439,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                                 alt={info.cleanTitle}
                                                 referrerPolicy="no-referrer"
+                                                onError={(e) => handleImageErrorFallback(e, thumbnailImg)}
                                             />
                                         ) : (
                                             <div className="flex flex-col items-center justify-center h-full text-navy-400 bg-gradient-to-br from-navy-900 to-navy-950">
@@ -10766,22 +10827,31 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         return Boolean(obj && typeof obj.slice === 'function' && (typeof obj.size === 'number' || typeof obj.type === 'string'));
     };
 
-    // Helper upload foto sampul/dokumentasi warta ke Google Drive agar tidak melebihi batas 50.000 karakter per sel Google Sheets
+    // Helper upload foto sampul/dokumentasi warta ke Google Drive / Fallback kompresi Base64 aman
     const uploadWartaPhotoItem = async (fileOrBase64, idx = 0) => {
         try {
+            if (!fileOrBase64) return '';
+
+            // 1. Jika sudah berupa HTTP/HTTPS URL
             if (typeof fileOrBase64 === 'string' && fileOrBase64.startsWith('http')) {
                 const driveId = getGoogleDriveFileId(fileOrBase64);
-                return driveId ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200` : formatImageUrl(fileOrBase64);
+                return driveId ? `https://lh3.googleusercontent.com/d/${driveId}` : formatImageUrl(fileOrBase64);
             }
 
+            // 2. Jika input berupa File/Blob atau string Base64
             let base64Str = fileOrBase64;
             if (isFileOrBlob(fileOrBase64)) {
-                base64Str = await compressImage(fileOrBase64, 1200, 0.8);
+                base64Str = await compressImage(fileOrBase64, 1200, 0.75);
             }
-            if (typeof base64Str === 'string' && base64Str.startsWith('data:image')) {
+            if (typeof base64Str === 'string' && (base64Str.startsWith('data:image') || base64Str.length > 500)) {
+                if (!base64Str.startsWith('data:image')) {
+                    base64Str = formatImageUrl(base64Str);
+                }
+
+                // Upaya 1: Upload ke Google Drive melalui Google Apps Script (timeout 25 detik yang wajar)
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 8000);
+                    const timeoutId = setTimeout(() => controller.abort(), 25000);
                     const upRes = await fetch(GAS_API_URL, {
                         method: 'POST',
                         body: JSON.stringify({
@@ -10797,13 +10867,23 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     const upText = await upRes.text();
                     const upData = JSON.parse(upText);
                     if (upData && upData.success && upData.url) {
-                        return upData.url;
+                        const driveId = getGoogleDriveFileId(upData.url);
+                        return driveId ? `https://lh3.googleusercontent.com/d/${driveId}` : upData.url;
                     }
                 } catch (upErr) {
-                    console.warn("Upload foto warta ke Drive server tidak berhasil atau timeout:", upErr);
+                    console.warn("Upload foto warta ke Google Drive server tidak berhasil atau timeout, beralih ke kompresi base64 mandiri:", upErr);
                 }
-                // Jika upload ke Drive gagal / timeout, jangan kirim base64 mentah ke saveWarta
-                return '';
+
+                // Upaya 2 (Fallback Aman & Pasti): Jika Drive gagal/timeout, kompres ke Base64 ringkas (< 44.000 karakter)
+                // agar foto tetap tersimpan sempurna di sel Google Sheets (batas 50.000 karakter)
+                try {
+                    const compact = await compressImage(fileOrBase64, 550, 0.55);
+                    if (compact && compact.length <= 44000) return compact;
+                    const ultraCompact = await compressImage(fileOrBase64, 420, 0.45);
+                    if (ultraCompact && ultraCompact.length <= 44000) return ultraCompact;
+                } catch (cmpErr) {
+                    console.warn("Gagal membuat fallback kompresi base64:", cmpErr);
+                }
             }
             return typeof base64Str === 'string' ? base64Str : '';
         } catch (e) {
@@ -10872,7 +10952,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             if (wartaCoverUrlInput && wartaCoverUrlInput.trim()) {
                 const driveId = getGoogleDriveFileId(wartaCoverUrlInput);
                 const directUrl = driveId
-                    ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`
+                    ? `https://lh3.googleusercontent.com/d/${driveId}`
                     : formatImageUrl(wartaCoverUrlInput.trim());
                 if (!workingImageList.some(img => (img.url || img) === directUrl)) {
                     workingImageList.unshift({
@@ -10900,10 +10980,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         if (urlOrB64) uploadedUrls.push(urlOrB64);
                     }
                 }
-                const validHttpUrls = uploadedUrls.filter(u => u && typeof u === 'string' && u.startsWith('http'));
-                finalGambarUrl = validHttpUrls.join('|||');
+                const validUrls = uploadedUrls.filter(u => u && typeof u === 'string' && (u.startsWith('http') || u.startsWith('data:image')));
+                finalGambarUrl = validUrls.join('|||');
                 if (finalGambarUrl.length > 47000) {
-                    finalGambarUrl = validHttpUrls[0] || '';
+                    finalGambarUrl = validUrls[0] || '';
                 }
             }
 
@@ -11087,7 +11167,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             if (editWartaCoverUrlInput && editWartaCoverUrlInput.trim()) {
                 const driveId = getGoogleDriveFileId(editWartaCoverUrlInput);
                 const directUrl = driveId
-                    ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`
+                    ? `https://lh3.googleusercontent.com/d/${driveId}`
                     : formatImageUrl(editWartaCoverUrlInput.trim());
                 if (!workingImageList.some(img => (img.url || img) === directUrl)) {
                     workingImageList.unshift({
@@ -11103,11 +11183,12 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 let urlParts = [];
                 for (let i = 0; i < workingImageList.length; i++) {
                     const item = workingImageList[i];
-                    if (item.type === 'existing' && item.url) {
-                        urlParts.push(item.url);
-                    } else if (item.type === 'new' && (item.file || isFileOrBlob(item))) {
-                        const uploaded = await uploadWartaPhotoItem(item.file || item, i);
+                    const fileObj = item.file || item;
+                    if (isFileOrBlob(fileObj)) {
+                        const uploaded = await uploadWartaPhotoItem(fileObj, i);
                         if (uploaded) urlParts.push(uploaded);
+                    } else if (item.type === 'existing' && item.url) {
+                        urlParts.push(item.url);
                     } else if (typeof item === 'string' && !item.startsWith('blob:')) {
                         const uploaded = await uploadWartaPhotoItem(item, i);
                         if (uploaded) urlParts.push(uploaded);
@@ -11116,10 +11197,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         if (uploaded) urlParts.push(uploaded);
                     }
                 }
-                const validHttpUrls = urlParts.filter(u => u && typeof u === 'string' && u.startsWith('http'));
-                finalGambarUrl = validHttpUrls.join('|||');
+                const validUrls = urlParts.filter(u => u && typeof u === 'string' && (u.startsWith('http') || u.startsWith('data:image')));
+                finalGambarUrl = validUrls.join('|||');
                 if (finalGambarUrl.length > 47000) {
-                    finalGambarUrl = validHttpUrls[0] || '';
+                    finalGambarUrl = validUrls[0] || '';
                 }
             }
 
@@ -12600,7 +12681,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                             if (!editWartaCoverUrlInput.trim()) return;
                                                             const driveId = getGoogleDriveFileId(editWartaCoverUrlInput);
                                                             const directUrl = driveId
-                                                                ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`
+                                                                ? `https://lh3.googleusercontent.com/d/${driveId}`
                                                                 : formatImageUrl(editWartaCoverUrlInput.trim());
                                                             setEditWartaGambarList(prev => [
                                                                 { id: `url_edit_${Date.now()}`, url: directUrl, type: 'url' },
@@ -12634,6 +12715,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                     className="w-full h-full object-cover"
                                                                     alt="foto warta"
                                                                     referrerPolicy="no-referrer"
+                                                                    onError={(e) => handleImageErrorFallback(e, displayUrl)}
                                                                 />
 
                                                                 {/* Badge Sampul Utama atau Tombol Set Utama */}
@@ -12742,6 +12824,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                     className="w-full h-full object-cover"
                                                     alt="Sampul Berita"
                                                     referrerPolicy="no-referrer"
+                                                    onError={(e) => handleImageErrorFallback(e, editWartaGambarList[0]?.url)}
                                                 />
                                                 <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-gold-500 text-navy-950 font-black text-[10px] uppercase tracking-wider px-3 py-1 rounded-lg shadow-md">
                                                     ★ Sampul Utama
@@ -13357,7 +13440,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                             if (!wartaCoverUrlInput.trim()) return;
                                                             const driveId = getGoogleDriveFileId(wartaCoverUrlInput);
                                                             const directUrl = driveId
-                                                                ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`
+                                                                ? `https://lh3.googleusercontent.com/d/${driveId}`
                                                                 : formatImageUrl(wartaCoverUrlInput.trim());
                                                             setWartaGambarList(prev => [
                                                                 { id: `url_${Date.now()}`, url: directUrl, type: 'url' },
@@ -13661,7 +13744,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                 {/* Thumbnail Image */}
                                                                 <div className="w-full sm:w-44 md:w-full lg:w-40 h-44 sm:h-32 md:h-44 lg:h-32 flex-shrink-0 rounded-xl overflow-hidden bg-navy-950 relative border border-navy-100 dark:border-navy-800">
                                                                     {thumbnailImg ? (
-                                                                        <img src={thumbnailImg} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={info.cleanTitle} referrerPolicy="no-referrer" />
+                                                                        <img src={thumbnailImg} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={info.cleanTitle} referrerPolicy="no-referrer" onError={(e) => handleImageErrorFallback(e, thumbnailImg)} />
                                                                     ) : (
                                                                         <div className="flex flex-col items-center justify-center h-full text-navy-400">
                                                                             <Icon name="Image" className="w-8 h-8 opacity-40 mb-1" />
@@ -15466,11 +15549,11 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                     let val = e.target.value;
                                                     let match = val.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
                                                     if (match && match[1]) {
-                                                        val = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+                                                        val = `https://lh3.googleusercontent.com/d/${match[1]}`;
                                                     } else {
                                                         match = val.match(/id=([a-zA-Z0-9_-]+)/);
                                                         if (match && match[1] && val.includes('drive.google.com')) {
-                                                            val = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+                                                            val = `https://lh3.googleusercontent.com/d/${match[1]}`;
                                                         }
                                                     }
                                                     setBookFormData({ ...bookFormData, cover: val });
