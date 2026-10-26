@@ -121,9 +121,57 @@
                     style="width: 45px; height: 45px; object-fit: contain; animation: pulse-raw 2s ease-in-out infinite;"
                     alt="Loading Logo">
             </div>
+
+            <!-- Rescue button jika koneksi atau Service Worker lama bermasalah -->
+            <div id="preloader-rescue" style="display: none; margin-top: 24px; text-align: center; z-index: 10000; position: relative;">
+                <p style="font-size: 13px; color: #D4AF37; font-weight: 700; margin-bottom: 8px;">Memuat memakan waktu lebih lama dari biasanya...</p>
+                <button onclick="window.clearAppCacheAndReload()" style="padding: 10px 18px; background: #D4AF37; color: #0b1a30; border: none; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.3); transition: transform 0.2s;">
+                    🔄 Muat Ulang Bersih (Clear Cache)
+                </button>
+            </div>
         </div>
     </div>
 
+    <script>
+        // Fungsi darurat untuk membersihkan cache service worker jika loading terhambat
+        window.clearAppCacheAndReload = function() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                    for (var i = 0; i < regs.length; i++) {
+                        regs[i].unregister();
+                    }
+                });
+            }
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (var i = 0; i < names.length; i++) {
+                        caches.delete(names[i]);
+                    }
+                });
+            }
+            try {
+                sessionStorage.clear();
+            } catch (e) { }
+            window.location.reload();
+        };
+
+        // Tampilkan tombol rescue jika dalam 3.5 detik React belum me-mount
+        setTimeout(function() {
+            var rescue = document.getElementById('preloader-rescue');
+            if (rescue && document.querySelector('.preloader-bg')) {
+                rescue.style.display = 'block';
+            }
+        }, 3500);
+
+        // Auto recovery watchdog: Jika dalam 7 detik preloader masih ada, pulihkan cache otomatis
+        setTimeout(function() {
+            var preloader = document.querySelector('.preloader-bg');
+            if (preloader) {
+                console.warn('[Watchdog] Preloader stuck > 7s, running auto recovery...');
+                window.clearAppCacheAndReload();
+            }
+        }, 7000);
+    </script>
 
     <script type="module" src="/src/index.jsx"></script>
 </body>

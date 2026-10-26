@@ -16008,6 +16008,21 @@ const Alkitab = ({ setHideGlobalBack }) => {
         }
     }, [selectedBook, selectedChapter]);
 
+    // Sinkronisasi status floating bar Alkitab ke level global agar mobile bottom nav disembunyikan sepenuhnya
+    React.useEffect(() => {
+        const isFloatingActive = (selectedVerses.size > 0 && ttsState === 'idle') || ttsState !== 'idle';
+        window.dispatchEvent(new CustomEvent('alkitab-bar-state', { detail: { active: isFloatingActive } }));
+        if (isFloatingActive) {
+            document.body.classList.add('hide-main-nav');
+        } else {
+            document.body.classList.remove('hide-main-nav');
+        }
+        return () => {
+            window.dispatchEvent(new CustomEvent('alkitab-bar-state', { detail: { active: false } }));
+            document.body.classList.remove('hide-main-nav');
+        };
+    }, [selectedVerses.size, ttsState]);
+
     const scrollHorizontalBar = (ref, dir) => {
         if (!ref?.current) return;
         ref.current.scrollBy({ left: dir * 180, behavior: 'smooth' });
@@ -17694,12 +17709,12 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     {ttsState !== 'idle' && createPortal(
                         <>
                             <style>{`
-                                .main-mobile-nav { opacity: 0 !important; pointer-events: none !important; transform: translate(-50%, 80px) !important; }
-                                .floating-quick-actions-container { opacity: 0 !important; pointer-events: none !important; transform: translateY(60px) !important; }
-                                .floating-alkitab-bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 14px) !important; }
+                                .main-mobile-nav { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; transform: translate(-50%, 200px) !important; }
+                                .floating-quick-actions-container { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; transform: translateY(100px) !important; }
+                                .floating-alkitab-bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) !important; z-index: 70 !important; }
                                 @media (min-width: 768px) { .floating-alkitab-bar { bottom: 24px !important; } }
                             `}</style>
-                            <div className="fixed floating-alkitab-bar left-0 right-0 z-[54] flex justify-center px-3 sm:px-4 pointer-events-none animate-slide-up">
+                            <div className="fixed floating-alkitab-bar left-0 right-0 z-[70] flex justify-center px-3 sm:px-4 pointer-events-none animate-slide-up">
                                 <div className="pointer-events-auto bg-navy-950/95 dark:bg-navy-900/95 backdrop-blur-md text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl sm:rounded-full shadow-2xl border border-gold-500/40 flex items-center gap-2 sm:gap-4 max-w-lg w-full justify-between">
                                     {/* Info Ayat Aktif */}
                                     <div
@@ -17777,12 +17792,12 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     {selectedVerses.size > 0 && ttsState === 'idle' && createPortal(
                         <>
                             <style>{`
-                                .main-mobile-nav { opacity: 0 !important; pointer-events: none !important; transform: translate(-50%, 80px) !important; }
-                                .floating-quick-actions-container { opacity: 0 !important; pointer-events: none !important; transform: translateY(60px) !important; }
-                                .floating-alkitab-bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 14px) !important; }
+                                .main-mobile-nav { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; transform: translate(-50%, 200px) !important; }
+                                .floating-quick-actions-container { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; transform: translateY(100px) !important; }
+                                .floating-alkitab-bar { bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) !important; z-index: 70 !important; }
                                 @media (min-width: 768px) { .floating-alkitab-bar { bottom: 24px !important; } }
                             `}</style>
-                            <div className="fixed floating-alkitab-bar left-0 right-0 z-[54] flex justify-center px-2.5 sm:px-4 pointer-events-none animate-slide-up">
+                            <div className="fixed floating-alkitab-bar left-0 right-0 z-[70] flex justify-center px-2.5 sm:px-4 pointer-events-none animate-slide-up">
                                 <div className="pointer-events-auto flex flex-col gap-2 bg-navy-950/95 dark:bg-navy-900/95 backdrop-blur-md p-2.5 sm:p-3 rounded-3xl shadow-2xl border border-gold-500/40 max-w-xl w-full">
                                     {/* Baris 1: Pilihan Warna Stabilo & Catatan Pribadi */}
                                     <div className="flex items-center justify-between gap-2 pb-2 border-b border-white/10">
@@ -18990,10 +19005,26 @@ const FloatingQuickActions = ({ isSyncing, setSyncTrigger, setShowSyncNotif, set
 };
 
 const App = () => {
-    const [isAppLoading, setIsAppLoading] = React.useState(true);
+    const [isAppLoading, setIsAppLoading] = React.useState(false);
+    const [isAlkitabBarOpen, setIsAlkitabBarOpen] = React.useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
     const [mobileNavPopup, setMobileNavPopup] = React.useState(null); // 'belajar' | 'ibadah' | null
     const [selectedWartaDetail, setSelectedWartaDetail] = React.useState(null);
+
+    // Sinkronisasi status floating bar Alkitab (Stabilo & Audio) agar mobile bottom nav tidak menimpa
+    React.useEffect(() => {
+        const handleBarState = (e) => {
+            setIsAlkitabBarOpen(Boolean(e.detail && e.detail.active));
+        };
+        window.addEventListener('alkitab-bar-state', handleBarState);
+        return () => window.removeEventListener('alkitab-bar-state', handleBarState);
+    }, []);
+
+    React.useEffect(() => {
+        if (activeTab !== 'alkitab') {
+            setIsAlkitabBarOpen(false);
+        }
+    }, [activeTab]);
 
     // --- THEME STATE ---
     const [isDarkMode, setIsDarkMode] = React.useState(() => {
@@ -19730,7 +19761,7 @@ const App = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-[#0b1a30] text-navy-900 dark:text-gray-100 flex flex-col transition-colors duration-300">
-            {isAppLoading && <LoadingScreen />}
+            {/* Optimistic UI 0ms Instant Loading */}
             <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onSuccess={(token) => { setAdminToken(token); setIsAdminLoggedIn(true); setShowLoginModal(false); setActiveTab('admin_dashboard'); }} />
             <IosInstallModal isOpen={showIosPrompt} onClose={() => setShowIosPrompt(false)} />
             <ManualInstallModal isOpen={showManualInstall} onClose={() => setShowManualInstall(false)} />
@@ -20010,8 +20041,8 @@ const App = () => {
                 </div>
             )}
 
-            {/* Navigasi Mobile Utama (Bentuk & Ukuran Sama Persis Seperti Popup) */}
-            {activeTab !== 'lagu_sion' && (
+            {/* Navigasi Mobile Utama (Bentuk & Ukuran Sama Persis Seperti Popup - Disembunyikan saat floating Alkitab aktif) */}
+            {activeTab !== 'lagu_sion' && !isAlkitabBarOpen && (
                 <nav
                     className="fixed z-[52] left-1/2 -translate-x-1/2 md:hidden pointer-events-auto print:hidden no-print main-mobile-nav transition-all duration-300 ease-in-out"
                     style={{
@@ -20134,8 +20165,13 @@ root.render(<ErrorBoundary><App /></ErrorBoundary>);
 // Service Worker Registration
 if ('serviceWorker' in navigator) {
     let refreshing = false;
+    let hadPreviousController = Boolean(navigator.serviceWorker.controller);
     // Listen saat ada service worker baru yang mengambil kendali, force reload page otomatis
     navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!hadPreviousController) {
+            hadPreviousController = true;
+            return;
+        }
         if (!refreshing) {
             refreshing = true;
             window.location.reload();
