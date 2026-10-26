@@ -3116,7 +3116,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
     };
 
     return (
-        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700">
+        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between h-full">
             {/* Header Dinding Doa */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#E2E8D8] dark:border-navy-800">
                 <div>
@@ -3304,7 +3304,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
             </div>
 
             {/* Daftar Kartu Pokok Doa Publik */}
-            <div className={`grid grid-cols-1 ${compact ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-3.5 mt-1`}>
+            <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-2' : 'sm:grid-cols-2'} gap-3.5 mt-1`}>
                 {(compact ? publicPrayers.slice(0, 4) : publicPrayers.slice(0, 6)).map(item => {
                     const catObj = PRAYER_CATEGORIES.find(c => c.id === item.category) || PRAYER_CATEGORIES[0];
                     const hasPrayed = prayedIds.includes(item.id);
@@ -3480,7 +3480,7 @@ const BirthdayAndCalendarWidget = () => {
     };
 
     return (
-        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700">
+        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between h-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#E2E8D8] dark:border-navy-800">
                 <div>
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D19B45]/15 text-[#9A6B1A] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-[#D19B45]/30">
@@ -3540,7 +3540,7 @@ const BirthdayAndCalendarWidget = () => {
                             Belum ada agenda kalender kegiatan pada periode ini.
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                             {filteredCalendar.map(ev => (
                                 <div
                                     key={ev.id}
@@ -3590,7 +3590,7 @@ const BirthdayAndCalendarWidget = () => {
                         Belum ada data ulang tahun jemaat yang ditampilkan.
                     </div>
                 ) : (
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                         {sortedBirthdays.map(b => {
                             const monthName = BIBLE_YEAR_MONTH_NAMES[(b.birthMonth || 1) - 1] || '';
                             const isThisMonth = Number(b.birthMonth) === currentMonth;
@@ -4294,50 +4294,48 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         <QuickDutyFinderWidget jadwalDB={jadwalDB} setActiveTab={setActiveTab} dataPejabat={dataPejabat} />
                     </div>
 
-                    {/* ROW 3: POKOK DOA ONLINE & KOTAK PENGUMUMAN JEMAAT */}
-                    <div className={`grid grid-cols-1 ${!isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
+                    {/* ROW 3: POKOK DOA ONLINE (PERSEKUTUAN DOA RABU & PASTORAL) & AGENDA & PERHATIAN JEMAAT BERSEBELAHAN */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                         <PrayerRequestWallWidget dataPejabat={dataPejabat} compact={true} />
-
-                        {/* KOTAK PENGUMUMAN */}
-                        {(!isPengumumanReallyEmpty()) && (
-                            <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
-                                <div>
-                                    <div className="flex items-center justify-between gap-3 mb-2">
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
-                                            <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman Jemaat
-                                        </span>
-                                        <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
-                                            Pekan Ini
-                                        </span>
-                                    </div>
-
-                                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight mb-4">
-                                        {pengumuman.header || "Pengumuman Pekan Ini"}
-                                    </h3>
-
-                                    <div
-                                        className="bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed overflow-y-auto custom-scrollbar font-medium min-h-[160px] max-h-[320px]"
-                                        dangerouslySetInnerHTML={{ __html: pengumuman.isi }}
-                                    ></div>
-                                </div>
-
-                                <div className="pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between text-[11px] text-[#596B4D] dark:text-gray-400">
-                                    <span>GMAHK Jemaat Pisgah BISDAC</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveTab('warta')}
-                                        className="font-bold text-[#4A7045] dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
-                                    >
-                                        <span>Buka Portal Warta</span>
-                                        <Icon name="ChevronRight" className="w-3 h-3" />
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                        <BirthdayAndCalendarWidget />
                     </div>
 
-                    {/* ROW 3B: KALENDER/ULANG TAHUN JEMAAT */}
-                    <BirthdayAndCalendarWidget />
+                    {/* ROW 3B: KOTAK PENGUMUMAN JEMAAT */}
+                    {(!isPengumumanReallyEmpty()) && (
+                        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
+                            <div>
+                                <div className="flex items-center justify-between gap-3 mb-2">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
+                                        <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman Jemaat
+                                    </span>
+                                    <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                                        Pekan Ini
+                                    </span>
+                                </div>
+
+                                <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight mb-4">
+                                    {pengumuman.header || "Pengumuman Pekan Ini"}
+                                </h3>
+
+                                <div
+                                    className="bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed overflow-y-auto custom-scrollbar font-medium min-h-[160px] max-h-[320px]"
+                                    dangerouslySetInnerHTML={{ __html: pengumuman.isi }}
+                                ></div>
+                            </div>
+
+                            <div className="pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between text-[11px] text-[#596B4D] dark:text-gray-400">
+                                <span>GMAHK Jemaat Pisgah BISDAC</span>
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab('warta')}
+                                    className="font-bold text-[#4A7045] dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                >
+                                    <span>Buka Portal Warta</span>
+                                    <Icon name="ChevronRight" className="w-3 h-3" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     {/* ROW 4: ACARA TERDEKAT & VISI MISI */}
                     <div className={`grid grid-cols-1 ${eventsToDisplay.length > 0 ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
@@ -5861,11 +5859,11 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                     )}
                 </div>
 
-                {/* Dinding Pokok Doa Online (Ibadah Rabu & Pastoral) */}
-                <PrayerRequestWallWidget dataPejabat={dataPejabat} />
-
-                {/* Kalender Kegiatan Tahunan & Ulang Tahun Jemaat */}
-                <BirthdayAndCalendarWidget />
+                {/* Dinding Pokok Doa Online (Ibadah Rabu & Pastoral) & Kalender Kegiatan Tahunan & Ulang Tahun Jemaat BERSEBELAHAN */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                    <PrayerRequestWallWidget dataPejabat={dataPejabat} compact={true} />
+                    <BirthdayAndCalendarWidget />
+                </div>
             </div>
         </div>
     );
@@ -10986,6 +10984,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     // Fungsi upload gambar inline langsung ke Google Drive
     const handleUploadInlineImage = async (base64Data, filename) => {
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
             const upRes = await fetch(GAS_API_URL, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -10994,8 +10994,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     folderId: null,
                     title: `WartaInline_${(filename || 'gambar').replace(/[^a-zA-Z0-9]/g, '_').substring(0, 25)}_${Date.now()}`,
                     imageBase64: base64Data
-                })
+                }),
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
             const upText = await upRes.text();
             const upData = JSON.parse(upText);
             if (upData && upData.success && upData.url) {
@@ -11203,15 +11205,27 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         gambarUrl: imgUrlOverride !== undefined ? imgUrlOverride : wartaPayload.gambarUrl
                     })
                 };
-                const res = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(bodyObj)
-                });
-                const rawText = await res.text();
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 45000);
                 try {
-                    return JSON.parse(rawText);
-                } catch (parseErr) {
-                    throw new Error("Respons server tidak valid: " + rawText.substring(0, 120));
+                    const res = await fetch(GAS_API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(bodyObj),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    const rawText = await res.text();
+                    try {
+                        return JSON.parse(rawText);
+                    } catch (parseErr) {
+                        throw new Error("Respons server tidak valid: " + rawText.substring(0, 120));
+                    }
+                } catch (fetchErr) {
+                    clearTimeout(timeoutId);
+                    if (fetchErr.name === 'AbortError') {
+                        throw new Error("Koneksi ke server timeout (45 detik). Silakan coba lagi.");
+                    }
+                    throw fetchErr;
                 }
             };
 
