@@ -7,7 +7,7 @@
 // 4. Bypass untuk API dinamis Google Apps Script & Supabase.
 // ============================================================
 
-const STATIC_CACHE = 'pisgah-static-v5.7';
+const STATIC_CACHE = 'pisgah-static-v5.8';
 const DATA_CACHE = 'pisgah-spiritual-v2.0';
 
 // Aset Inti Aplikasi yang langsung di-cache saat instalasi
@@ -148,43 +148,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // STRATEGI 4: Network-First dengan Fallback Cache & Timeout untuk Halaman & Aset Lainnya
-  const isNavigate = e.request.mode === 'navigate';
-  if (isNavigate) {
-    e.respondWith(
-      new Promise((resolve) => {
-        let didFallback = false;
-        // Timeout 3 detik agar pengguna tidak terjebak loading jika jaringan lambat/mati
-        const timer = setTimeout(async () => {
-          didFallback = true;
-          const cached = await caches.match(e.request) || await caches.match('./index.html') || await caches.match('./');
-          if (cached) resolve(cached);
-        }, 3000);
-
-        fetch(e.request)
-          .then((response) => {
-            clearTimeout(timer);
-            if (response && response.status === 200 && (response.type === 'basic' || response.type === 'cors')) {
-              const responseToCache = response.clone();
-              caches.open(STATIC_CACHE).then((cache) => {
-                cache.put(e.request, responseToCache);
-              });
-            }
-            resolve(response);
-          })
-          .catch(async () => {
-            clearTimeout(timer);
-            if (!didFallback) {
-              const cached = await caches.match(e.request) || await caches.match('./index.html') || await caches.match('./');
-              if (cached) resolve(cached);
-              else resolve(new Response('Offline - GMAHK Pisgah Bisdac', { status: 503 }));
-            }
-          });
-      })
-    );
-    return;
-  }
-
+  // STRATEGI 4: Network-First dengan Fallback Cache untuk Halaman & Aset Lainnya
   e.respondWith(
     fetch(e.request)
       .then((response) => {
@@ -199,7 +163,13 @@ self.addEventListener('fetch', (e) => {
       .catch(async () => {
         const cached = await caches.match(e.request);
         if (cached) return cached;
-        return null;
+
+        // Jika navigasi halaman HTML offline, fallback ke index.html yang sudah di-cache
+        if (e.request.mode === 'navigate') {
+          const indexCached = (await caches.match('./index.html')) || (await caches.match('./'));
+          if (indexCached) return indexCached;
+        }
+        return new Response('Offline - GMAHK Pisgah Bisdac', { status: 503, headers: { 'Content-Type': 'text/plain' } });
       })
   );
 });

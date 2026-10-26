@@ -20159,25 +20159,27 @@ class ErrorBoundary extends React.Component {
     }
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<ErrorBoundary><App /></ErrorBoundary>);
+const mountApp = () => {
+    const container = document.getElementById('root');
+    if (!container) return;
+    const root = ReactDOM.createRoot(container);
+    root.render(<ErrorBoundary><App /></ErrorBoundary>);
+
+    // Bersihkan preloader jika masih ada di DOM
+    const preloader = document.getElementById('app-preloader') || document.querySelector('.preloader-bg');
+    if (preloader && preloader.parentNode) {
+        try { preloader.parentNode.removeChild(preloader); } catch (e) { }
+    }
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountApp);
+} else {
+    mountApp();
+}
 
 // Service Worker Registration
 if ('serviceWorker' in navigator) {
-    let refreshing = false;
-    let hadPreviousController = Boolean(navigator.serviceWorker.controller);
-    // Listen saat ada service worker baru yang mengambil kendali, force reload page otomatis
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!hadPreviousController) {
-            hadPreviousController = true;
-            return;
-        }
-        if (!refreshing) {
-            refreshing = true;
-            window.location.reload();
-        }
-    });
-
     window.addEventListener('load', async () => {
         try {
             const registration = await navigator.serviceWorker.register('./sw.js');

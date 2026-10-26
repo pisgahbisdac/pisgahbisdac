@@ -59,7 +59,7 @@
         crossorigin="anonymous" defer></script>
     <!-- Library untuk konversi HEIC/HEIF ke format standard -->
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script type="module" crossorigin src="/assets/main-Cl3rBeIc.js"></script>
+  <script type="module" crossorigin src="/assets/main-Di6qdSHH.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-react-ByBz4OXm.js">
   <link rel="stylesheet" crossorigin href="/assets/index-D4y6GiXH.css">
@@ -127,9 +127,12 @@
             </div>
 
             <!-- Rescue button jika koneksi atau Service Worker lama bermasalah -->
-            <div id="preloader-rescue" style="display: none; margin-top: 24px; text-align: center; z-index: 10000; position: relative;">
-                <p style="font-size: 13px; color: #D4AF37; font-weight: 700; margin-bottom: 8px;">Memuat memakan waktu lebih lama dari biasanya...</p>
-                <button onclick="window.clearAppCacheAndReload()" style="padding: 10px 18px; background: #D4AF37; color: #0b1a30; border: none; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.3); transition: transform 0.2s;">
+            <div id="preloader-rescue"
+                style="display: none; margin-top: 24px; text-align: center; z-index: 10000; position: relative;">
+                <p style="font-size: 13px; color: #D4AF37; font-weight: 700; margin-bottom: 8px;">Memuat memakan waktu
+                    lebih lama dari biasanya...</p>
+                <button onclick="window.clearAppCacheAndReload()"
+                    style="padding: 10px 18px; background: #D4AF37; color: #0b1a30; border: none; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.3); transition: transform 0.2s;">
                     🔄 Muat Ulang Bersih (Clear Cache)
                 </button>
             </div>
@@ -138,16 +141,16 @@
 
     <script>
         // Fungsi darurat untuk membersihkan cache service worker jika loading terhambat
-        window.clearAppCacheAndReload = function() {
+        window.clearAppCacheAndReload = function () {
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                navigator.serviceWorker.getRegistrations().then(function (regs) {
                     for (var i = 0; i < regs.length; i++) {
                         regs[i].unregister();
                     }
                 });
             }
             if ('caches' in window) {
-                caches.keys().then(function(names) {
+                caches.keys().then(function (names) {
                     for (var i = 0; i < names.length; i++) {
                         caches.delete(names[i]);
                     }
@@ -159,22 +162,13 @@
             window.location.reload();
         };
 
-        // Tampilkan tombol rescue jika dalam 3.5 detik React belum me-mount
-        setTimeout(function() {
+        // Tampilkan tombol rescue jika dalam 4 detik React belum menggantikan preloader
+        setTimeout(function () {
             var rescue = document.getElementById('preloader-rescue');
             if (rescue && document.querySelector('.preloader-bg')) {
                 rescue.style.display = 'block';
             }
-        }, 3500);
-
-        // Auto recovery watchdog: Jika dalam 7 detik preloader masih ada, pulihkan cache otomatis
-        setTimeout(function() {
-            var preloader = document.querySelector('.preloader-bg');
-            if (preloader) {
-                console.warn('[Watchdog] Preloader stuck > 7s, running auto recovery...');
-                window.clearAppCacheAndReload();
-            }
-        }, 7000);
+        }, 4000);
     </script>
 
 </body>
