@@ -98,9 +98,9 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
   // STRATEGI 1: Bypass langsung untuk API backend dinamis (Google Apps Script & Supabase)
-  // Data presensi dan keuangan selalu membutuhkan koneksi server langsung
-  if (url.hostname.includes('script.google.com') || url.hostname.includes('supabase.co')) {
-    e.respondWith(fetch(e.request));
+  // Data presensi dan keuangan selalu membutuhkan koneksi server langsung.
+  // PENTING: Jangan gunakan e.respondWith() agar browser menangani POST request dan redirect secara native!
+  if (url.hostname.includes('script.google.com') || url.hostname.includes('script.googleusercontent.com') || url.hostname.includes('supabase.co')) {
     return;
   }
 
