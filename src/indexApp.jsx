@@ -3003,6 +3003,156 @@ const savePrayerRequests = (list) => {
     } catch (e) { }
 };
 
+// Komponen Helper Baris Filter Scrollable Interaktif (Dukungan Mouse Wheel, Drag Desktop, Touch Mobile, & Tombol Panah Kiri/Kanan)
+const ScrollableFilterBar = ({ children, className = "" }) => {
+    const scrollContainerRef = React.useRef(null);
+    const [canScrollLeft, setCanScrollLeft] = React.useState(false);
+    const [canScrollRight, setCanScrollRight] = React.useState(false);
+    const isMouseDown = React.useRef(false);
+    const startX = React.useRef(0);
+    const scrollLeftVal = React.useRef(0);
+    const isDragging = React.useRef(false);
+
+    const updateScrollButtons = React.useCallback(() => {
+        const el = scrollContainerRef.current;
+        if (!el) return;
+        const hasOverflow = el.scrollWidth > el.clientWidth + 2;
+        setCanScrollLeft(el.scrollLeft > 4);
+        setCanScrollRight(hasOverflow && el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+    }, []);
+
+    React.useEffect(() => {
+        const el = scrollContainerRef.current;
+        if (!el) return;
+        updateScrollButtons();
+        const handleResize = () => updateScrollButtons();
+        window.addEventListener('resize', handleResize);
+        let observer = null;
+        if (typeof ResizeObserver !== 'undefined') {
+            observer = new ResizeObserver(() => updateScrollButtons());
+            observer.observe(el);
+        }
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            if (observer) observer.disconnect();
+        };
+    }, [updateScrollButtons, children]);
+
+    const handleScrollLeft = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({ left: -220, behavior: 'smooth' });
+            setTimeout(updateScrollButtons, 320);
+        }
+    };
+
+    const handleScrollRight = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({ left: 220, behavior: 'smooth' });
+            setTimeout(updateScrollButtons, 320);
+        }
+    };
+
+    // Dukungan mouse wheel horizontal (Desktop)
+    const handleWheel = (e) => {
+        const el = scrollContainerRef.current;
+        if (!el) return;
+        if (el.scrollWidth > el.clientWidth) {
+            if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && e.deltaY !== 0) {
+                el.scrollLeft += e.deltaY;
+                e.preventDefault();
+                updateScrollButtons();
+            } else if (e.deltaX !== 0) {
+                el.scrollLeft += e.deltaX;
+                updateScrollButtons();
+            }
+        }
+    };
+
+    // Dukungan mouse drag to scroll (Desktop)
+    const handleMouseDown = (e) => {
+        if (e.button !== 0) return;
+        isMouseDown.current = true;
+        isDragging.current = false;
+        startX.current = e.pageX - scrollContainerRef.current.offsetLeft;
+        scrollLeftVal.current = scrollContainerRef.current.scrollLeft;
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isMouseDown.current) return;
+        const x = e.pageX - scrollContainerRef.current.offsetLeft;
+        const walk = (x - startX.current);
+        if (Math.abs(walk) > 4) {
+            isDragging.current = true;
+        }
+        scrollContainerRef.current.scrollLeft = scrollLeftVal.current - walk;
+        updateScrollButtons();
+    };
+
+    const handleMouseUp = () => {
+        isMouseDown.current = false;
+    };
+
+    const handleClickCapture = (e) => {
+        if (isDragging.current) {
+            e.stopPropagation();
+            e.preventDefault();
+            isDragging.current = false;
+        }
+    };
+
+    return (
+        <div className="relative w-full my-2.5 flex items-center group">
+            {/* Tombol Panah Kiri */}
+            {canScrollLeft && (
+                <button
+                    type="button"
+                    onClick={handleScrollLeft}
+                    aria-label="Geser Kiri"
+                    className="absolute -left-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white dark:bg-navy-800 text-[#2C3F21] dark:text-gold-400 shadow-md border border-[#E2E8D8] dark:border-navy-700 flex items-center justify-center hover:scale-110 active:scale-95 transition cursor-pointer"
+                >
+                    <Icon name="ChevronLeft" className="w-4 h-4" />
+                </button>
+            )}
+
+            {/* Kontainer Baris Filter Scrollable */}
+            <div
+                ref={scrollContainerRef}
+                onScroll={updateScrollButtons}
+                onWheel={handleWheel}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onClickCapture={handleClickCapture}
+                className={`w-full flex items-center gap-1.5 overflow-x-auto py-1 px-1 scroll-smooth cursor-grab active:cursor-grabbing select-none ${className}`}
+                style={{
+                    WebkitOverflowScrolling: 'touch',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                }}
+            >
+                {children}
+            </div>
+
+            {/* Tombol Panah Kanan */}
+            {canScrollRight && (
+                <button
+                    type="button"
+                    onClick={handleScrollRight}
+                    aria-label="Geser Kanan"
+                    className="absolute -right-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white dark:bg-navy-800 text-[#2C3F21] dark:text-gold-400 shadow-md border border-[#E2E8D8] dark:border-navy-700 flex items-center justify-center hover:scale-110 active:scale-95 transition cursor-pointer"
+                >
+                    <Icon name="ChevronRight" className="w-4 h-4" />
+                </button>
+            )}
+        </div>
+    );
+};
+
 const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
     const [prayers, setPrayers] = React.useState(() => loadPrayerRequests());
     const [prayedIds, setPrayedIds] = React.useState(() => {
@@ -3274,13 +3424,8 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                 </form>
             )}
 
-            {/* Filter Kategori Doa (Bisa digeser di Mobile) */}
-            <div
-                className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-3 mt-2 min-w-0 max-w-full scroll-smooth"
-                style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', overscrollBehaviorX: 'contain' }}
-                onTouchStart={(e) => e.stopPropagation()}
-                onTouchMove={(e) => e.stopPropagation()}
-            >
+            {/* Filter Kategori Doa */}
+            <ScrollableFilterBar>
                 <button
                     type="button"
                     onClick={() => setCategoryFilter('all')}
@@ -3301,7 +3446,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                         </button>
                     );
                 })}
-            </div>
+            </ScrollableFilterBar>
 
             {/* Daftar Kartu Pokok Doa Publik */}
             <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-2' : 'sm:grid-cols-2'} gap-3.5 mt-1`}>
@@ -3513,10 +3658,7 @@ const BirthdayAndCalendarWidget = () => {
             {activeMode === 'calendar' ? (
                 <div className="mt-4 space-y-4">
                     {/* Filter Triwulan */}
-                    <div
-                        className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 min-w-0 max-w-full"
-                        style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}
-                    >
+                    <ScrollableFilterBar>
                         {[
                             { id: 'all', label: 'Semua Triwulan' },
                             { id: '1', label: 'Triwulan I (Jan–Mar)' },
@@ -3533,7 +3675,7 @@ const BirthdayAndCalendarWidget = () => {
                                 {q.label}
                             </button>
                         ))}
-                    </div>
+                    </ScrollableFilterBar>
 
                     {filteredCalendar.length === 0 ? (
                         <div className="p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold">
