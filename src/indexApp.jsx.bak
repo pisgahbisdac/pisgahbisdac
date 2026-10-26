@@ -1968,7 +1968,11 @@ const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', 
     const [themeId, setThemeId] = React.useState('navy_gold');
     const [aspect, setAspect] = React.useState('story'); // 'story' (1080x1920) | 'square' (1080x1080)
     const [customNote, setCustomNote] = React.useState('');
+    const [previewUrl, setPreviewUrl] = React.useState('');
     const [isSharing, setIsSharing] = React.useState(false);
+    const [isDownloading, setIsDownloading] = React.useState(false);
+    const [copyFeedback, setCopyFeedback] = React.useState('');
+    const [downloadFeedback, setDownloadFeedback] = React.useState(false);
 
     const activeTheme = VERSE_CARD_THEMES.find(t => t.id === themeId) || VERSE_CARD_THEMES[0];
 
@@ -2127,51 +2131,190 @@ const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', 
         ctx.fillStyle = activeTheme.textSub;
         ctx.fillText('PISGAH BISDAC • Alkitab Digital Jemaat', W / 2, footerY + 32);
         ctx.restore();
+
+        // Konversi Canvas ke Blob URL untuk ditampilkan via tag <img> asli (mendukung Long-Press Save di HP)
+        try {
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    const newUrl = URL.createObjectURL(blob);
+                    setPreviewUrl(prev => {
+                        if (prev && prev.startsWith('blob:')) {
+                            try { URL.revokeObjectURL(prev); } catch (e) { }
+                        }
+                        return newUrl;
+                    });
+                }
+            }, 'image/png');
+        } catch (e) {
+            try {
+                setPreviewUrl(canvas.toDataURL('image/png'));
+            } catch (err) { }
+        }
     }, [isOpen, aspect, activeTheme, verseText, reference, subtitle, customNote]);
 
     React.useEffect(() => {
         drawCardToCanvas();
     }, [drawCardToCanvas]);
 
+    React.useEffect(() => {
+        return () => {
+            if (previewUrl && previewUrl.startsWith('blob:')) {
+                try { URL.revokeObjectURL(previewUrl); } catch (e) { }
+            }
+        };
+    }, [previewUrl]);
+
     if (!isOpen) return null;
 
-    const handleDownloadImage = () => {
+    // Helper simpan / unduh berkas gambar HD
+    const handleDownloadImage = async () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+        setIsDownloading(true);
         const safeRef = (reference || 'Ayat').replace(/[^a-zA-Z0-9_-]/g, '-');
-        const link = document.createElement('a');
-        link.download = `Kartu-Ayat-${safeRef}-PisgahBisdac.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        const filename = `Kartu-Ayat-${safeRef}-PisgahBisdac.png`;
+
+        try {
+            // Gunakan canvas.toBlob agar tidak terkena pembatasan data URL pada peramban mobile (iOS/Android)
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            if (!blob) throw new Error("Gagal membuat blob gambar");
+
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = filename;
+            link.setAttribute('download', filename);
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => {
+                try {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                } catch (e) { }
+            }, 30000);
+
+            setDownloadFeedback(true);
+            setTimeout(() => setDownloadFeedback(false), 3000);
+        } catch (err) {
+            console.warn("Download via blob gagal, coba fallback dataURL:", err);
+            try {
+                const dataUrl = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = filename;
+                link.setAttribute('download', filename);
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                setTimeout(() => {
+                    try { document.body.removeChild(link); } catch (e) { }
+                }, 1000);
+                setDownloadFeedback(true);
+                setTimeout(() => setDownloadFeedback(false), 3000);
+            } catch (fallbackErr) {
+                alert("Peramban Anda membatasi pengunduhan otomatis. Silakan tekan dan tahan (long-press) gambar kartu di atas lalu pilih 'Simpan Gambar' ke Galeri foto HP Anda.");
+            }
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
+    // Helper salin gambar langsung ke Clipboard (Dapat ditempel langsung di WhatsApp / Sosmed dengan Ctrl + V)
+    const handleCopyImage = async () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        try {
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            if (!blob) throw new Error("Gagal menghasilkan gambar");
+
+            if (navigator.clipboard && typeof window.ClipboardItem !== 'undefined' && navigator.clipboard.write) {
+                const item = new ClipboardItem({ 'image/png': blob });
+                await navigator.clipboard.write([item]);
+                setCopyFeedback('copied');
+                setTimeout(() => setCopyFeedback(''), 3500);
+                return true;
+            } else {
+                throw new Error("ClipboardItem tidak didukung");
+            }
+        } catch (err) {
+            console.warn("Gagal menyalin gambar langsung:", err);
+            try {
+                await navigator.clipboard.writeText(`📖 *${reference}*\n\n"${verseText}"\n\n🕊️ _GMAHK Jemaat Pisgah BISDAC - Batam_`);
+                setCopyFeedback('text_copied');
+                setTimeout(() => setCopyFeedback(''), 3500);
+            } catch (e) {
+                setCopyFeedback('failed');
+                setTimeout(() => setCopyFeedback(''), 3500);
+            }
+            return false;
+        }
+    };
+
+    // Helper bagikan gambar ke WhatsApp / Media Sosial
     const handleShareImage = async () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         setIsSharing(true);
+        const safeRef = (reference || 'Ayat').replace(/[^a-zA-Z0-9_-]/g, '-');
+        const filename = `Kartu-Ayat-${safeRef}-PisgahBisdac.png`;
+        const shareText = `📖 *${reference}*\n\n"${verseText}"\n\n🕊️ _GMAHK Jemaat Pisgah BISDAC - Batam_`;
+
         try {
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-            if (blob && navigator.canShare) {
-                const safeRef = (reference || 'Ayat').replace(/[^a-zA-Z0-9_-]/g, '-');
-                const file = new File([blob], `Kartu-Ayat-${safeRef}.png`, { type: 'image/png' });
-                if (navigator.canShare({ files: [file] })) {
+            if (!blob) throw new Error("Gagal menghasilkan gambar");
+
+            const file = new File([blob], filename, { type: 'image/png' });
+
+            // 1. Coba Web Share API bawaan (Sangat optimal untuk HP Android & iOS Safari)
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
                     await navigator.share({
                         title: `Kartu Ayat ${reference}`,
-                        text: `📖 *${reference}*\n"${verseText}"\n\n🕊️ _GMAHK Jemaat Pisgah BISDAC - Batam_`,
+                        text: shareText,
                         files: [file]
                     });
                     setIsSharing(false);
                     return;
+                } catch (shareErr) {
+                    if (shareErr.name === 'AbortError') {
+                        setIsSharing(false);
+                        return;
+                    }
+                    console.warn("Web Share API dengan file gagal, melanjutkan ke mode copy & WhatsApp Web:", shareErr);
                 }
             }
-            // Fallback: Download image first & open WA text share
+
+            // 2. Jika Web Share API tidak mendukung file gambar (seperti Desktop PC / WA Web):
+            // Salin gambar ke clipboard agar pengguna tinggal menempelkan (Ctrl+V) di WA!
+            let isCopied = false;
+            if (navigator.clipboard && typeof window.ClipboardItem !== 'undefined' && navigator.clipboard.write) {
+                try {
+                    const item = new ClipboardItem({ 'image/png': blob });
+                    await navigator.clipboard.write([item]);
+                    isCopied = true;
+                } catch (cErr) { }
+            }
+
+            // Unduh file gambar otomatis ke komputer/perangkat
             handleDownloadImage();
-            const shareText = `📖 *${reference}*\n\n"${verseText}"\n\n🕊️ _GMAHK Jemaat Pisgah BISDAC - Batam_`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
-        } catch (e) {
-            console.log('Share image canceled or fallback:', e);
+
+            // Buka WhatsApp
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            window.open(waUrl, '_blank');
+
+            if (isCopied) {
+                alert("✨ GAMBAR KARTU BERHASIL DISALIN & DIUNDUH!\n\nSaat chat WhatsApp terbuka:\n👉 Tekan Tempel (Ctrl + V di PC atau Paste di HP) pada kolom chat untuk langsung mengirim gambar kartu ayat ini.");
+            } else {
+                alert("✨ GAMBAR KARTU TELAH DIUNDUH!\n\nSaat chat WhatsApp terbuka:\n👉 Klik ikon lampiran (klip 📎 / foto 📷) lalu pilih kartu ayat yang baru saja diunduh untuk mengirimnya.");
+            }
+        } catch (err) {
+            console.error("Gagal membagikan kartu:", err);
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            window.open(waUrl, '_blank');
+        } finally {
+            setIsSharing(false);
         }
-        setIsSharing(false);
     };
 
     return createPortal(
@@ -2198,15 +2341,35 @@ const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', 
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
-                    {/* Canvas Preview Column */}
+                    {/* Canvas & Real Image Preview Column */}
                     <div className="md:col-span-6 flex flex-col items-center justify-center bg-navy-950/5 dark:bg-navy-950/60 rounded-2xl p-3 border border-navy-100 dark:border-navy-800">
+                        {/* Hidden Canvas untuk rendering grafik HD */}
                         <canvas
                             ref={canvasRef}
-                            className={`rounded-xl shadow-lg border border-black/10 transition-all ${aspect === 'story' ? 'max-h-[340px] sm:max-h-[390px] w-auto aspect-[9/16]' : 'max-h-[290px] sm:max-h-[330px] w-auto aspect-square'}`}
+                            style={{ display: 'none' }}
                         />
-                        <span className="text-[10px] font-bold text-navy-400 mt-2">
-                            Pratinjau Resolusi HD ({aspect === 'story' ? '1080 × 1920 px • Story/Status' : '1080 × 1080 px • Persegi'})
-                        </span>
+
+                        {/* Real <img> Tag: Menjamin dapat ditekan & tahan (Long-Press) di SEMUA HP untuk Simpan / Bagikan! */}
+                        {previewUrl ? (
+                            <img
+                                src={previewUrl}
+                                alt={`Kartu Ayat ${reference}`}
+                                className={`rounded-xl shadow-lg border border-black/10 transition-all select-none ${aspect === 'story' ? 'max-h-[340px] sm:max-h-[390px] w-auto aspect-[9/16]' : 'max-h-[290px] sm:max-h-[330px] w-auto aspect-square'}`}
+                            />
+                        ) : (
+                            <div className={`rounded-xl bg-navy-900/10 dark:bg-navy-950 flex items-center justify-center ${aspect === 'story' ? 'h-[340px] aspect-[9/16]' : 'h-[290px] aspect-square'}`}>
+                                <span className="text-xs font-bold text-navy-400 animate-pulse">Menyiapkan kartu...</span>
+                            </div>
+                        )}
+
+                        <div className="text-center mt-2.5 space-y-1">
+                            <span className="text-[10px] font-bold text-navy-400 block">
+                                Resolusi HD ({aspect === 'story' ? '1080 × 1920 px • Status WA / Story' : '1080 × 1080 px • Persegi'})
+                            </span>
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 dark:text-gold-400 bg-amber-50 dark:bg-navy-800/80 px-2.5 py-0.5 rounded-full border border-amber-200/60 dark:border-navy-700">
+                                💡 <strong>Tips HP:</strong> Tekan & tahan gambar untuk 'Simpan ke Foto'
+                            </span>
+                        </div>
                     </div>
 
                     {/* Customization Controls Column */}
@@ -2265,23 +2428,39 @@ const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', 
 
                         {/* Action Buttons */}
                         <div className="pt-2 space-y-2">
+                            {/* Tombol 1: Kirim Gambar ke WhatsApp */}
                             <button
                                 type="button"
                                 onClick={handleShareImage}
                                 disabled={isSharing}
-                                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer"
+                                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-700/20 flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer"
                             >
                                 <i className="fa-brands fa-whatsapp text-base"></i>
-                                <span>{isSharing ? 'Menyiapkan Gambar...' : 'Bagikan Gambar ke WA / Sosmed'}</span>
+                                <span>{isSharing ? 'Menyiapkan Gambar...' : 'Kirim Gambar ke WhatsApp'}</span>
                             </button>
-                            <button
-                                type="button"
-                                onClick={handleDownloadImage}
-                                className="w-full py-2.5 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-400 text-gold-400 dark:text-navy-950 font-black text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer"
-                            >
-                                <Icon name="Download" className="w-4 h-4" />
-                                <span>Unduh Gambar HD (PNG)</span>
-                            </button>
+
+                            <div className="grid grid-cols-2 gap-2">
+                                {/* Tombol 2: Salin Gambar ke Clipboard */}
+                                <button
+                                    type="button"
+                                    onClick={handleCopyImage}
+                                    className={`py-2.5 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-98 ${copyFeedback === 'copied' ? 'bg-emerald-600 text-white border-emerald-600 font-black' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800 dark:hover:bg-navy-700 text-navy-800 dark:text-gold-300 border-navy-200 dark:border-navy-700'}`}
+                                >
+                                    <Icon name={copyFeedback === 'copied' ? "Check" : "Copy"} className="w-3.5 h-3.5 shrink-0" />
+                                    <span>{copyFeedback === 'copied' ? 'Tersalin! (Ctrl+V)' : 'Salin Gambar'}</span>
+                                </button>
+
+                                {/* Tombol 3: Unduh Gambar HD */}
+                                <button
+                                    type="button"
+                                    onClick={handleDownloadImage}
+                                    disabled={isDownloading}
+                                    className={`py-2.5 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-98 ${downloadFeedback ? 'bg-emerald-600 text-white border-emerald-600 font-black' : 'bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-400 text-gold-400 dark:text-navy-950 border-transparent'}`}
+                                >
+                                    <Icon name={downloadFeedback ? "Check" : "Download"} className="w-3.5 h-3.5 shrink-0" />
+                                    <span>{downloadFeedback ? 'Tersimpan!' : (isDownloading ? 'Menyimpan...' : 'Simpan / Unduh')}</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
