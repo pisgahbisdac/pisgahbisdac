@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Play, Maximize, FileText, Download, Share2, Info, BookOpen, Search as SearchIcon, X, CheckCircle, Navigation, MapPin, Calendar, Phone, Mail, Clock, Globe, ArrowRight, User, PlusCircle, PenTool, Layout, File, ExternalLink, Menu, Music, Activity, Megaphone, Video, ArrowLeft, MoreHorizontal, MessageCircle, Heart, Star, Compass, Anchor, Copy, Check, Upload, Trash2, Map as MapIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Maximize, FileText, Download, Share2, Info, BookOpen, Search as SearchIcon, X, CheckCircle, Navigation, MapPin, Calendar, Phone, Mail, Clock, Globe, ArrowRight, User, PlusCircle, PenTool, Layout, ExternalLink, Menu, Music, Activity, Megaphone, Video, ArrowLeft, MoreHorizontal, MessageCircle, Heart, Star, Compass, Anchor, Copy, Check, Upload, Trash2, Map as MapIcon } from 'lucide-react';
 
 // searchlaporan: redirect ke laporan.html (Cek Transaksi)
 
@@ -10754,6 +10754,18 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         return base64Data;
     };
 
+    // Helper pengecekan aman berkas File atau Blob
+    const isFileOrBlob = (obj) => {
+        if (!obj || typeof obj !== 'object') return false;
+        try {
+            if (typeof window !== 'undefined') {
+                if (typeof window.File === 'function' && obj instanceof window.File) return true;
+                if (typeof window.Blob === 'function' && obj instanceof window.Blob) return true;
+            }
+        } catch (e) { }
+        return Boolean(obj && typeof obj.slice === 'function' && (typeof obj.size === 'number' || typeof obj.type === 'string'));
+    };
+
     // Helper upload foto sampul/dokumentasi warta ke Google Drive agar tidak melebihi batas 50.000 karakter per sel Google Sheets
     const uploadWartaPhotoItem = async (fileOrBase64, idx = 0) => {
         try {
@@ -10763,7 +10775,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             }
 
             let base64Str = fileOrBase64;
-            if (fileOrBase64 instanceof File || fileOrBase64 instanceof Blob) {
+            if (isFileOrBlob(fileOrBase64)) {
                 base64Str = await compressImage(fileOrBase64, 1200, 0.8);
             }
             if (typeof base64Str === 'string' && base64Str.startsWith('data:image')) {
@@ -10877,7 +10889,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 for (let i = 0; i < workingImageList.length; i++) {
                     const item = workingImageList[i];
                     const fileObj = item.file || item;
-                    if (fileObj instanceof File || fileObj instanceof Blob) {
+                    if (isFileOrBlob(fileObj)) {
                         const urlOrB64 = await uploadWartaPhotoItem(fileObj, i);
                         if (urlOrB64) uploadedUrls.push(urlOrB64);
                     } else if (typeof item === 'string' && !item.startsWith('blob:')) {
@@ -11093,7 +11105,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     const item = workingImageList[i];
                     if (item.type === 'existing' && item.url) {
                         urlParts.push(item.url);
-                    } else if (item.type === 'new' && (item.file || item instanceof File || item instanceof Blob)) {
+                    } else if (item.type === 'new' && (item.file || isFileOrBlob(item))) {
                         const uploaded = await uploadWartaPhotoItem(item.file || item, i);
                         if (uploaded) urlParts.push(uploaded);
                     } else if (typeof item === 'string' && !item.startsWith('blob:')) {
@@ -13368,8 +13380,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 pt-1">
                                                     {wartaGambarList.map((item, idx) => {
                                                         const isMain = idx === 0;
-                                                        const displayUrl = item.url || (item.file ? URL.createObjectURL(item.file) : (item instanceof File ? URL.createObjectURL(item) : ''));
-                                                        const sizeStr = item.sizeStr || (item instanceof File ? (item.size < 1024 * 1024 ? (item.size / 1024).toFixed(0) + ' KB' : (item.size / (1024 * 1024)).toFixed(1) + ' MB') : '');
+                                                        const displayUrl = item.url || (item.file ? URL.createObjectURL(item.file) : (isFileOrBlob(item) ? URL.createObjectURL(item) : ''));
+                                                        const sizeStr = item.sizeStr || (isFileOrBlob(item) ? (item.size < 1024 * 1024 ? (item.size / 1024).toFixed(0) + ' KB' : (item.size / (1024 * 1024)).toFixed(1) + ' MB') : '');
                                                         return (
                                                             <div
                                                                 key={item.id || idx}
@@ -13524,7 +13536,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                             {wartaGambarList && wartaGambarList.length > 0 && (
                                                 <div className="aspect-video rounded-2xl overflow-hidden bg-navy-950 mb-6 relative shadow-md">
                                                     <img
-                                                        src={wartaGambarList[0].url || (wartaGambarList[0].file ? URL.createObjectURL(wartaGambarList[0].file) : (wartaGambarList[0] instanceof File ? URL.createObjectURL(wartaGambarList[0]) : ''))}
+                                                        src={wartaGambarList[0].url || (wartaGambarList[0].file ? URL.createObjectURL(wartaGambarList[0].file) : (isFileOrBlob(wartaGambarList[0]) ? URL.createObjectURL(wartaGambarList[0]) : ''))}
                                                         className="w-full h-full object-cover"
                                                         alt="Sampul Berita"
                                                     />
