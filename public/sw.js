@@ -166,10 +166,9 @@ self.addEventListener('fetch', (e) => {
 
         // Jika navigasi halaman HTML offline, fallback ke index.html yang sudah di-cache
         if (e.request.mode === 'navigate') {
-          const indexCached = (await caches.match('./index.html')) || (await caches.match('./'));
-          if (indexCached) return indexCached;
+          return caches.match('./index.html') || caches.match('./');
         }
-        return new Response('Offline - GMAHK Pisgah Bisdac', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+        return null;
       })
   );
 });

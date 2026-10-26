@@ -65,7 +65,7 @@
     class="bg-gray-50 dark:bg-[#0b1a30] text-navy-900 dark:text-gray-100 font-sans antialiased overflow-x-clip transition-colors duration-300">
     <div id="root">
         <!-- Preloader: Ditampilkan saat React & Babel sedang diproses, mencegah blank screen lambat -->
-        <div id="app-preloader" class="preloader-bg"
+        <div class="preloader-bg"
             style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
             <style>
                 .preloader-bg {
@@ -158,13 +158,22 @@
             window.location.reload();
         };
 
-        // Tampilkan tombol rescue jika dalam 4 detik React belum menggantikan preloader
+        // Tampilkan tombol rescue jika dalam 3.5 detik React belum me-mount
         setTimeout(function () {
             var rescue = document.getElementById('preloader-rescue');
             if (rescue && document.querySelector('.preloader-bg')) {
                 rescue.style.display = 'block';
             }
-        }, 4000);
+        }, 3500);
+
+        // Auto recovery watchdog: Jika dalam 7 detik preloader masih ada, pulihkan cache otomatis
+        setTimeout(function () {
+            var preloader = document.querySelector('.preloader-bg');
+            if (preloader) {
+                console.warn('[Watchdog] Preloader stuck > 7s, running auto recovery...');
+                window.clearAppCacheAndReload();
+            }
+        }, 7000);
     </script>
 
     <script type="module" src="/src/index.jsx"></script>

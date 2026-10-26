@@ -19020,12 +19020,6 @@ const App = () => {
         return () => window.removeEventListener('alkitab-bar-state', handleBarState);
     }, []);
 
-    React.useEffect(() => {
-        if (activeTab !== 'alkitab') {
-            setIsAlkitabBarOpen(false);
-        }
-    }, [activeTab]);
-
     // --- THEME STATE ---
     const [isDarkMode, setIsDarkMode] = React.useState(() => {
         const saved = localStorage.getItem('theme');
@@ -19076,6 +19070,12 @@ const App = () => {
         return 'home';
     };
     const [activeTab, setRawActiveTab] = React.useState(getInitialTab());
+
+    React.useEffect(() => {
+        if (activeTab !== 'alkitab') {
+            setIsAlkitabBarOpen(false);
+        }
+    }, [activeTab]);
 
     const [laguSionDb, setLaguSionDb] = React.useState([]);
     const [laguSionInitialSong, setLaguSionInitialSong] = React.useState(null);
