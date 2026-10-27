@@ -3506,12 +3506,8 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
 // ============================================================
 // DATA & WIDGET ULANG TAHUN JEMAAT & KALENDER KEGIATAN TAHUNAN
 // ============================================================
-const INITIAL_MEMBER_BIRTHDAYS = [
-    { id: 'bday_1', nama: 'Pdt. / Gembala Jemaat', birthMonth: 10, birthDay: 24, kategori: 'Gembala & Keluarga', wa: '6285194344004' },
-    { id: 'bday_2', nama: 'Ketua & Majelis Jemaat', birthMonth: 10, birthDay: 26, kategori: 'Majelis Jemaat', wa: '' },
-    { id: 'bday_3', nama: 'Sdr/i. Pemuda Advent (PA)', birthMonth: 10, birthDay: 28, kategori: 'Pemuda Advent', wa: '' },
-    { id: 'bday_4', nama: 'Ibu-ibu BWA Pisgah', birthMonth: 11, birthDay: 5, kategori: 'Bakti Wanita Advent', wa: '' }
-];
+const INITIAL_MEMBER_BIRTHDAYS = [];
+const LEGACY_DUMMY_BDAY_IDS = new Set(['bday_1', 'bday_2', 'bday_3', 'bday_4']);
 
 const INITIAL_ANNUAL_CALENDAR = [
     { id: 'cal_1', title: 'Perjamuan Kudus Triwulan I', dateYMD: '2026-03-28', quarter: 1, category: 'Ibadah Sakramen', location: 'GMAHK Jemaat Pisgah BISDAC - Batam', desc: 'Kebaktian Perjamuan Kudus & Basuh Kaki Triwulan I' },
@@ -3528,7 +3524,9 @@ const loadMemberBirthdays = () => {
         const raw = localStorage.getItem(MEMBER_BIRTHDAYS_STORAGE_KEY);
         if (raw !== null) {
             const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) return parsed;
+            if (Array.isArray(parsed)) {
+                return parsed.filter(item => item && !LEGACY_DUMMY_BDAY_IDS.has(item.id));
+            }
         }
     } catch (e) { }
     return INITIAL_MEMBER_BIRTHDAYS;
@@ -10086,18 +10084,6 @@ const AdminPastoralAndCalendarPanel = () => {
                             Total {birthdays.length} data ulang tahun jemaat
                         </span>
                         <div className="flex items-center gap-2">
-                            {birthdays.length === 0 && (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setBirthdays(INITIAL_MEMBER_BIRTHDAYS);
-                                        saveMemberBirthdays(INITIAL_MEMBER_BIRTHDAYS);
-                                    }}
-                                    className="px-3 py-1.5 rounded-xl bg-navy-100 hover:bg-navy-200 text-navy-700 text-xs font-bold cursor-pointer"
-                                >
-                                    🔄 Muat Contoh Default
-                                </button>
-                            )}
                             {birthdays.length > 0 && (
                                 <button
                                     type="button"
