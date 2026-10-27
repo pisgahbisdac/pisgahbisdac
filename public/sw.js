@@ -7,7 +7,7 @@
 // 4. Bypass untuk API dinamis Google Apps Script & Supabase.
 // ============================================================
 
-const STATIC_CACHE = 'pisgah-static-v5.8';
+const STATIC_CACHE = 'pisgah-static-v6.0';
 const DATA_CACHE = 'pisgah-spiritual-v2.0';
 
 // Aset Inti Aplikasi yang langsung di-cache saat instalasi
@@ -166,8 +166,14 @@ self.addEventListener('fetch', (e) => {
 
         // Jika navigasi halaman HTML offline, fallback ke index.html yang sudah di-cache
         if (e.request.mode === 'navigate') {
-          rerurccx.html') || caches.match('./);
-  return null;
-})u
+          const fallback = (await caches.match('./index.html')) || (await caches.match('./'));
+          if (fallback) return fallback;
+        }
+
+        return new Response('Offline - Konten belum tersimpan di memori lokal', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        });
+      })
   );
 });
