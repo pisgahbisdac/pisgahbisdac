@@ -15065,49 +15065,63 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            <div className="flex gap-2">
-                                                                <label className="flex-1 bg-white dark:bg-navy-900 hover:bg-navy-50 dark:hover:bg-navy-800 text-navy-700 dark:text-gray-200 text-xs font-bold py-2 px-3 rounded-xl border border-navy-200 dark:border-navy-700 flex items-center justify-center cursor-pointer transition shadow-sm">
-                                                                    <Icon name="Upload" className="w-3.5 h-3.5 mr-1 text-navy-500 dark:text-gold-400" />
-                                                                    Ganti File
-                                                                    <input
-                                                                        type="file"
-                                                                        accept="image/*"
-                                                                        className="hidden"
-                                                                        onChange={(e) => {
-                                                                            const file = e.target.files && e.target.files[0];
-                                                                            if (!file) return;
-                                                                            const reader = new FileReader();
-                                                                            reader.readAsDataURL(file);
-                                                                            reader.onload = (ev) => {
-                                                                                const imgEl = new Image();
-                                                                                imgEl.src = ev.target.result;
-                                                                                imgEl.onload = () => {
-                                                                                    const MAX_WIDTH = 1200;
-                                                                                    let w = imgEl.width;
-                                                                                    let h = imgEl.height;
-                                                                                    if (w > MAX_WIDTH) { h *= MAX_WIDTH / w; w = MAX_WIDTH; }
-                                                                                    const cvs = document.createElement('canvas');
-                                                                                    cvs.width = w; cvs.height = h;
-                                                                                    cvs.getContext('2d').drawImage(imgEl, 0, 0, w, h);
-                                                                                    updateHeroSlide(idx, 'url', cvs.toDataURL('image/webp', 0.6));
+                                                            <div className="space-y-2">
+                                                                <div className="flex gap-2">
+                                                                    <label className="flex-1 bg-white dark:bg-navy-900 hover:bg-navy-50 dark:hover:bg-navy-800 text-navy-700 dark:text-gray-200 text-xs font-bold py-2 px-3 rounded-xl border border-navy-200 dark:border-navy-700 flex items-center justify-center cursor-pointer transition shadow-sm">
+                                                                        <Icon name="Upload" className="w-3.5 h-3.5 mr-1 text-navy-500 dark:text-gold-400" />
+                                                                        Ganti File
+                                                                        <input
+                                                                            type="file"
+                                                                            accept="image/*"
+                                                                            className="hidden"
+                                                                            onChange={(e) => {
+                                                                                const file = e.target.files && e.target.files[0];
+                                                                                if (!file) return;
+                                                                                const reader = new FileReader();
+                                                                                reader.readAsDataURL(file);
+                                                                                reader.onload = (ev) => {
+                                                                                    const imgEl = new Image();
+                                                                                    imgEl.src = ev.target.result;
+                                                                                    imgEl.onload = () => {
+                                                                                        const MAX_WIDTH = 1200;
+                                                                                        let w = imgEl.width;
+                                                                                        let h = imgEl.height;
+                                                                                        if (w > MAX_WIDTH) { h *= MAX_WIDTH / w; w = MAX_WIDTH; }
+                                                                                        const cvs = document.createElement('canvas');
+                                                                                        cvs.width = w; cvs.height = h;
+                                                                                        cvs.getContext('2d').drawImage(imgEl, 0, 0, w, h);
+                                                                                        updateHeroSlide(idx, 'url', cvs.toDataURL('image/webp', 0.6));
+                                                                                    };
                                                                                 };
-                                                                            };
+                                                                            }}
+                                                                        />
+                                                                    </label>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const newUrl = prompt("Masukkan URL gambar baru (https://...):", imgUrl.startsWith('data:image') ? '' : imgUrl);
+                                                                            if (newUrl !== null && newUrl.trim()) {
+                                                                                updateHeroSlide(idx, 'url', newUrl.trim());
+                                                                            }
                                                                         }}
+                                                                        className="bg-white dark:bg-navy-900 hover:bg-navy-50 dark:hover:bg-navy-800 text-navy-700 dark:text-gray-200 text-xs font-bold py-2 px-3 rounded-xl border border-navy-200 dark:border-navy-700 flex items-center justify-center transition shadow-sm"
+                                                                        title="Ganti URL via Dialog Popup"
+                                                                    >
+                                                                        URL Popup
+                                                                    </button>
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-[11px] font-bold text-navy-600 dark:text-gray-400 mb-1">
+                                                                        URL Link Gambar:
+                                                                    </label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={imgUrl.startsWith('data:image') ? '' : imgUrl}
+                                                                        onChange={(e) => updateHeroSlide(idx, 'url', e.target.value)}
+                                                                        placeholder={imgUrl.startsWith('data:image') ? 'File lokal terupload (siap simpan ke Drive). Atau tempel link baru...' : 'Tempel URL Gambar (https://...) atau Link Google Drive di sini'}
+                                                                        className="w-full border-2 border-navy-100 dark:border-navy-700 bg-white dark:bg-navy-900 dark:text-white rounded-xl px-3 py-1.5 text-xs focus:border-gold-400 focus:outline-none transition-colors"
                                                                     />
-                                                                </label>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        const newUrl = prompt("Masukkan URL gambar baru (https://...):", imgUrl);
-                                                                        if (newUrl !== null && newUrl.trim()) {
-                                                                            updateHeroSlide(idx, 'url', newUrl.trim());
-                                                                        }
-                                                                    }}
-                                                                    className="bg-white dark:bg-navy-900 hover:bg-navy-50 dark:hover:bg-navy-800 text-navy-700 dark:text-gray-200 text-xs font-bold py-2 px-3 rounded-xl border border-navy-200 dark:border-navy-700 flex items-center justify-center transition shadow-sm"
-                                                                    title="Ganti URL"
-                                                                >
-                                                                    URL
-                                                                </button>
+                                                                </div>
                                                             </div>
                                                         </div>
 
