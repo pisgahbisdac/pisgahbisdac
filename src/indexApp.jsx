@@ -739,7 +739,8 @@ const Icon = ({ name, className }) => {
         SkipBack: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="19 20 9 12 19 4 19 20" /><line x1="5" y1="19" x2="5" y2="5" /></svg>,
         SkipForward: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 4 15 12 5 20 5 4" /><line x1="19" y1="5" x2="19" y2="19" /></svg>,
         Square: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" /></svg>,
-        CalendarPlus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /><path d="M10 16h4" /><path d="M12 14v4" /></svg>
+        CalendarPlus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /><path d="M10 16h4" /><path d="M12 14v4" /></svg>,
+        AlertTriangle: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
     };
     return icons[name] || null;
 };
@@ -11999,6 +12000,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const handleSaveYoutubeUrl = async (e) => {
         e.preventDefault();
         setIsSavingUrl(true);
+        window.notifyLoading?.("Menyimpan URL YouTube...", "Sedang menyinkronkan link video ke server...");
         try {
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
@@ -12047,6 +12049,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const handleSaveAnthemUrl = async (e) => {
         e.preventDefault();
         setIsSavingAnthemUrl(true);
+        window.notifyLoading?.("Menyimpan Lagu Pujian...", "Sedang memperbarui link lagu pujian...");
         try {
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
@@ -12097,6 +12100,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const handleSaveLiveUrl = async (e) => {
         e.preventDefault();
         setIsSavingLiveUrl(true);
+        window.notifyLoading?.("Menyimpan Live Streaming...", "Sedang memperbarui tautan siaran langsung...");
         try {
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
@@ -12127,6 +12131,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const handleSaveRekening = async (e) => {
         e.preventDefault();
         setIsSavingRekening(true);
+        window.notifyLoading?.("Menyimpan Rekening & QRIS...", "Sedang menyinkronkan data rekening persembahan...");
         try {
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
@@ -12190,6 +12195,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const handleSavePerjamuanDate = async (e) => {
         e.preventDefault();
         setIsSavingPerjamuanDate(true);
+        window.notifyLoading?.("Menyimpan Jadwal Perjamuan & Perpuluhan...", "Sedang menyinkronkan tanggal ke server...");
         try {
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
@@ -12272,6 +12278,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const handleSavePengumuman = async (e) => {
         e.preventDefault();
         setIsSavingPengumuman(true);
+        window.notifyLoading?.("Menyimpan Pengumuman...", "Sedang menyinkronkan teks pengumuman ke database...");
 
         // Buat salinan data pengumuman
         let finalPengumuman = { ...editPengumuman };
@@ -12291,22 +12298,24 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             });
             const result = await res.json();
             if (result.success) {
-                alert("Pengumuman berhasil diperbarui!");
+                window.notifySuccess?.("Pengumuman Berhasil Disimpan! ✅", "Teks pengumuman terbaru telah aktif di Homepage.");
                 setPengumuman(finalPengumuman);   // update state parent
                 setEditPengumuman(finalPengumuman); // sync lokal
             } else {
-                alert("Gagal merubah pengumuman: " + (result.message || "Akses ditolak."));
+                window.notifyError?.("Gagal Menyimpan Pengumuman ❌", result.message || "Akses ditolak.");
             }
         } catch (err) {
-            alert("Gagal terhubung ke server.");
+            window.notifyError?.("Kendala Terhubung ke Server ❌", "Gagal menghubungi server Google Apps Script.", err.message);
+        } finally {
+            setIsSavingPengumuman(false);
         }
-        setIsSavingPengumuman(false);
     };
 
     // SIMPAN LOKASI & KONTAK
     const handleSaveKontakGereja = async (e) => {
         e.preventDefault();
         setIsSavingKontak(true);
+        window.notifyLoading?.("Menyimpan Kontak & Peta Lokasi...", "Sedang menyinkronkan informasi gereja ke server...");
 
         // Mencegah error jika admin memasukkan seluruh elemen <iframe>, kita hanya ambil src="" nya
         let finalUrl = editKontakGereja.mapUrl;
@@ -12328,25 +12337,31 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             });
             const result = await res.json();
             if (result.success) {
-                alert("Lokasi dan Peta gereja berhasil diperbarui!");
+                window.notifySuccess?.("Kontak & Peta Berhasil Disimpan! ✅", "Informasi kontak dan tautan Google Maps gereja berhasil diperbarui.");
                 setKontakGereja(finalKontak);
             } else {
-                alert("Gagal merubah lokasi: " + (result.message || "Akses ditolak."));
+                window.notifyError?.("Gagal Menyimpan Kontak & Peta ❌", result.message || "Akses ditolak.");
             }
         } catch (err) {
-            alert("Gagal terhubung ke server.");
+            window.notifyError?.("Kendala Terhubung ke Server ❌", "Gagal menghubungi server Google Apps Script.", err.message);
+        } finally {
+            setIsSavingKontak(false);
         }
-        setIsSavingKontak(false);
     };
 
     // SIMPAN HERO IMAGE URL & CAPTION DINAMIS (MAKSIMAL 10 SLIDE)
     const handleSaveHeroImage = async (e) => {
         e.preventDefault();
-        if (editHeroImages.length === 0) return alert("Pilih setidaknya 1 gambar hero!");
+        if (editHeroImages.length === 0) {
+            window.notifyWarning?.("Peringatan", "Pilih setidaknya 1 gambar hero banner!");
+            return;
+        }
         if (editHeroImages.length > 10) {
-            alert("Maksimal carousel adalah 10 slide. Sistem akan membatasi dan menyimpan 10 slide pertama.");
+            window.notifyWarning?.("Perhatian", "Maksimal carousel adalah 10 slide. Sistem akan membatasi dan menyimpan 10 slide pertama.");
         }
         setIsSavingHero(true);
+        window.notifyLoading?.("Menyimpan Hero Banner & Caption...", "Sedang mempersiapkan data slide dan caption teks...");
+
         try {
             // Batasi maksimal 10 slide carousel dan upload Base64 ke Drive jika ada
             const updatedSlides = editHeroImages.slice(0, 10).map((raw, i) => {
@@ -12370,6 +12385,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             for (let i = 0; i < updatedSlides.length; i++) {
                 const item = updatedSlides[i];
                 if (item.url && item.url.startsWith('data:image')) {
+                    window.notifyLoading?.("Mengunggah Gambar ke Google Drive...", `Sedang mengunggah gambar Slide #${i + 1} ke Google Drive gereja...`);
                     try {
                         const upRes = await fetch(GAS_API_URL, {
                             method: 'POST',
@@ -12384,13 +12400,18 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                         const upData = await upRes.json();
                         if (upData.success && upData.url) {
                             item.url = upData.url;
+                        } else {
+                            console.warn("Upload response:", upData);
                         }
                     } catch (uploadErr) {
                         console.warn("Gagal upload hero image ke Drive:", uploadErr);
+                        window.notifyWarning?.("Upload Drive Terkendala", `Slide #${i + 1} gagal diunggah ke Google Drive: ${uploadErr.message}. Menyimpan dengan data gambar saat ini.`);
                     }
                 }
                 updatedSlides[i] = item;
             }
+
+            window.notifyLoading?.("Menyinkronkan ke Server...", "Sedang menyimpan konfigurasi slide carousel ke Google Apps Script...");
 
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
@@ -12398,7 +12419,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             });
             const result = await res.json();
             if (result.success) {
-                alert("Hero Banner & Caption berhasil disimpan!");
+                window.notifySuccess?.("Hero Banner & Caption Berhasil Disimpan! ✅", "Semua slide dan caption teks telah tersimpan ke server dan database.");
                 const finalSlides = (result.updatedUrls && Array.isArray(result.updatedUrls) && result.updatedUrls.length > 0)
                     ? result.updatedUrls.map((u, idx) => {
                         const orig = updatedSlides[idx] || {};
@@ -12431,24 +12452,27 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     }
                 } catch (e) { }
             } else {
-                alert("Gagal merubah Hero Image: " + (result.message || "Akses ditolak."));
+                window.notifyError?.("Gagal Menyimpan Hero Banner ❌", result.message || "Akses ditolak atau token admin tidak valid.", "Silakan periksa password admin Anda atau muat ulang halaman.");
             }
         } catch (err) {
-            alert("Gagal terhubung ke server. Pastikan ukuran file tidak terlalu besar.");
+            window.notifyError?.("Kendala Terhubung ke Server ❌", "Tidak dapat terhubung ke Google Apps Script.", `Detail kendala: ${err.message || 'Koneksi jaringan terputus atau batas waktu terlewati.'}. Pastikan ukuran file tidak terlalu besar.`);
+        } finally {
+            setIsSavingHero(false);
         }
-        setIsSavingHero(false);
     };
 
     // SIMPAN CAROUSEL EVENTS (ACARA TERDEKAT)
     const handleSaveCarouselEvents = async (e) => {
         e.preventDefault();
         setIsSavingCarouselEvents(true);
+        window.notifyLoading?.("Menyimpan Acara Terdekat...", "Sedang mempersiapkan data agenda acara...");
         try {
             // Upload Base64 image via uploadImageToDrive jika ada, agar langsung menjadi URL Drive
             const updatedList = [...editCarouselEvents];
             for (let i = 0; i < updatedList.length; i++) {
                 const item = { ...updatedList[i] };
                 if (item.imageUrl && item.imageUrl.startsWith('data:image')) {
+                    window.notifyLoading?.("Mengunggah Poster Acara...", `Sedang mengunggah poster untuk "${item.title || 'Acara'}" ke Google Drive...`);
                     try {
                         const upRes = await fetch(GAS_API_URL, {
                             method: 'POST',
@@ -12471,29 +12495,32 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 updatedList[i] = item;
             }
 
+            window.notifyLoading?.("Menyinkronkan ke Server...", "Sedang menyimpan agenda acara terdekat ke database...");
             const res = await fetch(GAS_API_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'saveCarouselEvents', password: adminToken, carouselEvents: updatedList })
             });
             const result = await res.json();
             if (result.success) {
-                alert("Acara Terdekat berhasil diperbarui!");
+                window.notifySuccess?.("Acara Terdekat Berhasil Disimpan! ✅", "Daftar agenda acara terdekat berhasil diperbarui di Homepage dan Jadwal.");
                 const finalEvents = result.updatedEvents || updatedList;
                 setCarouselEvents(finalEvents);
                 setEditCarouselEvents(finalEvents);
             } else {
-                alert("Gagal merubah Acara Terdekat: " + (result.message || "Akses ditolak."));
+                window.notifyError?.("Gagal Menyimpan Acara Terdekat ❌", result.message || "Akses ditolak.", "Periksa kembali password admin Anda.");
             }
         } catch (err) {
-            alert("Gagal terhubung ke server.");
+            window.notifyError?.("Kendala Terhubung ke Server ❌", "Gagal menghubungi server Google Apps Script.", `Detail: ${err.message || 'Koneksi jaringan terputus.'}`);
+        } finally {
+            setIsSavingCarouselEvents(false);
         }
-        setIsSavingCarouselEvents(false);
     };
 
     // SIMPAN CAROUSEL VIDEOS (GALERI VIDEO)
     const handleSaveCarouselVideos = async (e) => {
         e.preventDefault();
         setIsSavingCarouselVideos(true);
+        window.notifyLoading?.("Menyimpan Video Carousel...", "Sedang menyinkronkan video ke server...");
         try {
             const cleanedVideos = editCarouselVideos.map(vid => {
                 const cleanUrl = formatYouTubeEmbedUrl(vid.url);
@@ -12510,7 +12537,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
             });
             const result = await res.json();
             if (result.success) {
-                alert("Galeri Video berhasil diperbarui!");
+                window.notifySuccess?.("Galeri Video Berhasil Diperbarui! ✅", "Daftar video carousel telah berhasil disimpan.");
                 setCarouselVideos(cleanedVideos);
                 setEditCarouselVideos(cleanedVideos);
                 try {
@@ -12522,12 +12549,13 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     }
                 } catch (e) { }
             } else {
-                alert("Gagal merubah Galeri Video: " + (result.message || "Akses ditolak."));
+                window.notifyError?.("Gagal Menyimpan Galeri Video ❌", result.message || "Akses ditolak.");
             }
         } catch (err) {
-            alert("Gagal terhubung ke server.");
+            window.notifyError?.("Kendala Terhubung ke Server ❌", "Gagal menghubungi server.", err.message);
+        } finally {
+            setIsSavingCarouselVideos(false);
         }
-        setIsSavingCarouselVideos(false);
     };
 
     const moveCarouselVideo = (index, direction) => {
@@ -19173,12 +19201,229 @@ const FloatingQuickActions = ({ isSyncing, setSyncTrigger, setShowSyncNotif, set
     );
 };
 
+// ============================================================================
+// POPUP & NOTIFIKASI PROSES GLOBAL (LOADING, SUKSES, KENDALA / GAGAL)
+// ============================================================================
+const GlobalProcessNotificationModal = ({ notification, onClose }) => {
+    if (!notification) return null;
+
+    const { type, title, message, detail } = notification;
+
+    const isSuccess = type === 'success';
+    const isError = type === 'error';
+    const isWarning = type === 'warning';
+    const isLoading = type === 'loading';
+    const isInfo = type === 'info' || (!isSuccess && !isError && !isWarning && !isLoading);
+
+    return (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-md animate-fade-in no-print">
+            <div
+                className={`relative w-full max-w-md rounded-3xl bg-white dark:bg-navy-900 border-2 shadow-2xl p-6 sm:p-7 text-center transition-all transform scale-100 ${
+                    isSuccess
+                        ? 'border-emerald-400 dark:border-emerald-600 shadow-emerald-500/20'
+                        : isError
+                        ? 'border-red-400 dark:border-red-600 shadow-red-500/20'
+                        : isWarning
+                        ? 'border-amber-400 dark:border-amber-600 shadow-amber-500/20'
+                        : isLoading
+                        ? 'border-blue-400 dark:border-blue-600 shadow-blue-500/20'
+                        : 'border-navy-200 dark:border-navy-700'
+                }`}
+                role="dialog"
+                aria-modal="true"
+            >
+                {/* Tombol Tutup (Kecuali saat loading) */}
+                {!isLoading && (
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="absolute top-4 right-4 p-2 rounded-full text-navy-400 hover:text-navy-700 dark:text-gray-400 dark:hover:text-white hover:bg-navy-100 dark:hover:bg-navy-800 transition"
+                        title="Tutup Dialog"
+                    >
+                        <Icon name="X" className="w-5 h-5" />
+                    </button>
+                )}
+
+                {/* Ikon Status */}
+                <div className="flex justify-center mb-4">
+                    {isLoading && (
+                        <div className="relative w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-950/70 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-inner">
+                            <Icon name="RefreshCw" className="w-8 h-8 animate-spin" />
+                            <span className="absolute -inset-1 rounded-full border-2 border-blue-400/40 animate-ping pointer-events-none"></span>
+                        </div>
+                    )}
+                    {isSuccess && (
+                        <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/70 border-2 border-emerald-300 dark:border-emerald-600 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-lg">
+                            <Icon name="CheckCircle" className="w-9 h-9 stroke-[2.5]" />
+                        </div>
+                    )}
+                    {isError && (
+                        <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-950/70 border-2 border-red-300 dark:border-red-600 flex items-center justify-center text-red-600 dark:text-red-400 shadow-lg">
+                            <Icon name="AlertTriangle" className="w-9 h-9 stroke-[2.5]" />
+                        </div>
+                    )}
+                    {isWarning && (
+                        <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-950/70 border-2 border-amber-300 dark:border-amber-600 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-lg">
+                            <Icon name="Info" className="w-9 h-9 stroke-[2.5]" />
+                        </div>
+                    )}
+                    {isInfo && (
+                        <div className="w-16 h-16 rounded-full bg-navy-50 dark:bg-navy-800 border-2 border-navy-200 dark:border-navy-700 flex items-center justify-center text-navy-600 dark:text-gold-400 shadow-md">
+                            <Icon name="Info" className="w-9 h-9 stroke-[2.5]" />
+                        </div>
+                    )}
+                </div>
+
+                {/* Judul Status */}
+                <h3
+                    className={`text-lg sm:text-xl font-black mb-2 tracking-tight ${
+                        isSuccess
+                            ? 'text-emerald-700 dark:text-emerald-400'
+                            : isError
+                            ? 'text-red-600 dark:text-red-400'
+                            : isWarning
+                            ? 'text-amber-700 dark:text-amber-400'
+                            : isLoading
+                            ? 'text-blue-700 dark:text-blue-400'
+                            : 'text-navy-900 dark:text-white'
+                    }`}
+                >
+                    {title || (isLoading ? 'Sedang Memproses...' : isSuccess ? 'Berhasil! ✅' : isError ? 'Terjadi Kendala ❌' : 'Pemberitahuan')}
+                </h3>
+
+                {/* Deskripsi Pesan */}
+                <p className="text-sm text-navy-600 dark:text-gray-300 font-medium leading-relaxed mb-4 whitespace-pre-line">
+                    {message}
+                </p>
+
+                {/* Kotak Detail Kendala (Bila Ada) */}
+                {detail && (
+                    <div className="mb-5 p-3.5 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/80 text-left">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-red-700 dark:text-red-300 mb-1">
+                            <Icon name="Info" className="w-3.5 h-3.5 shrink-0" />
+                            <span>Detail Kendala / Pesan Sistem:</span>
+                        </div>
+                        <p className="text-[11px] font-mono text-red-800 dark:text-red-200 break-words leading-relaxed max-h-32 overflow-y-auto pr-1">
+                            {detail}
+                        </p>
+                    </div>
+                )}
+
+                {/* Bar Animasi Loading */}
+                {isLoading && (
+                    <div className="w-full bg-blue-100 dark:bg-navy-800 rounded-full h-2 overflow-hidden mb-3">
+                        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-full w-2/3 rounded-full animate-pulse"></div>
+                    </div>
+                )}
+
+                {/* Tombol Aksi Bawah */}
+                {!isLoading ? (
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className={`w-full py-3 px-5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 ${
+                            isSuccess
+                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20'
+                                : isError
+                                ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-500/20'
+                                : isWarning
+                                ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/20'
+                                : 'bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950'
+                        }`}
+                    >
+                        {isError ? 'Tutup & Periksa Kembali' : 'Mengerti / Tutup'}
+                    </button>
+                ) : (
+                    <p className="text-[11px] text-navy-400 dark:text-gray-400 font-semibold italic">
+                        Mohon tunggu, jangan menutup atau me-refresh browser selama proses ini.
+                    </p>
+                )}
+            </div>
+        </div>
+    );
+};
+
 const App = () => {
     const [isAppLoading, setIsAppLoading] = React.useState(false);
     const [isAlkitabBarOpen, setIsAlkitabBarOpen] = React.useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
     const [mobileNavPopup, setMobileNavPopup] = React.useState(null); // 'belajar' | 'ibadah' | null
     const [selectedWartaDetail, setSelectedWartaDetail] = React.useState(null);
+
+    // --- GLOBAL PROCESS & NOTIFICATION STATE ---
+    const [appNotification, setAppNotification] = React.useState(null);
+
+    React.useEffect(() => {
+        window.notifyLoading = (title, message) => {
+            setAppNotification({
+                type: 'loading',
+                title: title || 'Sedang Memproses...',
+                message: message || 'Mohon tunggu sebentar, data sedang diproses...'
+            });
+        };
+
+        window.notifySuccess = (title, message, duration = 4000) => {
+            setAppNotification({
+                type: 'success',
+                title: title || 'Berhasil! ✅',
+                message: message || 'Proses berhasil diselesaikan.',
+                duration
+            });
+        };
+
+        window.notifyError = (title, message, detail = '', duration = 0) => {
+            setAppNotification({
+                type: 'error',
+                title: title || 'Terjadi Kendala / Gagal ❌',
+                message: message || 'Proses tidak dapat diselesaikan.',
+                detail: detail ? String(detail) : '',
+                duration
+            });
+        };
+
+        window.notifyWarning = (title, message, detail = '', duration = 5000) => {
+            setAppNotification({
+                type: 'warning',
+                title: title || 'Perhatian ⚠️',
+                message: message || '',
+                detail: detail ? String(detail) : '',
+                duration
+            });
+        };
+
+        window.closeNotification = () => {
+            setAppNotification(null);
+        };
+
+        // Intercept native window.alert so all alert() calls render as modern modals!
+        const nativeAlert = window.alert;
+        window.alert = (msg) => {
+            const str = String(msg || '');
+            const lower = str.toLowerCase();
+            if (lower.includes('berhasil') || lower.includes('sukses') || lower.includes('selesai')) {
+                window.notifySuccess('Berhasil! ✅', str);
+            } else if (lower.includes('gagal') || lower.includes('error') || lower.includes('kesalahan') || lower.includes('ditolak') || lower.includes('kendala')) {
+                window.notifyError('Kendala / Gagal ❌', str);
+            } else if (lower.includes('maksimal') || lower.includes('perhatian') || lower.includes('peringatan') || lower.includes('wajib') || lower.includes('tidak boleh') || lower.includes('pilih ')) {
+                window.notifyWarning('Perhatian ⚠️', str);
+            } else {
+                window.notifySuccess('Pemberitahuan', str);
+            }
+        };
+
+        return () => {
+            window.alert = nativeAlert;
+        };
+    }, []);
+
+    React.useEffect(() => {
+        if (appNotification && appNotification.duration && appNotification.duration > 0) {
+            const timer = setTimeout(() => {
+                setAppNotification(null);
+            }, appNotification.duration);
+            return () => clearTimeout(timer);
+        }
+    }, [appNotification]);
 
     // Sinkronisasi status floating bar Alkitab (Stabilo & Audio) agar mobile bottom nav tidak menimpa
     React.useEffect(() => {
@@ -19987,6 +20232,12 @@ const App = () => {
                     </div>
                 </div>
             </header>
+
+            {/* Modal & Popup Status Proses Global (Loading, Berhasil, Gagal / Kendala) */}
+            <GlobalProcessNotificationModal
+                notification={appNotification}
+                onClose={() => setAppNotification(null)}
+            />
 
             {/* Notifikasi Mode Offline */}
             {!isOnline && (
