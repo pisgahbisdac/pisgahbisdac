@@ -3267,7 +3267,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
     };
 
     return (
-        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between h-full">
+        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-start h-full">
             {/* Header Dinding Doa */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#E2E8D8] dark:border-navy-800">
                 <div>
@@ -3426,32 +3426,48 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
             )}
 
             {/* Filter Kategori Doa */}
-            <ScrollableFilterBar>
-                <button
-                    type="button"
-                    onClick={() => setCategoryFilter('all')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${categoryFilter === 'all' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
-                >
-                    Semua Doa ({prayers.filter(p => p.privacy !== 'private').length})
-                </button>
-                {PRAYER_CATEGORIES.map(c => {
-                    const count = prayers.filter(p => p.privacy !== 'private' && p.category === c.id).length;
-                    return (
-                        <button
-                            key={c.id}
-                            type="button"
-                            onClick={() => setCategoryFilter(c.id)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${categoryFilter === c.id ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
-                        >
-                            {c.icon} {c.id} ({count})
-                        </button>
-                    );
-                })}
-            </ScrollableFilterBar>
+            <div className="mt-4">
+                <ScrollableFilterBar>
+                    <button
+                        type="button"
+                        onClick={() => setCategoryFilter('all')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${categoryFilter === 'all' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
+                    >
+                        Semua Doa ({prayers.filter(p => p.privacy !== 'private').length})
+                    </button>
+                    {PRAYER_CATEGORIES.map(c => {
+                        const count = prayers.filter(p => p.privacy !== 'private' && p.category === c.id).length;
+                        return (
+                            <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => setCategoryFilter(c.id)}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${categoryFilter === c.id ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
+                            >
+                                {c.icon} {c.id} ({count})
+                            </button>
+                        );
+                    })}
+                </ScrollableFilterBar>
+            </div>
 
             {/* Daftar Kartu Pokok Doa Publik */}
-            <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-2' : 'sm:grid-cols-2'} gap-3.5 mt-1`}>
-                {(compact ? publicPrayers.slice(0, 4) : publicPrayers.slice(0, 6)).map(item => {
+            {publicPrayers.length === 0 ? (
+                <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 bg-[#F7F9F3]/60 dark:bg-navy-950/40">
+                    <p className="text-xs sm:text-sm font-bold text-[#596B4D] dark:text-gray-400">
+                        Belum ada pokok doa publik untuk kategori ini.
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => setIsFormOpen(true)}
+                        className="mt-2 text-xs font-black text-[#4A7045] dark:text-gold-400 hover:underline cursor-pointer"
+                    >
+                        + Kirim Pokok Doa Pertama
+                    </button>
+                </div>
+            ) : (
+                <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-2' : 'sm:grid-cols-2'} gap-3.5 mt-4`}>
+                    {(compact ? publicPrayers.slice(0, 4) : publicPrayers.slice(0, 6)).map(item => {
                     const catObj = PRAYER_CATEGORIES.find(c => c.id === item.category) || PRAYER_CATEGORIES[0];
                     const hasPrayed = prayedIds.includes(item.id);
                     return (
@@ -3500,6 +3516,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                     );
                 })}
             </div>
+            )}
         </div>
     );
 };
@@ -3624,7 +3641,7 @@ const BirthdayAndCalendarWidget = () => {
     };
 
     return (
-        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between h-full">
+        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-start h-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#E2E8D8] dark:border-navy-800">
                 <div>
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D19B45]/15 text-[#9A6B1A] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-[#D19B45]/30">
