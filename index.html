@@ -158,22 +158,13 @@
             window.location.reload();
         };
 
-        // Tampilkan tombol rescue jika dalam 3.5 detik React belum me-mount
+        // Tampilkan tombol rescue jika dalam 5 detik React belum me-mount
         setTimeout(function () {
             var rescue = document.getElementById('preloader-rescue');
             if (rescue && document.querySelector('.preloader-bg')) {
                 rescue.style.display = 'block';
             }
-        }, 3500);
-
-        // Auto recovery watchdog: Jika dalam 7 detik preloader masih ada, pulihkan cache otomatis
-        setTimeout(function () {
-            var preloader = document.querySelector('.preloader-bg');
-            if (preloader) {
-                console.warn('[Watchdog] Preloader stuck > 7s, running auto recovery...');
-                window.clearAppCacheAndReload();
-            }
-        }, 7000);
+        }, 5000);
     </script>
 
     <script type="module" src="/src/index.jsx"></script>
