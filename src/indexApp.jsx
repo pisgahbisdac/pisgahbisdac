@@ -3474,54 +3474,54 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
             ) : (
                 <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-2' : 'sm:grid-cols-2'} gap-3.5 mt-4`}>
                     {(compact ? publicPrayers.slice(0, 4) : publicPrayers.slice(0, 6)).map(item => {
-                    const catObj = PRAYER_CATEGORIES.find(c => c.id === item.category) || PRAYER_CATEGORIES[0];
-                    const hasPrayed = prayedIds.includes(item.id);
-                    return (
-                        <div
-                            key={item.id}
-                            className="p-4 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/70 border border-[#E2E8D8] dark:border-navy-800 flex flex-col justify-between gap-3 shadow-xs hover:border-[#4A7045]/60 dark:hover:border-gold-500/40 transition"
-                        >
-                            <div>
-                                <div className="flex items-center justify-between gap-2 mb-2">
-                                    <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${catObj.badgeClass}`}>
-                                        {catObj.icon} {item.category}
-                                    </span>
-                                    {item.isAnswered && (
-                                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-white">
-                                            ✅ Dijawab / Didoakan
+                        const catObj = PRAYER_CATEGORIES.find(c => c.id === item.category) || PRAYER_CATEGORIES[0];
+                        const hasPrayed = prayedIds.includes(item.id);
+                        return (
+                            <div
+                                key={item.id}
+                                className="p-4 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/70 border border-[#E2E8D8] dark:border-navy-800 flex flex-col justify-between gap-3 shadow-xs hover:border-[#4A7045]/60 dark:hover:border-gold-500/40 transition"
+                            >
+                                <div>
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                        <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${catObj.badgeClass}`}>
+                                            {catObj.icon} {item.category}
                                         </span>
-                                    )}
+                                        {item.isAnswered && (
+                                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                                                ✅ Dijawab / Didoakan
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-xs sm:text-sm text-[#2C3F21] dark:text-gray-100 leading-relaxed font-medium">
+                                        "{item.content}"
+                                    </p>
                                 </div>
-                                <p className="text-xs sm:text-sm text-[#2C3F21] dark:text-gray-100 leading-relaxed font-medium">
-                                    "{item.content}"
-                                </p>
-                            </div>
 
-                            <div className="pt-2.5 border-t border-[#E2E8D8]/80 dark:border-navy-800 flex items-center justify-between gap-2">
-                                <div className="min-w-0">
-                                    <div className="text-xs font-extrabold text-[#2C3F21] dark:text-gold-400 truncate">
-                                        {item.senderName}
+                                <div className="pt-2.5 border-t border-[#E2E8D8]/80 dark:border-navy-800 flex items-center justify-between gap-2">
+                                    <div className="min-w-0">
+                                        <div className="text-xs font-extrabold text-[#2C3F21] dark:text-gold-400 truncate">
+                                            {item.senderName}
+                                        </div>
+                                        <div className="text-[10px] text-[#596B4D] dark:text-gray-400">
+                                            {formatIndoDateShort(toYMD(new Date(item.createdAt || Date.now())))}
+                                        </div>
                                     </div>
-                                    <div className="text-[10px] text-[#596B4D] dark:text-gray-400">
-                                        {formatIndoDateShort(toYMD(new Date(item.createdAt || Date.now())))}
-                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => handlePraySupport(item.id)}
+                                        className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 shrink-0 transition cursor-pointer active:scale-95 ${hasPrayed ? 'bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-950 shadow-xs' : 'bg-white dark:bg-navy-800 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045]'}`}
+                                    >
+                                        <span>🙏</span>
+                                        <span>{hasPrayed ? 'Turut Mendoakan' : 'Saya Ikut Doakan'}</span>
+                                        <span className="px-1.5 py-0.2 rounded-full bg-black/10 dark:bg-white/15 text-[10px] font-black">
+                                            {item.prayedCount || 1}
+                                        </span>
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => handlePraySupport(item.id)}
-                                    className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 shrink-0 transition cursor-pointer active:scale-95 ${hasPrayed ? 'bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-950 shadow-xs' : 'bg-white dark:bg-navy-800 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045]'}`}
-                                >
-                                    <span>🙏</span>
-                                    <span>{hasPrayed ? 'Turut Mendoakan' : 'Saya Ikut Doakan'}</span>
-                                    <span className="px-1.5 py-0.2 rounded-full bg-black/10 dark:bg-white/15 text-[10px] font-black">
-                                        {item.prayedCount || 1}
-                                    </span>
-                                </button>
                             </div>
-                        </div>
-                    );
-                })}
-            </div>
+                        );
+                    })}
+                </div>
             )}
         </div>
     );
@@ -16217,6 +16217,40 @@ const Alkitab = ({ setHideGlobalBack }) => {
         return { bookId: firstBook.id, bookName: firstBook.nama, singkat: firstBook.singkat, chapter: 1 };
     });
 
+    const [fontSize, setFontSize] = React.useState(() => {
+        try {
+            const saved = parseInt(localStorage.getItem('PISGAH_ALKITAB_FONT_SIZE'), 10);
+            if (!isNaN(saved) && saved >= 12 && saved <= 28) return saved;
+        } catch (e) { }
+        return 16;
+    });
+    const updateFontSize = (newSize) => {
+        const clamped = Math.min(28, Math.max(12, newSize));
+        setFontSize(clamped);
+        try {
+            localStorage.setItem('PISGAH_ALKITAB_FONT_SIZE', String(clamped));
+        } catch (e) { }
+    };
+    const [selectedVerses, setSelectedVerses] = React.useState(new Set());
+    const [selectedAyat, setSelectedAyat] = React.useState('');
+    const [pendingTarget, setPendingTarget] = React.useState(null);
+
+    // --- FITUR AUDIO ALKITAB (TEXT-TO-SPEECH BAHASA INDONESIA) ---
+    const ALKITAB_TTS_SPEEDS = [0.8, 0.9, 1, 1.15, 1.2];
+    const [ttsState, setTtsState] = React.useState('idle'); // 'idle' | 'playing' | 'paused'
+    const [activePlayingAyat, setActivePlayingAyat] = React.useState(null);
+    const [ttsRate, setTtsRate] = React.useState(1);
+
+    const ttsStateRef = React.useRef('idle');
+    ttsStateRef.current = ttsState;
+
+    const ttsRateRef = React.useRef(1);
+    ttsRateRef.current = ttsRate;
+
+    const playlistRef = React.useRef([]);
+    const currentIndexRef = React.useRef(0);
+    const isStoppedRef = React.useRef(false);
+
     React.useEffect(() => {
         if (selectedBook) {
             const ch = selectedChapter || 1;
@@ -16396,39 +16430,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
             return next;
         });
     };
-    const [fontSize, setFontSize] = React.useState(() => {
-        try {
-            const saved = parseInt(localStorage.getItem('PISGAH_ALKITAB_FONT_SIZE'), 10);
-            if (!isNaN(saved) && saved >= 12 && saved <= 28) return saved;
-        } catch (e) { }
-        return 16;
-    });
-    const updateFontSize = (newSize) => {
-        const clamped = Math.min(28, Math.max(12, newSize));
-        setFontSize(clamped);
-        try {
-            localStorage.setItem('PISGAH_ALKITAB_FONT_SIZE', String(clamped));
-        } catch (e) { }
-    };
-    const [selectedVerses, setSelectedVerses] = React.useState(new Set());
-    const [selectedAyat, setSelectedAyat] = React.useState('');
-    const [pendingTarget, setPendingTarget] = React.useState(null);
 
-    // --- FITUR AUDIO ALKITAB (TEXT-TO-SPEECH BAHASA INDONESIA) ---
-    const ALKITAB_TTS_SPEEDS = [0.8, 0.9, 1, 1.15, 1.2];
-    const [ttsState, setTtsState] = React.useState('idle'); // 'idle' | 'playing' | 'paused'
-    const [activePlayingAyat, setActivePlayingAyat] = React.useState(null);
-    const [ttsRate, setTtsRate] = React.useState(1);
-
-    const ttsStateRef = React.useRef('idle');
-    ttsStateRef.current = ttsState;
-
-    const ttsRateRef = React.useRef(1);
-    ttsRateRef.current = ttsRate;
-
-    const playlistRef = React.useRef([]);
-    const currentIndexRef = React.useRef(0);
-    const isStoppedRef = React.useRef(false);
 
     const findIndonesianVoice = () => {
         if (!('speechSynthesis' in window)) return null;
@@ -19241,17 +19243,16 @@ const GlobalProcessNotificationModal = ({ notification, onClose }) => {
     return (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-md animate-fade-in no-print">
             <div
-                className={`relative w-full max-w-md rounded-3xl bg-white dark:bg-navy-900 border-2 shadow-2xl p-6 sm:p-7 text-center transition-all transform scale-100 ${
-                    isSuccess
+                className={`relative w-full max-w-md rounded-3xl bg-white dark:bg-navy-900 border-2 shadow-2xl p-6 sm:p-7 text-center transition-all transform scale-100 ${isSuccess
                         ? 'border-emerald-400 dark:border-emerald-600 shadow-emerald-500/20'
                         : isError
-                        ? 'border-red-400 dark:border-red-600 shadow-red-500/20'
-                        : isWarning
-                        ? 'border-amber-400 dark:border-amber-600 shadow-amber-500/20'
-                        : isLoading
-                        ? 'border-blue-400 dark:border-blue-600 shadow-blue-500/20'
-                        : 'border-navy-200 dark:border-navy-700'
-                }`}
+                            ? 'border-red-400 dark:border-red-600 shadow-red-500/20'
+                            : isWarning
+                                ? 'border-amber-400 dark:border-amber-600 shadow-amber-500/20'
+                                : isLoading
+                                    ? 'border-blue-400 dark:border-blue-600 shadow-blue-500/20'
+                                    : 'border-navy-200 dark:border-navy-700'
+                    }`}
                 role="dialog"
                 aria-modal="true"
             >
@@ -19299,17 +19300,16 @@ const GlobalProcessNotificationModal = ({ notification, onClose }) => {
 
                 {/* Judul Status */}
                 <h3
-                    className={`text-lg sm:text-xl font-black mb-2 tracking-tight ${
-                        isSuccess
+                    className={`text-lg sm:text-xl font-black mb-2 tracking-tight ${isSuccess
                             ? 'text-emerald-700 dark:text-emerald-400'
                             : isError
-                            ? 'text-red-600 dark:text-red-400'
-                            : isWarning
-                            ? 'text-amber-700 dark:text-amber-400'
-                            : isLoading
-                            ? 'text-blue-700 dark:text-blue-400'
-                            : 'text-navy-900 dark:text-white'
-                    }`}
+                                ? 'text-red-600 dark:text-red-400'
+                                : isWarning
+                                    ? 'text-amber-700 dark:text-amber-400'
+                                    : isLoading
+                                        ? 'text-blue-700 dark:text-blue-400'
+                                        : 'text-navy-900 dark:text-white'
+                        }`}
                 >
                     {title || (isLoading ? 'Sedang Memproses...' : isSuccess ? 'Berhasil! ✅' : isError ? 'Terjadi Kendala ❌' : 'Pemberitahuan')}
                 </h3>
@@ -19344,15 +19344,14 @@ const GlobalProcessNotificationModal = ({ notification, onClose }) => {
                     <button
                         type="button"
                         onClick={onClose}
-                        className={`w-full py-3 px-5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 ${
-                            isSuccess
+                        className={`w-full py-3 px-5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 ${isSuccess
                                 ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20'
                                 : isError
-                                ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-500/20'
-                                : isWarning
-                                ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/20'
-                                : 'bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950'
-                        }`}
+                                    ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-500/20'
+                                    : isWarning
+                                        ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/20'
+                                        : 'bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950'
+                            }`}
                     >
                         {isError ? 'Tutup & Periksa Kembali' : 'Mengerti / Tutup'}
                     </button>
