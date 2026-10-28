@@ -16725,33 +16725,46 @@ const Alkitab = ({ setHideGlobalBack }) => {
 
     const scrollToVerse = React.useCallback((ayatNum, endAyatNum = null) => {
         if (!ayatNum) return;
-        setSelectedAyat(String(ayatNum));
+        const start = parseInt(ayatNum, 10);
+        const end = endAyatNum ? parseInt(endAyatNum, 10) : start;
 
-        const tryScroll = (attemptsLeft = 12) => {
-            const el = document.getElementById(`ayat-${ayatNum}`);
+        // 1. Tandai langsung ke selectedVerses agar React merender ayat dalam status aktif/terpilih (border & badge emas)
+        const targetSet = new Set();
+        for (let v = start; v <= end; v++) {
+            targetSet.add(v);
+        }
+        setSelectedVerses(targetSet);
+        setSelectedAyat(String(start));
+
+        // 2. Lakukan scrolling presisi dan animasi sorotan visual (spotlight)
+        const tryScroll = (attemptsLeft = 15) => {
+            const el = document.getElementById(`ayat-${start}`);
             if (el) {
-                const headerOffset = 145;
-                const elementPosition = el.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                try {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch (e) {
+                    const headerOffset = 145;
+                    const elementPosition = el.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    window.scrollTo({
+                        top: Math.max(0, offsetPosition),
+                        behavior: 'smooth'
+                    });
+                }
 
-                window.scrollTo({
-                    top: Math.max(0, offsetPosition),
-                    behavior: 'smooth'
-                });
-
-                const start = parseInt(ayatNum, 10);
-                const end = endAyatNum ? parseInt(endAyatNum, 10) : start;
                 for (let v = start; v <= end; v++) {
                     const vEl = document.getElementById(`ayat-${v}`);
                     if (vEl) {
-                        vEl.classList.add('ring-2', 'ring-gold-500', 'bg-gold-100', 'dark:bg-gold-500/20');
+                        vEl.classList.add('ring-4', 'ring-gold-500', 'scale-[1.01]', 'shadow-xl');
                         setTimeout(() => {
-                            vEl.classList.remove('ring-2', 'ring-gold-500', 'bg-gold-100', 'dark:bg-gold-500/20');
+                            try {
+                                vEl.classList.remove('ring-4', 'scale-[1.01]', 'shadow-xl');
+                            } catch (e) { }
                         }, 3500);
                     }
                 }
             } else if (attemptsLeft > 0) {
-                setTimeout(() => tryScroll(attemptsLeft - 1), 150);
+                setTimeout(() => tryScroll(attemptsLeft - 1), 100);
             }
         };
 
@@ -16788,6 +16801,8 @@ const Alkitab = ({ setHideGlobalBack }) => {
         setSelectedBook(matchedBook);
         setSelectedChapter(chapterNum);
         setSelectedAyat(String(startAyat));
+        setAlkitabHomeTab('books');
+        setSearchQuery('');
         setSearchResults(null);
     }, []);
 
@@ -16940,9 +16955,15 @@ const Alkitab = ({ setHideGlobalBack }) => {
             if (selectedBook?.id === pendingTarget.bookId && selectedChapter === pendingTarget.chapter) {
                 const { startAyat, endAyat } = pendingTarget;
                 setPendingTarget(null);
+                const targetSet = new Set();
+                for (let v = startAyat; v <= endAyat; v++) {
+                    targetSet.add(v);
+                }
+                setSelectedVerses(targetSet);
+                setSelectedAyat(String(startAyat));
                 const timer = setTimeout(() => {
                     scrollToVerse(startAyat, endAyat);
-                }, 250);
+                }, 150);
                 return () => clearTimeout(timer);
             }
         }
