@@ -8608,7 +8608,7 @@ const WartaPage = ({ daftarWarta, setActiveTab, selectedWarta, setSelectedWarta,
     return (
         <div className="space-y-6 sm:space-y-8 animate-fade-in relative pb-16">
             {/* STICKY TOP BAR: TOMBOL KEMBALI + FILTER KATEGORI */}
-            <div className="sticky top-16 md:top-[4.5rem] z-[35] -mx-4 md:-mx-8 lg:-mx-4 px-4 md:px-8 lg:px-4 py-2.5 liquid-glass-header transition-all print:hidden no-print flex items-center gap-2.5 sm:gap-3">
+            <div className="sticky top-16 md:top-[4.5rem] z-[35] rounded-2xl px-3 sm:px-4 py-2.5 liquid-glass-header transition-all print:hidden no-print flex items-center gap-2.5 sm:gap-3 shadow-sm border border-navy-100/50 dark:border-navy-700/50">
                 <button
                     onClick={() => {
                         if (window.history.length > 1) {
@@ -20461,7 +20461,7 @@ const App = () => {
 
             {/* HEADER UTAMA (Responsif untuk Mobile & Desktop) */}
             <header className="liquid-glass-header sticky top-0 z-50 transition-colors duration-300 print:hidden no-print">
-                <div className="w-full mx-auto flex items-center justify-between px-4 lg:px-[6vw] py-3 gap-3">
+                <div className="w-full mx-auto flex items-center justify-between px-4 md:px-8 lg:px-[6vw] py-3 gap-3">
                     <div className="flex items-center gap-2 md:gap-3 flex-1 justify-start">
                         <div className="flex flex-col items-start shrink-0 cursor-pointer" onClick={() => setActiveTab('home')}>
                             {/* Baris 1: Logo + Nama Gereja */}
@@ -20544,16 +20544,24 @@ const App = () => {
             <main className={`flex-1 w-full mx-auto p-4 md:px-8 lg:px-4 ${(activeTab === 'lagu_sion' && laguSionSubTab === 'numpad') ? 'pb-20 md:pb-6' : 'pb-32 md:pb-12'} print:p-0 print:pb-0`}>
                 {activeTab !== 'home' && activeTab !== 'lagu_sion' && !hideGlobalBack && (
                     <div className="sticky top-16 md:top-[4.5rem] z-[35] -mx-4 md:-mx-8 lg:-mx-4 px-4 md:px-8 lg:px-4 py-3 mb-6 liquid-glass-header transition-all print:hidden no-print">
-                        <button
-                            onClick={() => window.history.back()}
-                            className="flex items-center justify-center px-4 py-2 liquid-glass-pill text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group w-max"
-                        >
-                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                            <span>Kembali</span>
-                        </button>
+                        <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw]">
+                            <button
+                                onClick={() => window.history.back()}
+                                className="flex items-center justify-center px-4 py-2 liquid-glass-pill text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all gap-2 group w-max"
+                            >
+                                <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                                <span>Kembali</span>
+                            </button>
+                        </div>
                     </div>
                 )}
-                {renderContent()}
+                {activeTab === 'home' ? (
+                    renderContent()
+                ) : (
+                    <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw]">
+                        {renderContent()}
+                    </div>
+                )}
             </main>
 
             {activeTab === 'lagu_sion' && (
