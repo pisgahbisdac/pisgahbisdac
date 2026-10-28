@@ -1970,7 +1970,7 @@ const VERSE_CARD_THEMES = [
     }
 ];
 
-const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', subtitle = 'SABDA HIDUP • ALKITAB TB' }) => {
+const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', subtitle = 'SABDA HIDUP • ALKITAB TB', verseUrl = '' }) => {
     const canvasRef = React.useRef(null);
     const [themeId, setThemeId] = React.useState('navy_gold');
     const [aspect, setAspect] = React.useState('story'); // 'story' (1080x1920) | 'square' (1080x1080)
@@ -1980,8 +1980,45 @@ const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', 
     const [isDownloading, setIsDownloading] = React.useState(false);
     const [copyFeedback, setCopyFeedback] = React.useState('');
     const [downloadFeedback, setDownloadFeedback] = React.useState(false);
+    const [copyTextFeedback, setCopyTextFeedback] = React.useState(false);
 
     const activeTheme = VERSE_CARD_THEMES.find(t => t.id === themeId) || VERSE_CARD_THEMES[0];
+
+    // Helper untuk mendapatkan link URL ayat secara dinamis jika tidak diberikan langsung
+    const targetVerseUrl = React.useMemo(() => {
+        if (verseUrl) return verseUrl;
+        if (!reference) return getCleanShareUrl('alkitab');
+        const match = reference.trim().match(/^(.+?)\s+(\d+)\s*:\s*(.+)$/);
+        if (match) {
+            return getCleanShareUrl('alkitab', {
+                kitab: match[1].trim(),
+                pasal: match[2].trim(),
+                ayat: match[3].trim()
+            });
+        }
+        return getCleanShareUrl('alkitab');
+    }, [verseUrl, reference]);
+
+    const notePart = customNote && customNote.trim() ? `\n\n💬 _"${customNote.trim()}"_` : '';
+    const linkPart = targetVerseUrl ? `\n\n📖 Baca & renungkan di Alkitab Digital:\n${targetVerseUrl}` : '';
+    const shareText = `📖 *${reference}*\n\n"${verseText}"${notePart}\n\n🕊️ _GMAHK Jemaat Pisgah BISDAC - Batam_${linkPart}`;
+
+    const handleCopyTextWithLink = async () => {
+        try {
+            await navigator.clipboard.writeText(shareText);
+            setCopyTextFeedback(true);
+            setTimeout(() => setCopyTextFeedback(false), 3000);
+        } catch (e) {
+            const ta = document.createElement('textarea');
+            ta.value = shareText;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            setCopyTextFeedback(true);
+            setTimeout(() => setCopyTextFeedback(false), 3000);
+        }
+    };
 
     const drawCardToCanvas = React.useCallback(() => {
         const canvas = canvasRef.current;
@@ -2247,7 +2284,7 @@ const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', 
         } catch (err) {
             console.warn("Gagal menyalin gambar langsung:", err);
             try {
-                await navigator.clipboard.writeText(`📖 *${reference}*\n\n"${verseText}"\n\n🕊️ _GMAHK Jemaat Pisgah BISDAC - Batam_`);
+                await navigator.clipboard.writeText(shareText);
                 setCopyFeedback('text_copied');
                 setTimeout(() => setCopyFeedback(''), 3500);
             } catch (e) {
@@ -2265,7 +2302,6 @@ const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', 
         setIsSharing(true);
         const safeRef = (reference || 'Ayat').replace(/[^a-zA-Z0-9_-]/g, '-');
         const filename = `Kartu-Ayat-${safeRef}-PisgahBisdac.png`;
-        const shareText = `📖 *${reference}*\n\n"${verseText}"\n\n🕊️ _GMAHK Jemaat Pisgah BISDAC - Batam_`;
 
         try {
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
@@ -2468,6 +2504,16 @@ const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', 
                                     <span>{downloadFeedback ? 'Tersimpan!' : (isDownloading ? 'Menyimpan...' : 'Simpan / Unduh')}</span>
                                 </button>
                             </div>
+
+                            {/* Tombol 4: Salin Teks Ayat & Link Lengkap */}
+                            <button
+                                type="button"
+                                onClick={handleCopyTextWithLink}
+                                className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-98 ${copyTextFeedback ? 'bg-emerald-600 text-white border-emerald-600 font-black' : 'bg-navy-50 hover:bg-navy-100 dark:bg-navy-800/80 dark:hover:bg-navy-700 text-navy-700 dark:text-navy-200 border-navy-200 dark:border-navy-700'}`}
+                            >
+                                <Icon name={copyTextFeedback ? "Check" : "FileText"} className="w-3.5 h-3.5 shrink-0 text-gold-500" />
+                                <span>{copyTextFeedback ? 'Teks & Link Ayat Berhasil Disalin! ✨' : 'Salin Teks Ayat & Link'}</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2680,6 +2726,11 @@ const DailyVerseWidget = ({ setActiveTab }) => {
                 reference={`${verse.bookName} ${verse.chapter}:${verse.verse}`}
                 verseText={verse.text}
                 subtitle={`AYAT HARI INI • ${(verse.theme || 'SABDA HIDUP').toUpperCase()}`}
+                verseUrl={getCleanShareUrl('alkitab', {
+                    kitab: verse.bookName,
+                    pasal: verse.chapter,
+                    ayat: verse.verse
+                })}
             />
         </div>
     );
@@ -16191,7 +16242,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
     });
     const [noteModal, setNoteModal] = React.useState(null); // { keys: [], refLabel: '', textPreview: '', initialNote: '', defaultColor: 'gold' }
     const [noteInputText, setNoteInputText] = React.useState('');
-    const [cardModalData, setCardModalData] = React.useState({ isOpen: false, reference: '', verseText: '', subtitle: 'SABDA TUHAN • ALKITAB TB' });
+    const [cardModalData, setCardModalData] = React.useState({ isOpen: false, reference: '', verseText: '', subtitle: 'SABDA TUHAN • ALKITAB TB', verseUrl: '' });
     const [bibleYearDone, setBibleYearDone] = React.useState(() => {
         try {
             const raw = localStorage.getItem('PISGAH_BIBLE_YEAR_DONE');
@@ -16413,11 +16464,17 @@ const Alkitab = ({ setHideGlobalBack }) => {
         }
         ranges.push(start === end ? `${start}` : `${start}-${end}`);
         const ayatString = ranges.join(', ');
+        const appUrl = getCleanShareUrl('alkitab', {
+            kitab: selectedBook.nama,
+            pasal: selectedChapter,
+            ayat: ayatString
+        });
         setCardModalData({
             isOpen: true,
             reference: `${selectedBook.nama} ${selectedChapter}:${ayatString}`,
             verseText: textParts.join(' '),
-            subtitle: 'SABDA TUHAN • ALKITAB TB'
+            subtitle: 'SABDA TUHAN • ALKITAB TB',
+            verseUrl: appUrl
         });
     };
 
@@ -17152,6 +17209,7 @@ const Alkitab = ({ setHideGlobalBack }) => {
                 reference={cardModalData.reference}
                 verseText={cardModalData.verseText}
                 subtitle={cardModalData.subtitle}
+                verseUrl={cardModalData.verseUrl}
             />
         </>
     );
@@ -19244,14 +19302,14 @@ const GlobalProcessNotificationModal = ({ notification, onClose }) => {
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-md animate-fade-in no-print">
             <div
                 className={`relative w-full max-w-md rounded-3xl bg-white dark:bg-navy-900 border-2 shadow-2xl p-6 sm:p-7 text-center transition-all transform scale-100 ${isSuccess
-                        ? 'border-emerald-400 dark:border-emerald-600 shadow-emerald-500/20'
-                        : isError
-                            ? 'border-red-400 dark:border-red-600 shadow-red-500/20'
-                            : isWarning
-                                ? 'border-amber-400 dark:border-amber-600 shadow-amber-500/20'
-                                : isLoading
-                                    ? 'border-blue-400 dark:border-blue-600 shadow-blue-500/20'
-                                    : 'border-navy-200 dark:border-navy-700'
+                    ? 'border-emerald-400 dark:border-emerald-600 shadow-emerald-500/20'
+                    : isError
+                        ? 'border-red-400 dark:border-red-600 shadow-red-500/20'
+                        : isWarning
+                            ? 'border-amber-400 dark:border-amber-600 shadow-amber-500/20'
+                            : isLoading
+                                ? 'border-blue-400 dark:border-blue-600 shadow-blue-500/20'
+                                : 'border-navy-200 dark:border-navy-700'
                     }`}
                 role="dialog"
                 aria-modal="true"
@@ -19301,14 +19359,14 @@ const GlobalProcessNotificationModal = ({ notification, onClose }) => {
                 {/* Judul Status */}
                 <h3
                     className={`text-lg sm:text-xl font-black mb-2 tracking-tight ${isSuccess
-                            ? 'text-emerald-700 dark:text-emerald-400'
-                            : isError
-                                ? 'text-red-600 dark:text-red-400'
-                                : isWarning
-                                    ? 'text-amber-700 dark:text-amber-400'
-                                    : isLoading
-                                        ? 'text-blue-700 dark:text-blue-400'
-                                        : 'text-navy-900 dark:text-white'
+                        ? 'text-emerald-700 dark:text-emerald-400'
+                        : isError
+                            ? 'text-red-600 dark:text-red-400'
+                            : isWarning
+                                ? 'text-amber-700 dark:text-amber-400'
+                                : isLoading
+                                    ? 'text-blue-700 dark:text-blue-400'
+                                    : 'text-navy-900 dark:text-white'
                         }`}
                 >
                     {title || (isLoading ? 'Sedang Memproses...' : isSuccess ? 'Berhasil! ✅' : isError ? 'Terjadi Kendala ❌' : 'Pemberitahuan')}
@@ -19345,12 +19403,12 @@ const GlobalProcessNotificationModal = ({ notification, onClose }) => {
                         type="button"
                         onClick={onClose}
                         className={`w-full py-3 px-5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 ${isSuccess
-                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20'
-                                : isError
-                                    ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-500/20'
-                                    : isWarning
-                                        ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/20'
-                                        : 'bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950'
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20'
+                            : isError
+                                ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-500/20'
+                                : isWarning
+                                    ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/20'
+                                    : 'bg-navy-900 dark:bg-gold-500 hover:bg-navy-800 dark:hover:bg-gold-600 text-gold-400 dark:text-navy-950'
                             }`}
                     >
                         {isError ? 'Tutup & Periksa Kembali' : 'Mengerti / Tutup'}
