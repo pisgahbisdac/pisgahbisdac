@@ -3048,7 +3048,8 @@ const PRAYER_CATEGORIES = [
     { id: 'Pekerjaan', label: 'Pekerjaan & Pendidikan', icon: '💼', badgeClass: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30' },
     { id: 'Rohani', label: 'Pertumbuhan Iman', icon: '📖', badgeClass: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30' },
     { id: 'Syukur', label: 'Ucapan Syukur', icon: '✨', badgeClass: 'bg-gold-500/20 text-amber-800 dark:text-gold-300 border-gold-500/40' },
-    { id: 'Pelayanan', label: 'Pelayanan Gereja', icon: '⛪', badgeClass: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30' }
+    { id: 'Pelayanan', label: 'Pelayanan Gereja', icon: '⛪', badgeClass: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30' },
+    { id: 'Lainnya', label: 'Lainnya', icon: '📌', badgeClass: 'bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-500/30' }
 ];
 
 const INITIAL_PRAYER_REQUESTS = [
@@ -3105,6 +3106,114 @@ const savePrayerRequests = (list) => {
             window.dispatchEvent(new CustomEvent('pisgah-prayer-updated'));
         }, 0);
     } catch (e) { }
+};
+
+// Helper Parser Pokok Doa (Mendukung Multi-Baris via Enter, Penomoran Otomatis 1. 2. 3., dan Bullet Point)
+const parsePrayerContent = (rawContent) => {
+    if (!rawContent || typeof rawContent !== 'string') return [];
+    const text = rawContent.trim();
+    if (!text) return [];
+
+    // 1. Cek jika terdapat perpindahan baris (Enter)
+    const rawLines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (rawLines.length > 1) {
+        let currentItemNumber = 0;
+        return rawLines.map((line) => {
+            if (line.endsWith(':') || line.toLowerCase().startsWith('mohon doa:') || line.toLowerCase().startsWith('pokok doa:')) {
+                return { isHeader: true, text: line };
+            }
+            const numMatch = line.match(/^(\d+)[\.\)]\s*(.*)$/);
+            if (numMatch) {
+                currentItemNumber = parseInt(numMatch[1], 10) || (currentItemNumber + 1);
+                return { num: String(currentItemNumber), text: numMatch[2].trim().replace(/[,;]\s*$/, '') };
+            }
+            const bulletMatch = line.match(/^[-*•]\s*(.*)$/);
+            if (bulletMatch) {
+                currentItemNumber += 1;
+                return { num: String(currentItemNumber), text: bulletMatch[1].trim().replace(/[,;]\s*$/, '') };
+            }
+            currentItemNumber += 1;
+            return { num: String(currentItemNumber), text: line.replace(/[,;]\s*$/, '') };
+        });
+    }
+
+    // 2. Baris tunggal: deteksi penomoran tersemat di tengah kalimat seperti "1. ... 2. ... 3. ..."
+    const numberedRegex = /(?:^|\s+)(\d+)[\.\)]\s+/g;
+    const matches = [...text.matchAll(numberedRegex)];
+    if (matches.length > 1) {
+        const items = [];
+        const firstMatchIndex = matches[0].index;
+        if (firstMatchIndex > 0) {
+            const intro = text.slice(0, firstMatchIndex).trim();
+            if (intro) items.push({ isHeader: true, text: intro });
+        }
+        for (let i = 0; i < matches.length; i++) {
+            const currentMatch = matches[i];
+            const num = currentMatch[1];
+            const startIndex = currentMatch.index + currentMatch[0].length;
+            const endIndex = (i + 1 < matches.length) ? matches[i + 1].index : text.length;
+            const itemText = text.slice(startIndex, endIndex).trim().replace(/[,;]\s*$/, '');
+            if (itemText) {
+                items.push({ num, text: itemText });
+            }
+        }
+        if (items.length > 0) return items;
+    }
+
+    // 3. Baris tunggal: deteksi bullet tersemat seperti "- ... - ..."
+    const bulletParts = text.split(/(?:^|\s+)[-*•]\s+/).map(s => s.trim().replace(/[,;]\s*$/, '')).filter(Boolean);
+    if (bulletParts.length > 1) {
+        return bulletParts.map((t, idx) => ({ num: String(idx + 1), text: t }));
+    }
+
+    // 4. Jika hanya 1 kalimat namun berawalan angka nomor seperti "1. ..."
+    const singleMatch = text.match(/^(\d+)[\.\)]\s*(.*)$/);
+    if (singleMatch) {
+        return [{ num: singleMatch[1], text: singleMatch[2].trim() }];
+    }
+
+    // 5. Kalimat biasa tanpa format list
+    return [{ num: null, text }];
+};
+
+// Komponen Perender Tampilan Pokok Doa Rapi & Terstruktur
+const PrayerContentRenderer = ({ content }) => {
+    const items = React.useMemo(() => parsePrayerContent(content), [content]);
+
+    if (!items || items.length === 0) return null;
+
+    // Jika berupa 1 teks pendek biasa tanpa penomoran
+    if (items.length === 1 && !items[0].num && !items[0].isHeader) {
+        return (
+            <p className="text-xs sm:text-sm text-[#2C3F21] dark:text-gray-100 leading-relaxed font-medium whitespace-pre-line">
+                "{items[0].text}"
+            </p>
+        );
+    }
+
+    return (
+        <div className="space-y-1.5 my-1 text-xs sm:text-sm text-[#2C3F21] dark:text-gray-100 leading-relaxed font-medium">
+            {items.map((it, idx) => {
+                if (it.isHeader) {
+                    return (
+                        <p key={idx} className="font-bold text-[#2C3F21] dark:text-gold-300 pt-0.5">
+                            {it.text}
+                        </p>
+                    );
+                }
+                return (
+                    <div key={idx} className="flex items-start gap-2.5 bg-white/60 dark:bg-navy-900/60 p-2 sm:p-2.5 rounded-xl border border-[#E2E8D8]/70 dark:border-navy-800/80 shadow-2xs">
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-[#4A7045]/15 dark:bg-gold-500/20 text-[#4A7045] dark:text-gold-400 border border-[#4A7045]/30 dark:border-gold-500/40 text-[10px] font-black flex items-center justify-center mt-0.5 select-none">
+                            {it.num || (idx + 1)}
+                        </span>
+                        <span className="flex-1 min-w-0 font-medium">
+                            {it.text}
+                        </span>
+                    </div>
+                );
+            })}
+        </div>
+    );
 };
 
 // Komponen Helper Baris Filter Scrollable Interaktif (Dukungan Mouse Wheel, Drag Desktop, Touch Mobile, & Tombol Panah Kiri/Kanan)
@@ -3345,12 +3454,20 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
 
     const handleSendPrivateToPastorWA = (prayerObj) => {
         const pastorPhone = findCoordinatorPhone(dataPejabat);
+        const items = parsePrayerContent(prayerObj.content);
+        let formattedContent = `"${prayerObj.content}"`;
+        if (items.length > 1 || (items.length === 1 && items[0].num)) {
+            formattedContent = items.map(it => {
+                if (it.isHeader) return `*${it.text}*`;
+                return `  ${it.num ? `${it.num}.` : '•'} ${it.text}`;
+            }).join('\n');
+        }
         const text =
             `Shalom Gembala / Majelis *GMAHK Jemaat Pisgah BISDAC - Batam* 🙏,\n\n` +
             `Saya ingin menyampaikan *Pokok Doa Khusus (${prayerObj.privacy === 'private' ? 'Privat / Pastoral' : 'Ibadah Rabu'})*:\n\n` +
             `👤 *Nama:* ${prayerObj.senderName}\n` +
             `🏷️ *Kategori:* ${prayerObj.category}\n` +
-            `🙏 *Pokok Doa:* "${prayerObj.content}"\n\n` +
+            `🙏 *Pokok Doa:*\n${formattedContent}\n\n` +
             `Terima kasih atas dukungan doa Gembala & Majelis. Tuhan Yesus memberkati. 🕊️`;
         const waUrl = pastorPhone
             ? `https://api.whatsapp.com/send?phone=${pastorPhone}&text=${encodeURIComponent(text)}`
@@ -3362,7 +3479,15 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
         const topPublic = publicPrayers.slice(0, 8);
         let text = `*🙏 POKOK DOA SYAFAAT IBADAH RABU MALAM*\n*GMAHK Jemaat Pisgah BISDAC - Batam*\n\n`;
         topPublic.forEach((p, idx) => {
-            text += `${idx + 1}. *[${p.category}] ${p.senderName}:*\n"${p.content}" _(Didoakan ${p.prayedCount || 1}x)_\n\n`;
+            const items = parsePrayerContent(p.content);
+            let formattedContent = `"${p.content}"`;
+            if (items.length > 1 || (items.length === 1 && items[0].num)) {
+                formattedContent = items.map(it => {
+                    if (it.isHeader) return `*${it.text}*`;
+                    return `  ${it.num ? `${it.num}.` : '•'} ${it.text}`;
+                }).join('\n');
+            }
+            text += `${idx + 1}. *[${p.category}] ${p.senderName}:*\n${formattedContent}\n_(Didoakan ${p.prayedCount || 1}x)_\n\n`;
         });
         text += `_"Karena itu hendaklah kamu saling mengaku dosamu dan saling mendoakan, supaya kamu sembuh."_ (Yakobus 5:16)\n\n` +
             `Kirim pokok doa Anda di: ${getCleanShareUrl('jadwal')}`;
@@ -3497,16 +3622,21 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                     </div>
 
                     <div>
-                        <label className="text-[11px] font-black uppercase tracking-wider text-[#2C3F21] dark:text-gold-300 block mb-1.5">
-                            Isi Pokok Doa / Pergumulan / Ucapan Syukur
-                        </label>
+                        <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+                            <label className="text-[11px] font-black uppercase tracking-wider text-[#2C3F21] dark:text-gold-300">
+                                Isi Pokok Doa / Pergumulan / Ucapan Syukur
+                            </label>
+                            <span className="text-[10px] text-[#596B4D] dark:text-gold-400 font-semibold">
+                                💡 Tekan Enter untuk membuat poin 1, 2, 3...
+                            </span>
+                        </div>
                         <textarea
-                            rows="3"
+                            rows="4"
                             required
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
-                            placeholder="Tuliskan pokok doa yang ingin didoakan bersama..."
-                            className="w-full p-3.5 rounded-xl bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-xs sm:text-sm font-medium text-navy-900 dark:text-white outline-none focus:border-gold-500 resize-none"
+                            placeholder="Tuliskan pokok doa Anda di sini...&#10;Jika ada beberapa pokok doa, tekan Enter untuk membuat baris baru:&#10;1. Doakan kesehatan anggota keluarga&#10;2. Doakan pekerjaan & studi anak&#10;3. Doakan perintisan pelayanan"
+                            className="w-full p-3.5 rounded-xl bg-white dark:bg-navy-900 border border-[#E2E8D8] dark:border-navy-700 text-xs sm:text-sm font-medium text-navy-900 dark:text-white outline-none focus:border-gold-500 resize-y"
                         />
                     </div>
 
@@ -3589,9 +3719,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                                             </span>
                                         )}
                                     </div>
-                                    <p className="text-xs sm:text-sm text-[#2C3F21] dark:text-gray-100 leading-relaxed font-medium">
-                                        "{item.content}"
-                                    </p>
+                                    <PrayerContentRenderer content={item.content} />
                                 </div>
 
                                 <div className="pt-2.5 border-t border-[#E2E8D8]/80 dark:border-navy-800 flex items-center justify-between gap-2">
@@ -10126,9 +10254,7 @@ const AdminPastoralAndCalendarPanel = () => {
                                             🙏 {p.prayedCount || 1}x
                                         </span>
                                     </div>
-                                    <p className="text-sm text-navy-900 font-medium leading-relaxed">
-                                        "{p.content}"
-                                    </p>
+                                    <PrayerContentRenderer content={p.content} />
                                 </div>
                                 <div className="pt-3 border-t border-navy-100 flex items-center justify-between gap-2">
                                     <div className="text-xs font-extrabold text-navy-800">
