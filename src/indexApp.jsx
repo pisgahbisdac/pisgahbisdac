@@ -5558,9 +5558,9 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
     const [sortBy, setSortBy] = React.useState('newest'); // 'newest' (default) | 'title_asc' | 'title_desc' | 'author'
 
     React.useEffect(() => {
-        if (setHideGlobalBack) setHideGlobalBack(!!selectedBook);
-        return () => { if (setHideGlobalBack) setHideGlobalBack(false); }
-    }, [selectedBook, setHideGlobalBack]);
+        if (setHideGlobalBack) setHideGlobalBack(true);
+        return () => { if (setHideGlobalBack) setHideGlobalBack(false); };
+    }, [setHideGlobalBack]);
 
     // Reset initialBook ketika dibuka dari menu pencarian
     React.useEffect(() => {
@@ -5599,6 +5599,16 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
 
     const categories = ['Semua', ...new Set(booksFromServer.map(b => b.category).filter(Boolean))];
     const [activeCategory, setActiveCategory] = React.useState('Semua');
+
+    const categoryCounts = React.useMemo(() => {
+        const counts = { 'Semua': booksFromServer.length };
+        booksFromServer.forEach(b => {
+            if (b.category) {
+                counts[b.category] = (counts[b.category] || 0) + 1;
+            }
+        });
+        return counts;
+    }, [booksFromServer]);
 
     // Menandai 3 buku teratas sebagai "Baru" untuk kemudahan identifikasi jemaat
     const newestBookIds = React.useMemo(() => {
@@ -5687,54 +5697,61 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
 
     // Mode daftar buku
     return (
-        <div className="animate-fade-in space-y-6 glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
-            {/* Header */}
-            <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop" loading="lazy" alt="Buku" className="w-full h-[14rem] object-cover" />
-                <div className="p-6">
-                    <h1 className="text-[1.75rem] font-extrabold text-navy-900 mb-2">Perpustakaan Buku</h1>
-                    <p className="text-navy-500 font-medium text-sm leading-relaxed">Baca dan unduh buku-buku rohani langsung di sini. Pilih buku untuk membacanya.</p>
-                </div>
-            </div>
+        <div className="space-y-6 sm:space-y-8 animate-fade-in relative pb-16">
+            {/* STICKY TOP BAR: TOMBOL KEMBALI + FILTER KATEGORI + URUTAN */}
+            <div className="sticky top-16 md:top-[4.5rem] z-[35] rounded-2xl px-3 sm:px-4 py-2.5 liquid-glass-header transition-all print:hidden no-print flex items-center gap-2 sm:gap-3 shadow-sm border border-navy-100/50 dark:border-navy-700/50">
+                <button
+                    onClick={() => {
+                        if (window.history.length > 1) {
+                            window.history.back();
+                        } else {
+                            setActiveTab('belajar');
+                        }
+                    }}
+                    className="flex items-center justify-center px-3.5 py-2 rounded-xl liquid-glass-pill text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-extrabold transition-all gap-1.5 group shrink-0 shadow-xs cursor-pointer"
+                    title="Kembali ke Halaman Sebelumnya"
+                >
+                    <Icon name="ArrowLeft" className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                    <span className="text-xs sm:text-sm">Kembali</span>
+                </button>
 
-            {/* Search Bar Buku */}
-            <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
-                    <Icon name="Search" className="w-4 h-4" />
-                </div>
-                <input
-                    type="text"
-                    placeholder="Cari judul, pengarang, atau deskripsi..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    className="w-full pl-11 pr-10 py-3 bg-white border border-navy-100/80 rounded-2xl text-sm font-semibold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 shadow-sm transition-all"
-                />
-                {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-navy-100 text-navy-500 hover:bg-navy-200 transition flex items-center justify-center">
-                        <Icon name="X" className="w-3.5 h-3.5" />
-                    </button>
-                )}
-            </div>
+                <div className="h-6 w-px bg-navy-200/60 dark:bg-navy-700/60 shrink-0" />
 
-            {/* Filter Kategori & Urutan Buku */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 flex-1 min-w-0">
-                    {categories.map(cat => (
-                        <button
-                            key={cat}
-                            onClick={() => setActiveCategory(cat)}
-                            className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 border ${activeCategory === cat ? 'bg-navy-900 text-gold-400 border-navy-900 shadow' : 'bg-white text-navy-600 border-navy-100 hover:border-navy-300'}`}
-                        >
-                            {cat}
-                        </button>
-                    ))}
+                {/* Filter Kategori Navigation Pills (Horizontal Scroll) */}
+                <div className="flex-1 flex items-center gap-1.5 sm:gap-2 overflow-x-auto hide-scrollbar py-0.5 min-w-0">
+                    {categories.map((cat) => {
+                        const count = categoryCounts[cat] || 0;
+                        const isActive = activeCategory === cat;
+                        return (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${isActive
+                                    ? 'bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-xs scale-102 font-extrabold'
+                                    : 'text-navy-700 dark:text-navy-300 hover:bg-navy-100/70 dark:hover:bg-navy-800/80 bg-white/60 dark:bg-navy-900/60 border border-navy-200/60 dark:border-navy-700/60'
+                                    }`}
+                            >
+                                <span>{cat}</span>
+                                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${isActive
+                                    ? 'bg-gold-500/20 text-gold-300 dark:bg-navy-900/20 dark:text-navy-950'
+                                    : 'bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-navy-400'
+                                    }`}>
+                                    {count}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
-                <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                    <span className="text-xs font-bold text-navy-400">Urutan:</span>
+
+                <div className="h-6 w-px bg-navy-200/60 dark:bg-navy-700/60 shrink-0 hidden sm:block" />
+
+                {/* Dropdown Pengurutan Buku */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-xs font-bold text-navy-500 dark:text-navy-400 hidden lg:inline">Urutan:</span>
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="px-3 py-1.5 bg-white border border-navy-200/80 rounded-xl text-xs font-bold text-navy-800 outline-none focus:border-gold-500 shadow-2xs cursor-pointer"
+                        className="px-2.5 sm:px-3 py-1.5 bg-white/80 dark:bg-navy-900 border border-navy-200/80 dark:border-navy-700 rounded-xl text-xs font-bold text-navy-800 dark:text-gold-400 outline-none focus:border-gold-500 shadow-2xs cursor-pointer"
                     >
                         <option value="newest">✨ Terbaru (Paling Atas)</option>
                         <option value="title_asc">Judul (A - Z)</option>
@@ -5743,6 +5760,52 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                     </select>
                 </div>
             </div>
+
+            {/* Kotak Konten Utama Perpustakaan Buku */}
+            <div className="space-y-6 glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6">
+                {/* Header */}
+                <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop" loading="lazy" alt="Buku" className="w-full h-[14rem] object-cover" />
+                    <div className="p-6">
+                        <h1 className="text-[1.75rem] font-extrabold text-navy-900 mb-2">Perpustakaan Buku</h1>
+                        <p className="text-navy-500 font-medium text-sm leading-relaxed">Baca dan unduh buku-buku rohani langsung di sini. Pilih buku untuk membacanya.</p>
+                    </div>
+                </div>
+
+                {/* Search Bar Buku */}
+                <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
+                        <Icon name="Search" className="w-4 h-4" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Cari judul, pengarang, atau deskripsi..."
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="w-full pl-11 pr-10 py-3 bg-white border border-navy-100/80 rounded-2xl text-sm font-semibold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 shadow-sm transition-all"
+                    />
+                    {searchQuery && (
+                        <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-navy-100 text-navy-500 hover:bg-navy-200 transition flex items-center justify-center">
+                            <Icon name="X" className="w-3.5 h-3.5" />
+                        </button>
+                    )}
+                </div>
+
+                {/* Status Kategori Aktif & Hasil Filter */}
+                <div className="flex items-center justify-between text-xs font-bold text-navy-500 px-1 pt-1">
+                    <span>
+                        Menampilkan <b>{filteredBooks.length}</b> buku {activeCategory !== 'Semua' ? `dalam kategori "${activeCategory}"` : 'tersedia'}
+                        {searchQuery.trim() && ` untuk pencarian "${searchQuery}"`}
+                    </span>
+                    {activeCategory !== 'Semua' && (
+                        <button
+                            onClick={() => setActiveCategory('Semua')}
+                            className="text-gold-600 dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer font-bold"
+                        >
+                            <span>Tampilkan Semua Kategori</span>
+                        </button>
+                    )}
+                </div>
 
             {/* Grid Buku - 2 kolom di mobile */}
             {isLoadingBooks ? (
@@ -5828,6 +5891,7 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                 </div>
             </div>
         </div>
+    </div>
     );
 };
 
