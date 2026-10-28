@@ -65,7 +65,7 @@
     class="bg-gray-50 dark:bg-[#0b1a30] text-navy-900 dark:text-gray-100 font-sans antialiased overflow-x-clip transition-colors duration-300">
     <div id="root">
         <!-- Preloader: Ditampilkan saat React & Babel sedang diproses, mencegah blank screen lambat -->
-        <div class="preloader-bg"
+        <div class="preloader-bg" id="app-preloader"
             style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
             <style>
                 .preloader-bg {
@@ -136,25 +136,35 @@
     </div>
 
     <script>
-        // Fungsi darurat untuk membersihkan cache service worker jika loading terhambat
-        window.clearAppCacheAndReload = function () {
+        // Nonaktifkan & hapus service worker lama jika sedang berjalan di localhost
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(function (regs) {
-                    for (var i = 0; i < regs.length; i++) {
-                        regs[i].unregister();
-                    }
-                });
+                    regs.forEach(function (r) { r.unregister(); });
+                }).catch(function () { });
             }
-            if ('caches' in window) {
-                caches.keys().then(function (names) {
-                    for (var i = 0; i < names.length; i++) {
-                        caches.delete(names[i]);
-                    }
-                });
+        }
+
+        // Fungsi darurat untuk membersihkan cache service worker jika loading terhambat
+        window.clearAppCacheAndReload = async function () {
+            var btn = document.querySelector('#preloader-rescue button');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = '⏳ Membersihkan Cache & Memuat Ulang...';
             }
             try {
+                if ('serviceWorker' in navigator) {
+                    var regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(function (r) { return r.unregister(); }));
+                }
+                if ('caches' in window) {
+                    var names = await caches.keys();
+                    await Promise.all(names.map(function (name) { return caches.delete(name); }));
+                }
                 sessionStorage.clear();
-            } catch (e) { }
+            } catch (e) {
+                console.error('Clear cache error:', e);
+            }
             window.location.reload();
         };
 

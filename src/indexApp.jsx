@@ -7,9 +7,15 @@ import { ChevronLeft, ChevronRight, Play, Maximize, FileText, Download, Share2, 
 
 // --- PWA & SERVICE WORKER LOGIC ---
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
-    });
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            regs.forEach(r => r.unregister());
+        }).catch(() => { });
+    } else {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
+        });
+    }
 }
 
 let deferredPrompt = null;
@@ -19371,6 +19377,12 @@ const App = () => {
     const [appNotification, setAppNotification] = React.useState(null);
 
     React.useEffect(() => {
+        // Pastikan preloader awal dibersihkan segera saat App termount
+        const preloader = document.getElementById('app-preloader') || document.querySelector('.preloader-bg');
+        if (preloader && preloader.parentNode) {
+            try { preloader.parentNode.removeChild(preloader); } catch (e) { }
+        }
+
         window.notifyLoading = (title, message) => {
             setAppNotification({
                 type: 'loading',
@@ -20615,17 +20627,4 @@ if (document.readyState === 'loading') {
     mountApp();
 }
 
-// Service Worker Registration
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-        try {
-            const registration = await navigator.serviceWorker.register('./sw.js');
-            console.log('ServiceWorker registered:', registration);
-        } catch (err) {
-            console.log('ServiceWorker registration failed: ', err);
-        }
-    });
-}
-
-
-export default function EmptyApp() { return null; }
+export default App;

@@ -1,9 +1,42 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import fs from 'fs'
+
+// Plugin proteksi untuk mencegah kasus file src/indexApp.jsx menjadi 0 byte akibat editor buffer race condition
+function safeguardIndexApp() {
+  return {
+    name: 'safeguard-index-app',
+    enforce: 'pre',
+    load(id) {
+      if (id && id.includes('src/indexApp.jsx') && !id.includes('.bak')) {
+        const filePath = resolve(__dirname, 'src/indexApp.jsx');
+        const bakPath = resolve(__dirname, 'src/indexApp.jsx.bak');
+        try {
+          if (fs.existsSync(filePath)) {
+            const stats = fs.statSync(filePath);
+            if (stats.size === 0) {
+              console.warn('\n⚠️ [Vite Safeguard] src/indexApp.jsx kosong (0 bytes). Memulihkan dari src/indexApp.jsx.bak...');
+              if (fs.existsSync(bakPath) && fs.statSync(bakPath).size > 1000000) {
+                fs.copyFileSync(bakPath, filePath);
+                return fs.readFileSync(filePath, 'utf-8');
+              }
+            } else if (stats.size > 1000000) {
+              // Otomatis sinkronisasi backup saat berkas normal
+              fs.copyFileSync(filePath, bakPath);
+            }
+          }
+        } catch (e) {
+          console.error('[Vite Safeguard Error]', e);
+        }
+      }
+      return null;
+    }
+  };
+}
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [safeguardIndexApp(), react()],
   build: {
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
