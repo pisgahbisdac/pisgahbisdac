@@ -3111,8 +3111,11 @@ const savePrayerRequests = (list) => {
 // Helper Parser Pokok Doa (Mendukung Multi-Baris via Enter, Penomoran Otomatis 1. 2. 3., dan Bullet Point)
 const parsePrayerContent = (rawContent) => {
     if (!rawContent || typeof rawContent !== 'string') return [];
-    const text = rawContent.trim();
+    let text = rawContent.trim();
     if (!text) return [];
+
+    // Bersihkan tanda kutip pembuka dan penutup bila seluruh pokok doa diapit kutipan ("...", '...', “...”)
+    text = text.replace(/^["'“”«»]+|["'“”«»]+$/g, '').trim();
 
     // 1. Cek jika terdapat perpindahan baris (Enter)
     const rawLines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
@@ -3122,23 +3125,24 @@ const parsePrayerContent = (rawContent) => {
             if (line.endsWith(':') || line.toLowerCase().startsWith('mohon doa:') || line.toLowerCase().startsWith('pokok doa:')) {
                 return { isHeader: true, text: line };
             }
-            const numMatch = line.match(/^(\d+)[\.\)]\s*(.*)$/);
+            const cleanLine = line.replace(/^["'“”«»]+|["'“”«»]+$/g, '').trim();
+            const numMatch = cleanLine.match(/^(\d+)[\.\)]\s*(.*)$/);
             if (numMatch) {
                 currentItemNumber = parseInt(numMatch[1], 10) || (currentItemNumber + 1);
                 return { num: String(currentItemNumber), text: numMatch[2].trim().replace(/[,;]\s*$/, '') };
             }
-            const bulletMatch = line.match(/^[-*•]\s*(.*)$/);
+            const bulletMatch = cleanLine.match(/^[-*•]\s*(.*)$/);
             if (bulletMatch) {
                 currentItemNumber += 1;
                 return { num: String(currentItemNumber), text: bulletMatch[1].trim().replace(/[,;]\s*$/, '') };
             }
             currentItemNumber += 1;
-            return { num: String(currentItemNumber), text: line.replace(/[,;]\s*$/, '') };
+            return { num: String(currentItemNumber), text: cleanLine.replace(/[,;]\s*$/, '') };
         });
     }
 
     // 2. Baris tunggal: deteksi penomoran tersemat di tengah kalimat seperti "1. ... 2. ... 3. ..."
-    const numberedRegex = /(?:^|\s+)(\d+)[\.\)]\s+/g;
+    const numberedRegex = /(?:^|[\s,;]+)(\d+)[\.\)]\s+/g;
     const matches = [...text.matchAll(numberedRegex)];
     if (matches.length > 1) {
         const items = [];
@@ -3152,7 +3156,7 @@ const parsePrayerContent = (rawContent) => {
             const num = currentMatch[1];
             const startIndex = currentMatch.index + currentMatch[0].length;
             const endIndex = (i + 1 < matches.length) ? matches[i + 1].index : text.length;
-            const itemText = text.slice(startIndex, endIndex).trim().replace(/[,;]\s*$/, '');
+            let itemText = text.slice(startIndex, endIndex).trim().replace(/[,;]\s*$/, '').replace(/^["'“”«»]+|["'“”«»]+$/g, '').trim();
             if (itemText) {
                 items.push({ num, text: itemText });
             }
@@ -3161,7 +3165,7 @@ const parsePrayerContent = (rawContent) => {
     }
 
     // 3. Baris tunggal: deteksi bullet tersemat seperti "- ... - ..."
-    const bulletParts = text.split(/(?:^|\s+)[-*•]\s+/).map(s => s.trim().replace(/[,;]\s*$/, '')).filter(Boolean);
+    const bulletParts = text.split(/(?:^|[\s,;]+)[-*•]\s+/).map(s => s.trim().replace(/[,;]\s*$/, '').replace(/^["'“”«»]+|["'“”«»]+$/g, '').trim()).filter(Boolean);
     if (bulletParts.length > 1) {
         return bulletParts.map((t, idx) => ({ num: String(idx + 1), text: t }));
     }
@@ -3169,7 +3173,7 @@ const parsePrayerContent = (rawContent) => {
     // 4. Jika hanya 1 kalimat namun berawalan angka nomor seperti "1. ..."
     const singleMatch = text.match(/^(\d+)[\.\)]\s*(.*)$/);
     if (singleMatch) {
-        return [{ num: singleMatch[1], text: singleMatch[2].trim() }];
+        return [{ num: singleMatch[1], text: singleMatch[2].trim().replace(/^["'“”«»]+|["'“”«»]+$/g, '').trim() }];
     }
 
     // 5. Kalimat biasa tanpa format list
