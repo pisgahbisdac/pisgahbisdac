@@ -512,6 +512,52 @@ const DocumentBadge = ({ book, className = "absolute top-2 left-2" }) => {
     );
 };
 
+// Helper pengurutan buku agar posisi paling atas selalu yang terbaru
+const sortBooksNewestFirst = (booksList = [], referenceList = []) => {
+    if (!Array.isArray(booksList)) return [];
+
+    const refMap = new Map();
+    const refArr = Array.isArray(referenceList) && referenceList.length > 0 ? referenceList : booksList;
+    refArr.forEach((b, idx) => {
+        if (b && b.id !== undefined) refMap.set(String(b.id), idx);
+    });
+
+    return [...booksList].sort((a, b) => {
+        // 1. Cek tanggal/waktu eksplisit jika tersedia
+        const timeA = a.createdAt || a.created_at || a.timestamp || a.tanggal || a.date;
+        const timeB = b.createdAt || b.created_at || b.timestamp || b.tanggal || b.date;
+        if (timeA && timeB) {
+            const tA = new Date(timeA).getTime();
+            const tB = new Date(timeB).getTime();
+            if (!isNaN(tA) && !isNaN(tB) && tA !== tB) {
+                return tB - tA; // Tanggal terbaru di atas
+            }
+        }
+
+        // 2. Cek angka pada ID (Google Apps Script generate 'BK' + new Date().getTime())
+        const digitsA = String(a.id || '').replace(/\D/g, '');
+        const digitsB = String(b.id || '').replace(/\D/g, '');
+        if (digitsA && digitsB) {
+            const numA = Number(digitsA);
+            const numB = Number(digitsB);
+            if (!isNaN(numA) && !isNaN(numB) && numA !== numB) {
+                if (Math.abs(digitsA.length - digitsB.length) <= 3) {
+                    return numB - numA; // Timestamp milidetik atau ID numerik lebih besar = lebih baru = di atas
+                }
+            }
+        }
+
+        // 3. Fallback: urutan baris di Google Sheets (data di baris paling bawah adalah yang paling baru ditambahkan)
+        const orderA = refMap.has(String(a.id)) ? refMap.get(String(a.id)) : -1;
+        const orderB = refMap.has(String(b.id)) ? refMap.get(String(b.id)) : -1;
+        if (orderA !== -1 && orderB !== -1 && orderA !== orderB) {
+            return orderB - orderA; // Baris bawah di sheet = terbaru = di atas
+        }
+
+        return 0;
+    });
+};
+
 // --- KOMPONEN LOADING INI ---
 const LoadingScreen = () => {
     return (
@@ -4835,7 +4881,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         </button>
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-                                        {[...daftarBuku].reverse().slice(0, 4).map((b, i) => (
+                                        {sortBooksNewestFirst(daftarBuku, daftarBuku).slice(0, 4).map((b, i) => (
                                             <div key={b.id} onClick={() => { setInitialBook && setInitialBook(b); setActiveTab('belajar_perpustakaan'); }} className={`rounded-[1.5rem] bg-[#F7F9F3] dark:bg-navy-950/70 border-2 border-[#E2E8D8] dark:border-navy-800 overflow-hidden cursor-pointer hover:border-[#4A7045] dark:hover:border-gold-500 transition-all duration-300 group flex-col ${i === 3 ? 'flex md:hidden lg:flex' : 'flex'} shadow-sm hover:shadow-md`}>
                                                 <div className="h-40 md:h-52 overflow-hidden relative m-2 rounded-[1.25rem]">
                                                     <img
@@ -5376,11 +5422,12 @@ const DetailEGW = ({ setActiveTab, dataPejabat }) => (
     </div>
 );
 
-const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpened, setHideGlobalBack }) => {
+const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpened, setHideGlobalBack, daftarBuku = [] }) => {
     const [selectedBook, setSelectedBook] = React.useState(initialBook || null);
-    const [booksFromServer, setBooksFromServer] = React.useState([]);
-    const [isLoadingBooks, setIsLoadingBooks] = React.useState(true);
-    const [searchQuery, setSearchQuery] = React.useState(''); // State ini sebelumnya hilang
+    const [booksFromServer, setBooksFromServer] = React.useState(() => (Array.isArray(daftarBuku) && daftarBuku.length > 0 ? daftarBuku : []));
+    const [isLoadingBooks, setIsLoadingBooks] = React.useState(!daftarBuku || daftarBuku.length === 0);
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [sortBy, setSortBy] = React.useState('newest'); // 'newest' (default) | 'title_asc' | 'title_desc' | 'author'
 
     React.useEffect(() => {
         if (setHideGlobalBack) setHideGlobalBack(!!selectedBook);
@@ -5397,7 +5444,9 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
     // Load books dari backend saat komponen mount
     React.useEffect(() => {
         const loadBooks = async () => {
-            setIsLoadingBooks(true);
+            if (!booksFromServer || booksFromServer.length === 0) {
+                setIsLoadingBooks(true);
+            }
             try {
                 const res = await fetch(GAS_API_URL, {
                     method: 'POST',
@@ -5423,7 +5472,12 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
     const categories = ['Semua', ...new Set(booksFromServer.map(b => b.category).filter(Boolean))];
     const [activeCategory, setActiveCategory] = React.useState('Semua');
 
-    // Memperbaiki logika filter agar kolom pencarian (search bar) dapat berfungsi
+    // Menandai 3 buku teratas sebagai "Baru" untuk kemudahan identifikasi jemaat
+    const newestBookIds = React.useMemo(() => {
+        return new Set(sortBooksNewestFirst(booksFromServer, booksFromServer).slice(0, 3).map(b => String(b.id)));
+    }, [booksFromServer]);
+
+    // Filter dan pengurutan buku: Posisi paling atas selalu yang terbaru secara default
     const filteredBooks = React.useMemo(() => {
         let result = [...booksFromServer];
         if (activeCategory !== 'Semua') {
@@ -5437,9 +5491,20 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                 (b.desc && b.desc.toLowerCase().includes(q))
             );
         }
-        // Mengurutkan buku berdasarkan abjad (A-Z) pada judul
-        return result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-    }, [booksFromServer, activeCategory, searchQuery]);
+
+        if (sortBy === 'title_asc') {
+            return result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        }
+        if (sortBy === 'title_desc') {
+            return result.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+        }
+        if (sortBy === 'author') {
+            return result.sort((a, b) => (a.author || '').localeCompare(b.author || ''));
+        }
+
+        // Default 'newest': Posisi paling atas selalu yang paling baru
+        return sortBooksNewestFirst(result, booksFromServer);
+    }, [booksFromServer, activeCategory, searchQuery, sortBy]);
 
     // Mode baca PDF
     if (selectedBook) {
@@ -5523,17 +5588,32 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                 )}
             </div>
 
-            {/* Filter Kategori */}
-            <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-                {categories.map(cat => (
-                    <button
-                        key={cat}
-                        onClick={() => setActiveCategory(cat)}
-                        className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 border ${activeCategory === cat ? 'bg-navy-900 text-gold-400 border-navy-900 shadow' : 'bg-white text-navy-600 border-navy-100 hover:border-navy-300'}`}
+            {/* Filter Kategori & Urutan Buku */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 flex-1 min-w-0">
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setActiveCategory(cat)}
+                            className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 border ${activeCategory === cat ? 'bg-navy-900 text-gold-400 border-navy-900 shadow' : 'bg-white text-navy-600 border-navy-100 hover:border-navy-300'}`}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                    <span className="text-xs font-bold text-navy-400">Urutan:</span>
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="px-3 py-1.5 bg-white border border-navy-200/80 rounded-xl text-xs font-bold text-navy-800 outline-none focus:border-gold-500 shadow-2xs cursor-pointer"
                     >
-                        {cat}
-                    </button>
-                ))}
+                        <option value="newest">✨ Terbaru (Paling Atas)</option>
+                        <option value="title_asc">Judul (A - Z)</option>
+                        <option value="title_desc">Judul (Z - A)</option>
+                        <option value="author">Penulis (A - Z)</option>
+                    </select>
+                </div>
             </div>
 
             {/* Grid Buku - 2 kolom di mobile */}
@@ -5551,37 +5631,48 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                     )}
                     {/* GRID: 2 kolom di mobile, 3 di sm, 4 di md, 5 di lg */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {filteredBooks.map(book => (
-                            <div
-                                key={book.id}
-                                className="w-full glass-box rounded-2xl shadow-sm border border-navy-100/60 dark:border-navy-700/60 overflow-hidden flex flex-col group hover:border-gold-400 dark:hover:border-gold-500 hover:shadow-md transition-all duration-300 cursor-pointer"
-                                onClick={() => setSelectedBook(book)}
-                            >
-                                <div className="h-[10rem] overflow-hidden relative">
-                                    <img
-                                        src={getCoverFallback(book)}
-                                        alt={book.title}
-                                        loading="lazy"
-                                        decoding="async"
-                                        referrerPolicy="no-referrer"
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                        onError={(e) => handleBookCoverError(e, book)}
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
-                                    <DocumentBadge book={book} />
-                                    <span className="absolute top-2 right-2 bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                        {book.category}
-                                    </span>
+                        {filteredBooks.map((book, idx) => {
+                            const isNew = newestBookIds.has(String(book.id)) && sortBy === 'newest' && !searchQuery.trim();
+                            return (
+                                <div
+                                    key={book.id}
+                                    className={`w-full glass-box rounded-2xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300 cursor-pointer ${isNew ? 'border-2 border-emerald-400/80 dark:border-emerald-500/80 shadow-emerald-500/5' : 'border border-navy-100/60 dark:border-navy-700/60 hover:border-gold-400 dark:hover:border-gold-500'}`}
+                                    onClick={() => setSelectedBook(book)}
+                                >
+                                    <div className="h-[10rem] overflow-hidden relative">
+                                        <img
+                                            src={getCoverFallback(book)}
+                                            alt={book.title}
+                                            loading="lazy"
+                                            decoding="async"
+                                            referrerPolicy="no-referrer"
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                            onError={(e) => handleBookCoverError(e, book)}
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
+                                        <DocumentBadge book={book} />
+                                        <div className="absolute top-2 right-2 flex items-center gap-1">
+                                            {isNew && (
+                                                <span className="bg-emerald-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                                    Baru
+                                                </span>
+                                            )}
+                                            <span className="bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                {book.category}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="p-3 flex-1 flex flex-col">
+                                        <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-3">{book.title}</p>
+                                        <p className="text-xs text-navy-400 font-semibold mb-3">{book.author}</p>
+                                        <button className="mt-auto w-full py-2 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-navy-800 transition">
+                                            <Icon name="BookOpen" className="w-3.5 h-3.5" /> Baca Buku
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="p-3 flex-1 flex flex-col">
-                                    <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-3">{book.title}</p>
-                                    <p className="text-xs text-navy-400 font-semibold mb-3">{book.author}</p>
-                                    <button className="mt-auto w-full py-2 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-navy-800 transition">
-                                        <Icon name="BookOpen" className="w-3.5 h-3.5" /> Baca Buku
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             ) : (
@@ -10387,8 +10478,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 (b.category && b.category.toLowerCase().includes(q))
             );
         }
-        // Mengurutkan buku berdasarkan abjad (A-Z) pada judul
-        return result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        // Posisi paling atas selalu yang terbaru
+        return sortBooksNewestFirst(result, daftarBuku);
     }, [daftarBuku, bukuSearch]);
     // -----------------------------------
 
@@ -18809,13 +18900,16 @@ const Search = ({ setActiveTab, jadwalDB, rabuYMD, sabatYMD, tabs, daftarWarta, 
             ).slice(0, 20);
         }
 
-        // 3. Buku: cari judul, pengarang, deskripsi
+        // 3. Buku: cari judul, pengarang, deskripsi (posisi paling atas selalu yang terbaru)
         if (daftarBuku && daftarBuku.length) {
-            results.buku = daftarBuku.filter(b =>
-                (b.title && b.title.toLowerCase().includes(q)) ||
-                (b.author && b.author.toLowerCase().includes(q)) ||
-                (b.desc && b.desc.toLowerCase().includes(q))
-            ).sort((a, b) => (a.title || '').localeCompare(b.title || '')).slice(0, 20);
+            results.buku = sortBooksNewestFirst(
+                daftarBuku.filter(b =>
+                    (b.title && b.title.toLowerCase().includes(q)) ||
+                    (b.author && b.author.toLowerCase().includes(q)) ||
+                    (b.desc && b.desc.toLowerCase().includes(q))
+                ),
+                daftarBuku
+            ).slice(0, 20);
         }
 
         // 4. Jadwal petugas (seperti sebelumnya)
@@ -20333,7 +20427,7 @@ const App = () => {
             case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_egw': return <DetailEGW setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
-            case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} setHideGlobalBack={setHideGlobalBack} />;
+            case 'belajar_perpustakaan': return <Detailperpustakaan setActiveTab={setActiveTab} dataPejabat={dataPejabat} initialBook={initialBook} onBookOpened={() => setInitialBook(null)} setHideGlobalBack={setHideGlobalBack} daftarBuku={daftarBuku} />;
             case 'warta': return <WartaPage setActiveTab={setActiveTab} daftarWarta={daftarWarta} selectedWarta={selectedWartaDetail} setSelectedWarta={setSelectedWartaDetail} setHideGlobalBack={setHideGlobalBack} />;
             case 'live': return <Live setActiveTab={setActiveTab} activeRabu={activeRabu} activeSabat={activeSabat} rabuYMD={rabuYMD} sabatYMD={sabatYMD} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} liveUrl={liveUrl} />;
             case 'jadwal': return <Jadwal jadwalDB={jadwalDB} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} activePerjamuan={activePerjamuan} perjamuanNote={perjamuanNote} setActiveTab={setActiveTab} carouselEvents={carouselEvents} dataPejabat={dataPejabat} />;
