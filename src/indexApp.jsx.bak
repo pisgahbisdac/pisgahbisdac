@@ -17173,17 +17173,25 @@ const Alkitab = ({ setHideGlobalBack }) => {
         });
     }, [savedHighlightsList, savedColorFilter]);
 
-    const todayDayOfYear = React.useMemo(() => getCurrentDayOfYear365(), []);
-    const calendarPlanItem = React.useMemo(() => BIBLE_YEAR_365_PLAN[todayDayOfYear - 1] || BIBLE_YEAR_365_PLAN[0], [todayDayOfYear]);
-    const activePlanItem = React.useMemo(() => {
-        if (currentBookChapter?.bookId && currentBookChapter?.chapter) {
-            const matched = BIBLE_YEAR_365_PLAN.find(item =>
-                item.chapters.some(ch => ch.bookId === currentBookChapter.bookId && ch.chapter === currentBookChapter.chapter)
-            );
-            if (matched) return matched;
-        }
-        return calendarPlanItem;
-    }, [currentBookChapter, calendarPlanItem]);
+    // Selalu hitung dan perbarui tanggal hari ini secara realtime agar otomatis berganti setiap hari
+    const [todayDayOfYear, setTodayDayOfYear] = React.useState(() => getCurrentDayOfYear365());
+
+    React.useEffect(() => {
+        const updateDay = () => {
+            const curDay = getCurrentDayOfYear365();
+            setTodayDayOfYear(prev => prev !== curDay ? curDay : prev);
+        };
+        updateDay();
+        const timer = setInterval(updateDay, 60000); // Cek otomatis setiap 60 detik (khususnya saat pergantian hari tengah malam)
+        return () => clearInterval(timer);
+    }, []);
+
+    // Target bacaan resmi hari ini murni sesuai tanggal kalender hari ini (selalu up to date)
+    const todayPlanItem = React.useMemo(() => {
+        return BIBLE_YEAR_365_PLAN[todayDayOfYear - 1] || BIBLE_YEAR_365_PLAN[0];
+    }, [todayDayOfYear]);
+    const calendarPlanItem = todayPlanItem;
+    const activePlanItem = todayPlanItem; // Menjamin seluruh tampilan kartu & daftar hari selalu menampilkan bacaan hari ini
     const bibleYearPct = Math.round((bibleYearDone.length / 365) * 100);
 
     const renderAlkitabModals = () => (
@@ -17294,10 +17302,8 @@ const Alkitab = ({ setHideGlobalBack }) => {
                             onClick={() => {
                                 setAlkitabHomeTab('bible_year');
                                 setSearchResults(null);
-                                if (activePlanItem?.month) {
-                                    setPlanFilterMode('month');
-                                    setSelectedPlanMonth(activePlanItem.month);
-                                }
+                                setPlanFilterMode('month');
+                                setSelectedPlanMonth(todayPlanItem.month);
                             }}
                             className={`py-2 px-2 sm:px-3 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${alkitabHomeTab === 'bible_year' ? 'bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-sm' : 'text-navy-600 dark:text-navy-300 hover:text-navy-900'}`}
                         >
@@ -17305,6 +17311,65 @@ const Alkitab = ({ setHideGlobalBack }) => {
                             <span className="truncate">Rencana Baca ({bibleYearPct}%)</span>
                         </button>
                     </div>
+
+                    {/* Quick Access Banner Target Bacaan Hari Ini (Tampil saat di tab 66 Kitab atau Stabilo agar langsung terbaca setiap hari) */}
+                    {alkitabHomeTab !== 'bible_year' && !searchResults && (
+                        <div className="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#1C3318]/95 via-navy-900 to-[#1C3318]/95 border border-emerald-500/40 shadow-md flex flex-wrap items-center justify-between gap-2.5">
+                            <div
+                                onClick={() => {
+                                    setAlkitabHomeTab('bible_year');
+                                    setSearchResults(null);
+                                    setPlanFilterMode('month');
+                                    setSelectedPlanMonth(todayPlanItem.month);
+                                }}
+                                className="flex items-center gap-2.5 min-w-0 cursor-pointer group flex-1"
+                                title="Buka Target Rencana Baca Hari Ini"
+                            >
+                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0 shadow-xs shadow-emerald-400/50"></span>
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400">
+                                            📅 Target Hari Ini ({todayPlanItem.dateLabel} • Hari ke-{todayPlanItem.day})
+                                        </span>
+                                        <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-gold-500/20 text-gold-300 border border-gold-400/30">
+                                            Bible Year
+                                        </span>
+                                    </div>
+                                    <div className="text-xs sm:text-sm font-black text-white truncate group-hover:text-gold-300 transition-colors">
+                                        📖 {todayPlanItem.label}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+                                {todayPlanItem.chapters.map((ch, idx) => (
+                                    <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => processDirectTarget({ bookName: ch.bookName, bookId: ch.bookId, chapter: ch.chapter, verse: 1 })}
+                                        className="px-2 py-1 rounded-lg text-[11px] font-black bg-white/10 hover:bg-gold-500 hover:text-navy-950 text-emerald-200 hover:border-gold-400 border border-white/20 transition cursor-pointer flex items-center gap-1 active:scale-95"
+                                        title={`Buka langsung ${ch.bookName} ${ch.chapter}`}
+                                    >
+                                        <Icon name="BookOpen" className="w-3 h-3" />
+                                        <span>{ch.singkat} {ch.chapter}</span>
+                                    </button>
+                                ))}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setAlkitabHomeTab('bible_year');
+                                        setSearchResults(null);
+                                        setPlanFilterMode('month');
+                                        setSelectedPlanMonth(todayPlanItem.month);
+                                    }}
+                                    className="p-1 sm:px-2 sm:py-1 rounded-lg text-gold-400 hover:text-white text-xs font-black transition cursor-pointer flex items-center gap-0.5"
+                                    title="Lihat Kalender Rencana Baca 1 Tahun"
+                                >
+                                    <span className="hidden sm:inline text-[11px]">Rencana</span>
+                                    <Icon name="ArrowRight" className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="mt-6">
                     {searchResults ? (
@@ -17477,31 +17542,41 @@ const Alkitab = ({ setHideGlobalBack }) => {
                             <div className="bg-gradient-to-br from-[#1C3318] via-[#254221] to-[#132411] text-white rounded-3xl p-5 sm:p-6 shadow-xl border border-emerald-500/30">
                                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                                     <div>
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-[10px] font-black uppercase tracking-widest mb-1.5">
-                                            📅 Program Tahun Alkitab (Bible Year • 365 Hari)
-                                        </span>
+                                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/20 border border-gold-400/40 text-gold-300 text-[10px] font-black uppercase tracking-widest">
+                                                📅 Program Tahun Alkitab (Bible Year • 365 Hari)
+                                            </span>
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 text-[10px] font-black">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                                Sesuai Tanggal Kalender Hari Ini
+                                            </span>
+                                        </div>
                                         <h3 className="text-lg sm:text-xl font-black text-white">
-                                            Bacaan Hari Ini ({activePlanItem.dateLabel} • Hari ke-{activePlanItem.day})
+                                            Bacaan Hari Ini ({todayPlanItem.dateLabel} • Hari ke-{todayPlanItem.day})
                                         </h3>
                                         <p className="text-xs sm:text-sm text-emerald-200 font-bold mt-0.5">
-                                            Pasal Saat Ini: <span className="text-gold-300 font-black">{currentBookChapter.bookName} {currentBookChapter.chapter}</span>
-                                            <span className="mx-1.5 opacity-60">•</span>
-                                            Target Harian: <span className="text-gold-300 font-black">{activePlanItem.label}</span>
+                                            Target Harian: <span className="text-gold-300 font-black">{todayPlanItem.label}</span>
+                                            {currentBookChapter?.bookName && (
+                                                <>
+                                                    <span className="mx-1.5 opacity-60">•</span>
+                                                    Terakhir Dibaca: <span className="text-emerald-100 font-extrabold">{currentBookChapter.bookName} {currentBookChapter.chapter}</span>
+                                                </>
+                                            )}
                                         </p>
                                     </div>
                                     <button
-                                        onClick={() => toggleBibleYearDay(activePlanItem.day)}
-                                        className={`px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm flex items-center gap-2 transition shadow-md cursor-pointer ${bibleYearDone.includes(activePlanItem.day) ? 'bg-emerald-500 text-white border border-emerald-300' : 'bg-gold-500 hover:bg-gold-400 text-navy-950'}`}
+                                        onClick={() => toggleBibleYearDay(todayPlanItem.day)}
+                                        className={`px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm flex items-center gap-2 transition shadow-md cursor-pointer ${bibleYearDone.includes(todayPlanItem.day) ? 'bg-emerald-500 text-white border border-emerald-300' : 'bg-gold-500 hover:bg-gold-400 text-navy-950'}`}
                                     >
                                         <Icon name="CheckCircle" className="w-4 h-4" />
-                                        <span>{bibleYearDone.includes(activePlanItem.day) ? 'Selesai Dibaca Hari Ini ✅' : 'Tandai Selesai Hari Ini'}</span>
+                                        <span>{bibleYearDone.includes(todayPlanItem.day) ? 'Selesai Dibaca Hari Ini ✅' : 'Tandai Selesai Hari Ini'}</span>
                                     </button>
                                 </div>
 
                                 {/* Tombol Cepat Buka Pasal Hari Ini (Sinkron dengan Pasal Buku Saat Ini) */}
                                 <div className="flex flex-wrap items-center gap-2 mb-4">
                                     <span className="text-[11px] font-bold text-emerald-200/90 mr-1">Buka langsung pasal hari ini:</span>
-                                    {activePlanItem.chapters.map((ch, idx) => {
+                                    {todayPlanItem.chapters.map((ch, idx) => {
                                         const isCurrentCh = ch.bookId === currentBookChapter?.bookId && ch.chapter === currentBookChapter?.chapter;
                                         return (
                                             <button
@@ -17607,10 +17682,11 @@ const Alkitab = ({ setHideGlobalBack }) => {
                                     return item.month === selectedPlanMonth;
                                 }).map(item => {
                                     const isDone = bibleYearDone.includes(item.day);
-                                    const isToday = item.day === activePlanItem.day;
+                                    const isToday = item.day === todayPlanItem.day;
                                     return (
                                         <div
                                             key={item.day}
+                                            id={`bible-plan-day-${item.day}`}
                                             className={`rounded-2xl p-3.5 border transition flex flex-col justify-between gap-2.5 ${isDone ? 'bg-emerald-50/60 dark:bg-emerald-950/25 border-emerald-300/80 dark:border-emerald-700/50' : isToday ? 'bg-gold-50/70 dark:bg-gold-500/10 border-2 border-gold-400 shadow-sm' : 'bg-white dark:bg-navy-900 border-navy-100 dark:border-navy-800'}`}
                                         >
                                             <div className="flex items-start justify-between gap-2">
