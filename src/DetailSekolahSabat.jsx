@@ -789,6 +789,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const [selectionToolbar, setSelectionToolbar] = useState(null); // { text, blockIdx, top, left }
     const readerRef = useRef(null);
     const selectionToolbarRef = useRef(null);
+    const lastSelectionTimeRef = useRef(0);
     const [noteCopiedToast, setNoteCopiedToast] = useState(false);
 
     // Parsing blok HTML pelajaran harian (Paragraf, Heading, Blockquote)
@@ -912,6 +913,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
                     const desktopTop = Math.max(80, rect.top - 56);
                     const desktopLeft = Math.max(120, Math.min(window.innerWidth - 120, rect.left + rect.width / 2));
+                    lastSelectionTimeRef.current = Date.now();
 
                     setSelectionToolbar({
                         text,
@@ -955,6 +957,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
                         const desktopTop = Math.max(80, rect.top - 56);
                         const desktopLeft = Math.max(120, Math.min(window.innerWidth - 120, rect.left + rect.width / 2));
+                        lastSelectionTimeRef.current = Date.now();
 
                         setSelectionToolbar({
                             text,
@@ -992,6 +995,62 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             document.removeEventListener("touchstart", handleDocClick);
         };
     }, []);
+
+    // Fungsi bantu untuk memperluas cuplikan seleksi ke seluruh kalimat secara otomatis
+    const expandToSentence = (blockText, snippet) => {
+        if (!blockText || !snippet) return snippet;
+        const idx = blockText.indexOf(snippet);
+        if (idx === -1) {
+            const sub = snippet.slice(0, 25);
+            const subIdx = blockText.indexOf(sub);
+            if (subIdx === -1) return snippet;
+            return expandToSentence(blockText, sub);
+        }
+
+        let start = 0;
+        for (let i = idx - 1; i >= 0; i--) {
+            const char = blockText[i];
+            if (char === '.' || char === '!' || char === '?' || char === '\n') {
+                start = i + 1;
+                break;
+            }
+        }
+
+        let end = blockText.length;
+        for (let i = idx + snippet.length; i < blockText.length; i++) {
+            const char = blockText[i];
+            if (char === '.' || char === '!' || char === '?' || char === '\n') {
+                end = i + 1;
+                break;
+            }
+        }
+
+        const sentence = blockText.slice(start, end).trim();
+        return sentence.length > 0 ? sentence : snippet;
+    };
+
+    const handleExpandModalToSentence = () => {
+        if (!inlineNoteModal || !inlineNoteModal.selectedText) return;
+        const block = parsedBlocks[inlineNoteModal.blockIdx] || parsedBlocks.find(b => b.text.includes(inlineNoteModal.selectedText.slice(0, 30)));
+        if (!block || !block.text) return;
+
+        const expanded = expandToSentence(block.text, inlineNoteModal.selectedText);
+        setInlineNoteModal(prev => ({
+            ...prev,
+            selectedText: expanded
+        }));
+    };
+
+    const handleExpandModalToParagraph = () => {
+        if (!inlineNoteModal) return;
+        const block = parsedBlocks[inlineNoteModal.blockIdx] || parsedBlocks.find(b => b.text.includes(inlineNoteModal.selectedText.slice(0, 30)));
+        if (!block || !block.text) return;
+
+        setInlineNoteModal(prev => ({
+            ...prev,
+            selectedText: block.text
+        }));
+    };
 
     // Aksi-aksi catatan inline
     const handleSaveInlineNote = (e) => {
@@ -1314,6 +1373,15 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
         const anchor = e.target.closest("a.verse");
         if (anchor) {
+            // Jika pengguna sedang memblok teks atau baru saja melakukan seleksi teks, jangan buka popup ayat
+            const sel = window.getSelection();
+            if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
+                return;
+            }
+            if (Date.now() - lastSelectionTimeRef.current < 450) {
+                return;
+            }
+
             e.preventDefault();
             e.stopPropagation();
             const verseKey = anchor.getAttribute("verse") || "";
@@ -1653,30 +1721,52 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 .ss-reader-body i {
                     font-style: italic;
                 }
-                /* Sorotan Kalimat Tersemat Catatan */
+                /* Seleksi Teks & Sorotan Kalimat Tersemat Catatan */
+                .ss-reader-body {
+                    user-select: text !important;
+                    -webkit-user-select: text !important;
+                }
+                .ss-reader-body p,
+                .ss-reader-body blockquote,
+                .ss-reader-body code,
+                .ss-reader-body span,
+                .ss-reader-body mark,
+                .ss-reader-body strong,
+                .ss-reader-body em,
+                .ss-reader-body h2,
+                .ss-reader-body h3,
+                .ss-reader-body h4 {
+                    user-select: text !important;
+                    -webkit-user-select: text !important;
+                }
                 .ss-reader-body mark.ss-inline-mark {
                     cursor: pointer;
                     text-decoration: none;
+                    user-select: text !important;
+                    -webkit-user-select: text !important;
                     transition: all 0.2s ease-in-out;
                 }
                 .ss-reader-body mark.ss-inline-mark:hover {
                     filter: brightness(0.95);
                     transform: translateY(-1px);
                 }
-                /* Tautan Ayat Alkitab Interaktif */
+                /* Tautan Ayat Alkitab Interaktif (Display inline agar seleksi teks meluncur mulus tanpa macet di ayat) */
                 .ss-reader-body a.verse {
                     color: #2e7d32;
-                    background-color: rgba(46, 125, 50, 0.09);
+                    background-color: rgba(46, 125, 50, 0.10);
                     border-bottom: 1.5px dotted #2e7d32;
-                    padding: 0.1rem 0.4rem;
+                    padding: 0.05rem 0.32rem;
                     border-radius: 0.375rem;
                     font-weight: 700;
                     text-decoration: none;
                     cursor: pointer;
+                    display: inline !important;
+                    user-select: text !important;
+                    -webkit-user-select: text !important;
+                    -webkit-touch-callout: none !important;
+                    box-decoration-break: clone;
+                    -webkit-box-decoration-break: clone;
                     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.2rem;
                 }
                 .dark .ss-reader-body a.verse {
                     color: #f6c85f;
@@ -2339,9 +2429,31 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
                         {/* Kalimat yang Disematkan */}
                         <div>
-                            <label className="text-xs font-bold text-navy-700 dark:text-gray-300 block mb-1">
-                                Kalimat Terpilih:
-                            </label>
+                            <div className="flex items-center justify-between gap-1 mb-1.5 flex-wrap">
+                                <label className="text-xs font-bold text-navy-700 dark:text-gray-300">
+                                    Kalimat Terpilih:
+                                </label>
+                                <div className="flex items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        onClick={handleExpandModalToSentence}
+                                        className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-900 dark:text-gold-300 transition cursor-pointer border border-amber-400/40 flex items-center gap-1 shadow-2xs active:scale-95"
+                                        title="Perluas pilihan mencakup seluruh kalimat"
+                                    >
+                                        <span>🔍</span>
+                                        <span>Seluruh Kalimat</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleExpandModalToParagraph}
+                                        className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-navy-100 hover:bg-navy-200 dark:bg-navy-800 text-navy-700 dark:text-gray-300 transition cursor-pointer border border-navy-200/60 dark:border-navy-700 flex items-center gap-1 shadow-2xs active:scale-95"
+                                        title="Pilih seluruh isi paragraf ini"
+                                    >
+                                        <span>📄</span>
+                                        <span>Seluruh Paragraf</span>
+                                    </button>
+                                </div>
+                            </div>
                             <div className="p-3 rounded-xl bg-amber-500/10 dark:bg-navy-950 border border-amber-300/40 dark:border-navy-800 text-xs italic text-navy-800 dark:text-gray-300 max-h-28 overflow-y-auto leading-relaxed border-l-4 border-l-amber-500">
                                 "{inlineNoteModal.selectedText}"
                             </div>
