@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
-import { BookOpen, ArrowLeft, Calendar, ChevronRight, ChevronLeft, ChevronDown, ExternalLink, Sparkles, X, Copy, Check, FileText, Edit, Edit3, Trash2, Share2, Bookmark, Search, Save } from "lucide-react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { BookOpen, ArrowLeft, Calendar, ChevronRight, ChevronLeft, ChevronDown, ExternalLink, Sparkles, X, Copy, Check, FileText, Edit, Edit3, Trash2, Share2, Bookmark, Search, Save, Play, Pause, Volume2, CheckCircle, Square, SkipForward, SkipBack } from "lucide-react";
 
 // ============================================================
 // MODUL PELAJARAN SEKOLAH SABAT HARIAN (ADVENTIST SABBATH SCHOOL)
@@ -792,6 +792,218 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const lastSelectionTimeRef = useRef(0);
     const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
     const [noteCopiedToast, setNoteCopiedToast] = useState(false);
+
+    // --- 1. FITUR CHECKLIST & PROGRESS MEMBACA HARIAN (DAILY READING TRACKER) ---
+    const [readProgress, setReadProgress] = useState(() => {
+        try {
+            const raw = localStorage.getItem("PISGAH_SS_READ_PROGRESS");
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    });
+
+    const toggleDayReadStatus = (lessonId, dayIdx) => {
+        setReadProgress(prev => {
+            const key = `${lessonId}_${dayIdx}`;
+            const next = { ...prev, [key]: !prev[key] };
+            try {
+                localStorage.setItem("PISGAH_SS_READ_PROGRESS", JSON.stringify(next));
+            } catch (e) { }
+            return next;
+        });
+    };
+
+    const completedDaysThisWeek = useMemo(() => {
+        let count = 0;
+        for (let i = 0; i < 7; i++) {
+            if (readProgress[`${selectedLessonId}_${i}`]) count++;
+        }
+        return count;
+    }, [readProgress, selectedLessonId]);
+
+    const weekProgressPct = Math.round((completedDaysThisWeek / 7) * 100);
+    const isCurrentDayRead = Boolean(readProgress[`${selectedLessonId}_${selectedDayIdx}`]);
+
+    // --- 2. FITUR AUDIO READ-ALOUD / TTS SUARA BAHASA INDONESIA ---
+    const [ttsState, setTtsState] = useState('idle'); // 'idle' | 'playing' | 'paused'
+    const [ttsRate, setTtsRate] = useState(1.0);
+    const [currentPlayingBlockIdx, setCurrentPlayingBlockIdx] = useState(null);
+    const isStoppedRef = useRef(true);
+    const playlistRef = useRef([]);
+    const currentTtsIndexRef = useRef(0);
+    const ttsRateRef = useRef(1.0);
+    const ttsStateRef = useRef('idle');
+
+    useEffect(() => {
+        ttsRateRef.current = ttsRate;
+    }, [ttsRate]);
+
+    useEffect(() => {
+        ttsStateRef.current = ttsState;
+    }, [ttsState]);
+
+    const stopAudio = useCallback(() => {
+        isStoppedRef.current = true;
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        setTtsState('idle');
+        setCurrentPlayingBlockIdx(null);
+    }, []);
+
+    // Hentikan suara otomatis saat berganti hari atau pekan
+    useEffect(() => {
+        stopAudio();
+    }, [selectedLessonId, selectedDayIdx, stopAudio]);
+
+    // Hentikan suara saat komponen di-unmount
+    useEffect(() => {
+        return () => {
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+        };
+    }, []);
+
+    const findIndonesianVoice = () => {
+        if (!('speechSynthesis' in window)) return null;
+        const voices = window.speechSynthesis.getVoices() || [];
+        return (
+            voices.find(v => v.lang === 'id-ID' || v.lang === 'id_ID' || v.lang.toLowerCase().startsWith('id')) ||
+            voices.find(v => v.name && v.name.toLowerCase().includes('indonesia')) ||
+            null
+        );
+    };
+
+    const buildAudioPlaylist = useCallback(() => {
+        const list = [];
+        // 1. Judul hari
+        if (currentDay?.title) {
+            list.push({
+                blockIdx: -1,
+                title: currentDay.title,
+                text: `Pelajaran Sekolah Sabat. ${SS_DAY_TABS[selectedDayIdx]?.label || ''}. ${currentDay.title}.`
+            });
+        }
+        // 2. Paragraf bacaan
+        parsedBlocks.forEach((b) => {
+            if (b.text && b.text.trim().length > 0) {
+                const cleanText = b.text
+                    .replace(/Dan\.\s*(\d+)/g, 'Daniel pasal $1')
+                    .replace(/Ibr\.\s*(\d+)/g, 'Ibrani pasal $1')
+                    .replace(/Luk\.\s*(\d+)/g, 'Lukas pasal $1')
+                    .replace(/Yoh\.\s*(\d+)/g, 'Yohanes pasal $1')
+                    .replace(/Mat\.\s*(\d+)/g, 'Matius pasal $1')
+                    .replace(/Why\.\s*(\d+)/g, 'Wahyu pasal $1')
+                    .replace(/Mzm\.\s*(\d+)/g, 'Mazmur pasal $1')
+                    .replace(/Kej\.\s*(\d+)/g, 'Kejadian pasal $1')
+                    .replace(/Kel\.\s*(\d+)/g, 'Keluaran pasal $1')
+                    .replace(/Rm\.\s*(\d+)/g, 'Roma pasal $1')
+                    .replace(/Kis\.\s*(\d+)/g, 'Kisah Para Rasul pasal $1');
+                list.push({
+                    blockIdx: b.idx,
+                    text: cleanText
+                });
+            }
+        });
+        return list;
+    }, [currentDay, selectedDayIdx, parsedBlocks]);
+
+    const speakPlaylistItem = useCallback((index) => {
+        if (isStoppedRef.current) return;
+        const playlist = playlistRef.current;
+        if (!playlist || index < 0 || index >= playlist.length) {
+            stopAudio();
+            return;
+        }
+
+        currentTtsIndexRef.current = index;
+        const item = playlist[index];
+        setCurrentPlayingBlockIdx(item.blockIdx);
+
+        // Gulir layar ke blok paragraf yang sedang dibaca agar jemaat dapat menyimak teksnya
+        if (item.blockIdx >= 0) {
+            const el = document.querySelector(`[data-block-idx="${item.blockIdx}"]`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(item.text);
+        utterance.lang = 'id-ID';
+        utterance.rate = ttsRateRef.current;
+        const voice = findIndonesianVoice();
+        if (voice) utterance.voice = voice;
+
+        utterance.onend = () => {
+            if (isStoppedRef.current) return;
+            setTimeout(() => {
+                if (!isStoppedRef.current && ttsStateRef.current === 'playing') {
+                    speakPlaylistItem(index + 1);
+                }
+            }, 260);
+        };
+
+        utterance.onerror = (e) => {
+            if (e.error === 'interrupted' || e.error === 'canceled') return;
+            console.warn('SS TTS warning:', e);
+            if (!isStoppedRef.current && ttsStateRef.current === 'playing') {
+                speakPlaylistItem(index + 1);
+            }
+        };
+
+        window.speechSynthesis.speak(utterance);
+        setTtsState('playing');
+    }, [stopAudio]);
+
+    const handleStartAudio = (startIdx = 0) => {
+        if (!('speechSynthesis' in window)) {
+            alert("Peramban Anda belum mendukung fitur audio suara Sekolah Sabat (Speech Synthesis).");
+            return;
+        }
+        isStoppedRef.current = false;
+        const pl = buildAudioPlaylist();
+        playlistRef.current = pl;
+        speakPlaylistItem(startIdx);
+    };
+
+    const handlePauseResumeAudio = () => {
+        if (!('speechSynthesis' in window)) return;
+        if (ttsState === 'playing') {
+            window.speechSynthesis.pause();
+            setTtsState('paused');
+        } else if (ttsState === 'paused') {
+            window.speechSynthesis.resume();
+            setTtsState('playing');
+        }
+    };
+
+    const handleNextParagraph = () => {
+        const nextIdx = currentTtsIndexRef.current + 1;
+        if (nextIdx < playlistRef.current.length) {
+            speakPlaylistItem(nextIdx);
+        }
+    };
+
+    const handlePrevParagraph = () => {
+        const prevIdx = Math.max(0, currentTtsIndexRef.current - 1);
+        speakPlaylistItem(prevIdx);
+    };
+
+    const cycleTtsRate = () => {
+        const rates = [1.0, 1.25, 1.5, 0.85];
+        const currIdx = rates.indexOf(ttsRate);
+        const nextRate = rates[(currIdx + 1) % rates.length];
+        setTtsRate(nextRate);
+        if (ttsState === 'playing') {
+            speakPlaylistItem(currentTtsIndexRef.current);
+        }
+    };
 
     // Parsing blok HTML pelajaran harian (Paragraf, Heading, Blockquote)
     const parsedBlocks = useMemo(() => {
@@ -2195,12 +2407,48 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 </div>
             </div>
 
+            {/* TRACKER PROGRESS MEMBACA PEKAN INI */}
+            <div className="px-4 py-3 rounded-2xl bg-white/80 dark:bg-navy-900 border border-navy-100 dark:border-navy-800 shadow-xs space-y-2">
+                <div className="flex items-center justify-between gap-2 text-xs flex-wrap">
+                    <div className="flex items-center gap-2">
+                        <span className="text-base">📊</span>
+                        <span className="font-black text-navy-900 dark:text-white">
+                            Progress Membaca Pekan Ini
+                        </span>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${completedDaysThisWeek === 7
+                                ? 'bg-emerald-500 text-white'
+                                : 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                            }`}>
+                            {completedDaysThisWeek} dari 7 Hari ({weekProgressPct}%)
+                        </span>
+                    </div>
+                    {completedDaysThisWeek === 7 ? (
+                        <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                            <span>🎉</span>
+                            <span>Pekan Selesai Lengkap!</span>
+                        </span>
+                    ) : (
+                        <span className="text-[10px] font-bold text-navy-500 dark:text-gray-400">
+                            {7 - completedDaysThisWeek} hari lagi
+                        </span>
+                    )}
+                </div>
+                {/* Visual Progress Bar */}
+                <div className="w-full bg-navy-100 dark:bg-navy-950 rounded-full h-2 overflow-hidden border border-navy-200/50 dark:border-navy-800">
+                    <div
+                        className="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${weekProgressPct}%` }}
+                    />
+                </div>
+            </div>
+
             {/* TAB HARI DALAM SEPEKAN (HORIZONTAL SCROLL) */}
             <div className="rounded-2xl p-1.5 bg-[#E2E8D8] dark:bg-navy-900 border border-[#C5D5BC] dark:border-navy-700 shadow-sm">
                 <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar py-1 px-1">
                     {SS_DAY_TABS.map((tab) => {
                         const isActive = selectedDayIdx === tab.idx;
                         const isToday = todayDayIdx === tab.idx;
+                        const isRead = Boolean(readProgress[`${selectedLessonId}_${tab.idx}`]);
                         return (
                             <button
                                 key={tab.idx}
@@ -2210,14 +2458,18 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                     : "bg-white/80 dark:bg-navy-800 text-navy-800 dark:text-gray-200 hover:bg-white dark:hover:bg-navy-700/80 border border-navy-100 dark:border-navy-700/50"
                                     }`}
                             >
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1.5">
                                     <span>{tab.label}</span>
-                                    {isToday && (
+                                    {isRead ? (
+                                        <span className={`w-3.5 h-3.5 rounded-full ${isActive ? 'bg-emerald-400 text-navy-950' : 'bg-emerald-500 text-white'} text-[9px] flex items-center justify-center font-black shadow-xs shrink-0`} title="Pelajaran Hari Ini Selesai Dibaca">
+                                            ✓
+                                        </span>
+                                    ) : isToday ? (
                                         <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" title="Hari Ini"></span>
-                                    )}
+                                    ) : null}
                                 </div>
                                 <span className={`text-[9.5px] mt-0.5 ${isActive ? "text-gold-300 dark:text-navy-800" : "text-navy-500 dark:text-gray-400"}`}>
-                                    {isToday ? "Hari Ini ⭐" : tab.sub}
+                                    {isRead ? "Selesai ✓" : isToday ? "Hari Ini ⭐" : tab.sub}
                                 </span>
                             </button>
                         );
@@ -2252,10 +2504,43 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             {/* Konten Judul di atas Latar Belakang Gambar */}
                             <div className="relative z-10 space-y-2.5">
                                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/55 backdrop-blur-md text-gold-300 border border-gold-400/40 font-extrabold text-xs uppercase tracking-wider shadow-sm">
-                                        <Calendar className="w-3.5 h-3.5 text-gold-400" />
-                                        <span>{SS_DAY_TABS[selectedDayIdx]?.label} • {currentDay.date || "Pelajaran Harian"}</span>
-                                    </span>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/55 backdrop-blur-md text-gold-300 border border-gold-400/40 font-extrabold text-xs uppercase tracking-wider shadow-sm">
+                                            <Calendar className="w-3.5 h-3.5 text-gold-400" />
+                                            <span>{SS_DAY_TABS[selectedDayIdx]?.label} • {currentDay.date || "Pelajaran Harian"}</span>
+                                        </span>
+
+                                        {/* TOMBOL AUDIO BACAAN PELAJARAN (TTS BAHASA INDONESIA) */}
+                                        <button
+                                            type="button"
+                                            onClick={ttsState === 'idle' ? () => handleStartAudio(0) : handlePauseResumeAudio}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md font-bold text-xs transition cursor-pointer shadow-sm ${ttsState === 'playing'
+                                                    ? 'bg-amber-500 text-navy-950 border border-amber-300 shadow-amber-500/30'
+                                                    : ttsState === 'paused'
+                                                        ? 'bg-amber-600/90 text-white border border-amber-400/60'
+                                                        : 'bg-black/55 hover:bg-black/80 text-white border border-white/20 hover:border-gold-400'
+                                                }`}
+                                            title="Dengarkan Suara Pelajaran (Text to Speech Bahasa Indonesia)"
+                                        >
+                                            {ttsState === 'playing' ? (
+                                                <>
+                                                    <Pause className="w-3.5 h-3.5 text-navy-950 fill-navy-950" />
+                                                    <span>Jeda Suara</span>
+                                                </>
+                                            ) : ttsState === 'paused' ? (
+                                                <>
+                                                    <Play className="w-3.5 h-3.5 text-white fill-white" />
+                                                    <span>Lanjutkan Suara</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Volume2 className="w-3.5 h-3.5 text-gold-400" />
+                                                    <span>🎧 Dengarkan Pelajaran</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+
                                     <span className="text-[11px] text-white/90 bg-black/45 backdrop-blur-md px-3 py-1 rounded-full font-medium border border-white/10 hidden sm:inline-flex items-center gap-1">
                                         💡 Ketuk tautan ayat untuk membuka firman Tuhan
                                     </span>
@@ -2303,9 +2588,23 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             {parsedBlocks.map((block) => {
                                 const blockNotes = getNotesForBlock(block.idx, block.text);
                                 const blockHtml = renderBlockHtml(block, blockNotes);
+                                const isCurrentPlaying = currentPlayingBlockIdx === block.idx;
 
                                 return (
-                                    <div key={block.id} data-block-idx={block.idx} className="relative group/block transition-all">
+                                    <div
+                                        key={block.id}
+                                        data-block-idx={block.idx}
+                                        className={`relative group/block transition-all duration-300 rounded-2xl ${isCurrentPlaying
+                                                ? "ring-2 ring-amber-400 bg-amber-500/10 dark:bg-gold-500/15 p-3 sm:p-4 shadow-md"
+                                                : ""
+                                            }`}
+                                    >
+                                        {isCurrentPlaying && (
+                                            <div className="flex items-center gap-1.5 mb-2 text-[11px] font-black text-amber-700 dark:text-gold-300">
+                                                <Volume2 className="w-3.5 h-3.5 animate-pulse" />
+                                                <span>Sedang Dibacakan 🔊</span>
+                                            </div>
+                                        )}
                                         {/* Teks Paragraf / Heading / Blockquote */}
                                         <div
                                             onClick={handleContentClick}
@@ -2448,6 +2747,54 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             )}
                         </div>
 
+                        {/* KARTU CHECKLIST STATUS SELESAI MEMBACA HARI INI */}
+                        <div className={`p-4 sm:p-5 rounded-2xl border transition-all ${isCurrentDayRead
+                                ? "bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-400/40 dark:border-emerald-500/30"
+                                : "bg-navy-50/70 dark:bg-navy-900/60 border-navy-200/60 dark:border-navy-800"
+                            }`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div className="flex items-start sm:items-center gap-3">
+                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${isCurrentDayRead
+                                            ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
+                                            : "bg-navy-200 dark:bg-navy-800 text-navy-600 dark:text-gray-300"
+                                        }`}>
+                                        <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-black text-navy-950 dark:text-white">
+                                            {isCurrentDayRead ? "Pelajaran Hari Ini Selesai Dibaca! 🎉" : "Selesai Membaca Pelajaran Hari Ini?"}
+                                        </h4>
+                                        <p className="text-xs text-navy-500 dark:text-gray-400 mt-0.5">
+                                            {isCurrentDayRead
+                                                ? `${SS_DAY_TABS[selectedDayIdx]?.label} telah tercatat dalam progress membaca sepekan.`
+                                                : `Tandai ${SS_DAY_TABS[selectedDayIdx]?.label} agar kemajuan renungan Anda tercatat.`
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => toggleDayReadStatus(selectedLessonId, selectedDayIdx)}
+                                    className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-xs shrink-0 active:scale-95 ${isCurrentDayRead
+                                            ? "bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-gray-300 border border-navy-200 dark:border-navy-700"
+                                            : "bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white shadow-emerald-500/20"
+                                        }`}
+                                >
+                                    {isCurrentDayRead ? (
+                                        <>
+                                            <span>Batal Tandai</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CheckCircle className="w-4 h-4" />
+                                            <span>Tandai Selesai Dibaca</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
                         {/* NAVIGASI HARI SEBELUMNYA / SELANJUTNYA */}
                         <div className="pt-6 border-t border-navy-100 dark:border-navy-800 flex items-center justify-between gap-3 flex-wrap">
                             <button
@@ -2481,6 +2828,98 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                     </div>
                 )}
             </div>
+
+            {/* FLOATING AUDIO CONTROLLER BAR (TEXT-TO-SPEECH SUARA PELAJARAN) */}
+            {ttsState !== 'idle' && (
+                <div
+                    className="fixed z-[115] bottom-[calc(env(safe-area-inset-bottom,0px)+84px)] sm:bottom-6 left-1/2 -translate-x-1/2 w-[94vw] max-w-md bg-navy-950/95 dark:bg-navy-900/98 backdrop-blur-2xl border-2 border-amber-400 shadow-2xl rounded-2xl p-3 sm:p-3.5 text-white animate-scale-up"
+                >
+                    <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-white/10 text-xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <span className="relative flex h-2.5 w-2.5">
+                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${ttsState === 'playing' ? 'bg-amber-400' : 'bg-gray-400'}`}></span>
+                                <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${ttsState === 'playing' ? 'bg-amber-500' : 'bg-gray-400'}`}></span>
+                            </span>
+                            <span className="font-extrabold text-amber-300 truncate text-[11px] sm:text-xs">
+                                {currentPlayingBlockIdx === -1
+                                    ? "Judul Hari Pelajaran"
+                                    : currentPlayingBlockIdx !== null
+                                        ? `Membaca Paragraf ${currentPlayingBlockIdx + 1}`
+                                        : "Pelajaran Sekolah Sabat"}
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                                type="button"
+                                onClick={cycleTtsRate}
+                                className="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-[10.5px] font-black tracking-wider text-gold-300 border border-gold-400/30 transition cursor-pointer active:scale-95"
+                                title="Ubah Kecepatan Suara (0.85x, 1x, 1.25x, 1.5x)"
+                            >
+                                {ttsRate}x
+                            </button>
+                            <button
+                                type="button"
+                                onClick={stopAudio}
+                                className="p-1 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                                title="Tutup Audio"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                            <button
+                                type="button"
+                                onClick={handlePrevParagraph}
+                                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer active:scale-95"
+                                title="Paragraf Sebelumnya"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handlePauseResumeAudio}
+                                className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-gold-500 hover:from-amber-600 hover:to-gold-600 text-navy-950 font-black text-xs transition cursor-pointer flex items-center gap-1.5 shadow-md active:scale-95"
+                            >
+                                {ttsState === 'playing' ? (
+                                    <>
+                                        <Pause className="w-3.5 h-3.5 fill-navy-950" />
+                                        <span>Jeda Suara</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Play className="w-3.5 h-3.5 fill-navy-950" />
+                                        <span>Lanjutkan</span>
+                                    </>
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handleNextParagraph}
+                                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer active:scale-95"
+                                title="Paragraf Selanjutnya"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={stopAudio}
+                            className="px-2.5 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-bold transition cursor-pointer flex items-center gap-1 active:scale-95"
+                            title="Hentikan Bacaan Audio"
+                        >
+                            <Square className="w-3 h-3 fill-red-400 text-red-400" />
+                            <span>Stop</span>
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* FLOATING ACTION TOOLBAR SAAT TEKS/KALIMAT DIBLOK (MUNCUL DI ATAS BOTTOM MENU AGAR TIDAK MENUTUPI NAVIGASI) */}
             {selectionToolbar && (
