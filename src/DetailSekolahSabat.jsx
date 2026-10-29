@@ -58,19 +58,19 @@ export const SS_QUARTERLY_INFO = {
 };
 
 export const SS_LESSONS_CATALOG = [
-    { id: "01", title: "Sang Pencipta Berbicara", dateRange: "26 Sep - 02 Okt 2026", startDate: "2026-09-26", endDate: "2026-10-02" },
-    { id: "02", title: "Panggilan Seorang Nabi", dateRange: "03 Okt - 09 Okt 2026", startDate: "2026-10-03", endDate: "2026-10-09" },
-    { id: "03", title: "Nabi-Nabi Perjanjian Lama", dateRange: "10 Okt - 16 Okt 2026", startDate: "2026-10-10", endDate: "2026-10-16" },
-    { id: "04", title: "Nabi-Nabi Perjanjian Baru", dateRange: "17 Okt - 23 Okt 2026", startDate: "2026-10-17", endDate: "2026-10-23" },
-    { id: "05", title: "Wahyu dan Inspirasi", dateRange: "24 Okt - 30 Okt 2026", startDate: "2026-10-24", endDate: "2026-10-30" },
-    { id: "06", title: "Tulisan-Tulisan Nubuatan", dateRange: "31 Okt - 06 Nov 2026", startDate: "2026-10-31", endDate: "2026-11-06" },
-    { id: "07", title: "Dengarkanlah Ini!", dateRange: "07 Nov - 13 Nov 2026", startDate: "2026-11-07", endDate: "2026-11-13" },
-    { id: "08", title: "Menafsirkan Tulisan-Tulisan Nubuatan", dateRange: "14 Nov - 20 Nov 2026", startDate: "2026-11-14", endDate: "2026-11-20" },
-    { id: "09", title: "Menguji Para Nabi", dateRange: "21 Nov - 27 Nov 2026", startDate: "2026-11-21", endDate: "2026-11-27" },
-    { id: "10", title: "Otoritas dan Relevansi Kenabian", dateRange: "28 Nov - 04 Des 2026", startDate: "2026-11-28", endDate: "2026-12-04" },
-    { id: "11", title: "Manifestasi Nubuat di Saat-Saat Krusial", dateRange: "05 Des - 11 Des 2026", startDate: "2026-12-05", endDate: "2026-12-11" },
-    { id: "12", title: "Wahyu Nubuat Akhir Zaman", dateRange: "12 Des - 18 Des 2026", startDate: "2026-12-12", endDate: "2026-12-18" },
-    { id: "13", title: "Berkat-Berkat dari Firman Nubuat", dateRange: "19 Des - 25 Des 2026", startDate: "2026-12-19", endDate: "2026-12-25" }
+    { id: "01", title: "Sang Pencipta Berbicara", dateRange: "26 Sep - 02 Okt 2026", startDate: "2026-09-26", endDate: "2026-10-02", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/01/cover.png" },
+    { id: "02", title: "Panggilan Seorang Nabi", dateRange: "03 Okt - 09 Okt 2026", startDate: "2026-10-03", endDate: "2026-10-09", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/02/cover.png" },
+    { id: "03", title: "Nabi-Nabi Perjanjian Lama", dateRange: "10 Okt - 16 Okt 2026", startDate: "2026-10-10", endDate: "2026-10-16", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/03/cover.png" },
+    { id: "04", title: "Nabi-Nabi Perjanjian Baru", dateRange: "17 Okt - 23 Okt 2026", startDate: "2026-10-17", endDate: "2026-10-23", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/04/cover.png" },
+    { id: "05", title: "Wahyu dan Inspirasi", dateRange: "24 Okt - 30 Okt 2026", startDate: "2026-10-24", endDate: "2026-10-30", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/05/cover.png" },
+    { id: "06", title: "Tulisan-Tulisan Nubuatan", dateRange: "31 Okt - 06 Nov 2026", startDate: "2026-10-31", endDate: "2026-11-06", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/06/cover.png" },
+    { id: "07", title: "Dengarkanlah Ini!", dateRange: "07 Nov - 13 Nov 2026", startDate: "2026-11-07", endDate: "2026-11-13", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/07/cover.png" },
+    { id: "08", title: "Menafsirkan Tulisan-Tulisan Nubuatan", dateRange: "14 Nov - 20 Nov 2026", startDate: "2026-11-14", endDate: "2026-11-20", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/08/cover.png" },
+    { id: "09", title: "Menguji Para Nabi", dateRange: "21 Nov - 27 Nov 2026", startDate: "2026-11-21", endDate: "2026-11-27", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/09/cover.png" },
+    { id: "10", title: "Otoritas dan Relevansi Kenabian", dateRange: "28 Nov - 04 Des 2026", startDate: "2026-11-28", endDate: "2026-12-04", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/10/cover.png" },
+    { id: "11", title: "Manifestasi Nubuat di Saat-Saat Krusial", dateRange: "05 Des - 11 Des 2026", startDate: "2026-12-05", endDate: "2026-12-11", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/11/cover.png" },
+    { id: "12", title: "Wahyu Nubuat Akhir Zaman", dateRange: "12 Des - 18 Des 2026", startDate: "2026-12-12", endDate: "2026-12-18", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/12/cover.png" },
+    { id: "13", title: "Berkat-Berkat dari Firman Nubuat", dateRange: "19 Des - 25 Des 2026", startDate: "2026-12-19", endDate: "2026-12-25", cover: "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/13/cover.png" }
 ];
 
 export const SS_DAY_TABS = [
@@ -87,6 +87,7 @@ export const SS_DAY_TABS = [
 const BUILTIN_LESSON_5 = {
     "id": "05",
     "title": "Wahyu dan Inspirasi",
+    "cover": "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/05/cover.png",
     "start_date": "24/10/2026",
     "end_date": "30/10/2026",
     "memoryVerse": "\"Inilah wahyu Yesus Kristus, yang dikaruniakan Allah kepada-Nya, supaya ditunjukkan-Nya kepada hamba-hamba-Nya apa yang harus segera terjadi. Dan oleh malaikat-Nya yang diutus-Nya, Ia telah menyatakannya kepada hamba-Nya Yohanes.\" (Wahyu 1:1)",
@@ -639,6 +640,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 const assembled = {
                     id: selectedLessonId,
                     title: data.lesson.title,
+                    cover: data.lesson.cover || currentCatalogItem?.cover || `https://sabbath-school.adventech.io/api/v1/images/global/2026-04/${selectedLessonId}/cover.png`,
                     start_date: data.lesson.start_date,
                     end_date: data.lesson.end_date,
                     days: daysData
@@ -672,6 +674,11 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const currentCatalogItem = useMemo(() => {
         return SS_LESSONS_CATALOG.find(l => l.id === selectedLessonId) || SS_LESSONS_CATALOG[4];
     }, [selectedLessonId]);
+
+    // Cover gambar resmi pelajaran dari Adventech
+    const currentCoverUrl = useMemo(() => {
+        return currentCatalogItem?.cover || lessonData?.cover || `https://sabbath-school.adventech.io/api/v1/images/global/2026-04/${selectedLessonId}/cover.png`;
+    }, [currentCatalogItem, lessonData, selectedLessonId]);
 
     // --- INTEGRASI SISTEM CATATAN SEKOLAH SABAT & ALKITAB DIGITAL ---
     // 1. Catatan Refleksi Harian (Pribadi Jemaat)
@@ -1299,6 +1306,36 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 .dark .ss-reader-body blockquote p:first-child {
                     color: #fbbf24;
                 }
+                /* Format Teks Tebal (Bold) & Pertanyaan Pelajaran sesuai Adventech */
+                .ss-reader-body strong,
+                .ss-reader-body b {
+                    font-weight: 800;
+                    color: #0f172a;
+                }
+                .dark .ss-reader-body strong,
+                .dark .ss-reader-body b {
+                    color: #f8fafc;
+                }
+                /* Pertanyaan Diskusi & Refleksi Harian (Tag code dalam markdown Adventech) */
+                .ss-reader-body code {
+                    font-family: inherit;
+                    font-weight: 800;
+                    font-style: normal;
+                    background: transparent;
+                    padding: 0;
+                    border: none;
+                    font-size: 1em;
+                    line-height: inherit;
+                    color: #142a12;
+                    letter-spacing: -0.01em;
+                }
+                .dark .ss-reader-body code {
+                    color: #fef08a;
+                }
+                .ss-reader-body em,
+                .ss-reader-body i {
+                    font-style: italic;
+                }
                 /* Tautan Ayat Alkitab Interaktif */
                 .ss-reader-body a.verse {
                     color: #2e7d32;
@@ -1456,25 +1493,56 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 </div>
             </div>
 
-            {/* KARTU HEADER TRIWULAN & TEMA PEKAN INI (DIPERTAHANKAN SESUAI GAMBAR) */}
+            {/* KARTU HEADER TRIWULAN & TEMA PEKAN INI (DENGAN SEMATAN GAMBAR RESMI ADVENTECH) */}
             <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#1C2C16] via-[#2A4422] to-[#1E3019] dark:from-navy-900 dark:via-navy-950 dark:to-navy-900 p-6 md:p-8 text-white shadow-xl border-2 border-[#4A7045]/60 dark:border-gold-500/40">
+                {/* Background Ambient Cover Glow dari Artwork Resmi */}
+                <div
+                    className="absolute inset-0 bg-cover bg-center opacity-15 filter blur-md scale-110 pointer-events-none transition-all duration-700"
+                    style={{ backgroundImage: `url(${currentCoverUrl})` }}
+                />
                 <div className="absolute top-0 right-0 w-80 h-80 bg-gold-400/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
-                <div className="relative z-10">
-                    <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-400/20 text-gold-300 border border-gold-400/40 font-extrabold text-[10.5px] uppercase tracking-wider">
-                            <BookOpen className="w-3.5 h-3.5" /> PEDOMAN PENDALAMAN ALKITAB DEWASA
-                        </span>
-                        <span className="text-xs text-white/80 font-bold bg-white/10 px-3 py-1 rounded-full">
-                            🗓 {currentCatalogItem.dateRange}
-                        </span>
-                    </div>
 
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
-                        Pelajaran {parseInt(selectedLessonId, 10)}: {currentCatalogItem.title}
-                    </h1>
-                    <p className="text-sm sm:text-base text-gold-300 font-semibold mb-5">
-                        {SS_QUARTERLY_INFO.title} • {SS_QUARTERLY_INFO.human_date}
-                    </p>
+                <div className="relative z-10 space-y-6">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 md:gap-6">
+                        {/* Sematan Gambar Cover Resmi Pelajaran (Seperti di Adventech) */}
+                        <div className="relative shrink-0 group">
+                            <div className="w-36 sm:w-44 md:w-52 aspect-[3/2] rounded-2xl overflow-hidden shadow-2xl border-2 border-white/30 dark:border-gold-500/40 bg-black/40 relative">
+                                <img
+                                    src={currentCoverUrl}
+                                    alt={`Sampul Pelajaran ${parseInt(selectedLessonId, 10)}: ${currentCatalogItem.title}`}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    loading="eager"
+                                    onError={(e) => {
+                                        e.currentTarget.onerror = null;
+                                        e.currentTarget.src = SS_QUARTERLY_INFO.cover;
+                                    }}
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none"></div>
+                                <span className="absolute bottom-1.5 left-2 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-black/65 backdrop-blur-xs text-gold-300 border border-gold-400/30">
+                                    Pekan {parseInt(selectedLessonId, 10)}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Teks Judul & Informasi Pelajaran */}
+                        <div className="flex-1 min-w-0 text-center sm:text-left">
+                            <div className="flex items-center justify-center sm:justify-start gap-2 mb-2 flex-wrap">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-400/20 text-gold-300 border border-gold-400/40 font-extrabold text-[10.5px] uppercase tracking-wider">
+                                    <BookOpen className="w-3.5 h-3.5" /> PEDOMAN PENDALAMAN ALKITAB DEWASA
+                                </span>
+                                <span className="text-xs text-white/80 font-bold bg-white/10 px-3 py-1 rounded-full">
+                                    🗓 {currentCatalogItem.dateRange}
+                                </span>
+                            </div>
+
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
+                                Pelajaran {parseInt(selectedLessonId, 10)}: {currentCatalogItem.title}
+                            </h1>
+                            <p className="text-sm sm:text-base text-gold-300 font-semibold">
+                                {SS_QUARTERLY_INFO.title} • {SS_QUARTERLY_INFO.human_date}
+                            </p>
+                        </div>
+                    </div>
 
                     {/* KARTU AYAT HAFALAN KHUSUS */}
                     <div className="p-4 sm:p-5 rounded-2xl bg-white/10 dark:bg-navy-800/80 backdrop-blur-md border border-white/20 shadow-md">
@@ -1579,13 +1647,12 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                    <span className={`text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
-                                        dailyNoteSaveStatus === "saving"
+                                    <span className={`text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${dailyNoteSaveStatus === "saving"
                                             ? "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300"
                                             : currentDayNoteText.trim()
                                                 ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
                                                 : "bg-navy-100 text-navy-600 dark:bg-navy-800 dark:text-navy-400"
-                                    }`}>
+                                        }`}>
                                         {dailyNoteSaveStatus === "saving" ? (
                                             <>
                                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
@@ -1918,9 +1985,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                         key={pal.id}
                                         type="button"
                                         onClick={() => setVerseNoteModal(prev => ({ ...prev, color: pal.id }))}
-                                        className={`w-7 h-7 rounded-full border-2 ${pal.dotClass} flex items-center justify-center transition cursor-pointer ${
-                                            verseNoteModal.color === pal.id ? "scale-115 ring-2 ring-gold-400 shadow-md" : "opacity-70 hover:opacity-100"
-                                        }`}
+                                        className={`w-7 h-7 rounded-full border-2 ${pal.dotClass} flex items-center justify-center transition cursor-pointer ${verseNoteModal.color === pal.id ? "scale-115 ring-2 ring-gold-400 shadow-md" : "opacity-70 hover:opacity-100"
+                                            }`}
                                         title={pal.label}
                                     >
                                         {verseNoteModal.color === pal.id && <Check className="w-3.5 h-3.5 text-navy-950" />}
@@ -2042,11 +2108,10 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                 <button
                                     type="button"
                                     onClick={() => setNotesActiveTab("daily")}
-                                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                                        notesActiveTab === "daily"
+                                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${notesActiveTab === "daily"
                                             ? "bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-xs font-black"
                                             : "text-navy-600 dark:text-gray-400 hover:text-navy-900"
-                                    }`}
+                                        }`}
                                 >
                                     <FileText className="w-3.5 h-3.5" />
                                     <span>Catatan Pelajaran ({filteredDailyNotes.length})</span>
@@ -2054,11 +2119,10 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                 <button
                                     type="button"
                                     onClick={() => setNotesActiveTab("verses")}
-                                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                                        notesActiveTab === "verses"
+                                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${notesActiveTab === "verses"
                                             ? "bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-xs font-black"
                                             : "text-navy-600 dark:text-gray-400 hover:text-navy-900"
-                                    }`}
+                                        }`}
                                 >
                                     <Bookmark className="w-3.5 h-3.5" />
                                     <span>Catatan Ayat Alkitab ({filteredVerseNotes.length})</span>
