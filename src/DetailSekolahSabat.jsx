@@ -790,6 +790,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const readerRef = useRef(null);
     const selectionToolbarRef = useRef(null);
     const lastSelectionTimeRef = useRef(0);
+    const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
     const [noteCopiedToast, setNoteCopiedToast] = useState(false);
 
     // Parsing blok HTML pelajaran harian (Paragraf, Heading, Blockquote)
@@ -1018,30 +1019,150 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         };
     }, []);
 
+    // Aksi Klik 2x / Double-Tap pada kata tertentu untuk langsung memunculkan catatan
+    const triggerWordNoteModal = (target, clientX, clientY) => {
+        if (!target) return;
+        // Abaikan jika klik terjadi pada tombol aksi, popup ayat, atau kartu catatan tersemat
+        if (target.closest('button, mark[data-note-id], .ss-inline-note-card, a.verse')) {
+            return;
+        }
+
+        // Cari blok paragraf asal
+        let foundBlockIdx = 0;
+        const blockEl = target.closest('[data-block-idx]');
+        if (blockEl) {
+            foundBlockIdx = parseInt(blockEl.getAttribute('data-block-idx'), 10) || 0;
+        }
+
+        // 1. Cek apakah pengguna sudah memiliki teks yang terblok di peramban
+        const sel = window.getSelection();
+        let word = sel ? sel.toString().trim() : '';
+
+        // 2. Jika seleksi kosong atau < 2 huruf, ekstrak kata tepat di bawah titik klik/sentuhan
+        if (!word || word.length < 2) {
+            let range = null;
+            if (document.caretRangeFromPoint) {
+                range = document.caretRangeFromPoint(clientX, clientY);
+            } else if (document.caretPositionFromPoint) {
+                const pos = document.caretPositionFromPoint(clientX, clientY);
+                if (pos) {
+                    range = document.createRange();
+                    range.setStart(pos.offsetNode, pos.offset);
+                }
+            }
+
+            if (range && range.startContainer && range.startContainer.nodeType === Node.TEXT_NODE) {
+                const nodeText = range.startContainer.textContent;
+                const offset = range.startOffset;
+                let start = offset;
+                while (start > 0 && /\S/.test(nodeText[start - 1]) && !/[.,!?;:()\[\]"']/.test(nodeText[start - 1])) {
+                    start--;
+                }
+                let end = offset;
+                while (end < nodeText.length && /\S/.test(nodeText[end]) && !/[.,!?;:()\[\]"']/.test(nodeText[end])) {
+                    end++;
+                }
+                word = nodeText.slice(start, end).trim();
+            }
+        }
+
+        // 3. Fallback jika masih belum dapat, ambil kata pertama dari teks elemen target
+        if (!word || word.length < 2) {
+            const raw = target.textContent || '';
+            const words = raw.trim().split(/\s+/).filter(w => w.length >= 2);
+            if (words.length > 0) {
+                word = words[0];
+            }
+        }
+
+        // Bersihkan tanda kutip atau tanda baca di awal/akhir kata
+        if (word) {
+            word = word.replace(/^["'(\[{<«“‘]+|["')\]}>»”’.,!?;:]+$/g, '').trim();
+        }
+
+        if (!word || word.length < 2) return;
+
+        // Bersihkan seleksi aktif peramban & tutup floating toolbar
+        try {
+            window.getSelection()?.removeAllRanges();
+        } catch (e) { }
+        setSelectionToolbar(null);
+
+        // Buka langsung modal Sematkan Catatan untuk kata tersebut
+        setInlineNoteModal({
+            mode: 'create',
+            blockIdx: foundBlockIdx,
+            selectedText: word,
+            content: '',
+            color: 'gold'
+        });
+    };
+
+    // Handler Double-Click pada Desktop
+    const handleReaderDoubleClick = (e) => {
+        triggerWordNoteModal(e.target, e.clientX, e.clientY);
+    };
+
+    // Handler Touch End di Mobile dengan Deteksi Double-Tap Instan
+    const handleTouchEnd = (e) => {
+        handleCheckSelection();
+
+        if (!e.changedTouches || e.changedTouches.length === 0) return;
+        const touch = e.changedTouches[0];
+        const now = Date.now();
+        const timeDiff = now - lastTapRef.current.time;
+        const distX = Math.abs(touch.clientX - lastTapRef.current.x);
+        const distY = Math.abs(touch.clientY - lastTapRef.current.y);
+
+        // Deteksi Double-Tap di Mobile Touch (jeda 40ms - 320ms, jarak < 28px)
+        if (timeDiff > 40 && timeDiff < 320 && distX < 28 && distY < 28) {
+            triggerWordNoteModal(e.target, touch.clientX, touch.clientY);
+            lastTapRef.current = { time: 0, x: 0, y: 0 };
+            return;
+        }
+
+        lastTapRef.current = { time: now, x: touch.clientX, y: touch.clientY };
+    };
+
     // Fungsi bantu untuk memperluas cuplikan seleksi ke seluruh kalimat secara otomatis
     const expandToSentence = (blockText, snippet) => {
         if (!blockText || !snippet) return snippet;
-        const idx = blockText.indexOf(snippet);
+        const cleanSnippet = snippet.trim();
+        const idx = blockText.indexOf(cleanSnippet);
         if (idx === -1) {
-            const sub = snippet.slice(0, 25);
+            const sub = cleanSnippet.slice(0, 20);
             const subIdx = blockText.indexOf(sub);
             if (subIdx === -1) return snippet;
             return expandToSentence(blockText, sub);
         }
 
+        const isSentenceBoundary = (text, i) => {
+            const char = text[i];
+            if (char === '!' || char === '?' || char === '\n') return true;
+            if (char === '.') {
+                // Jangan anggap titik sebagai batas kalimat jika diikuti angka/titik dua (misal pasal/ayat 8:12 atau 1.5)
+                if (i + 1 < text.length && /[\d:]/.test(text[i + 1])) return false;
+                // Jangan anggap titik jika itu singkatan kitab / gelar umum (contoh: Yoh., Luk., Mat., dkk., dll.)
+                const preceding = text.slice(Math.max(0, i - 4), i);
+                if (/(?:Yoh|Luk|Mat|Mrk|Kej|Kel|Im|Bil|Ul|Yos|Hak|Rut|Sam|Raj|Taw|Ezr|Neh|Est|Ayb|Mzm|Ams|Pkh|Kid|Yes|Yer|Rat|Yeh|Dan|Hos|Yoel|Am|Ob|Yun|Mik|Nah|Hab|Zef|Hag|Zak|Mal|Kis|Rm|Kor|Gal|Ef|Flp|Kol|Tes|Tim|Tit|Flm|Ibr|Yak|Ptr|Yud|Why|hlm|dst|dll|dkk)$/i.test(preceding)) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        };
+
         let start = 0;
         for (let i = idx - 1; i >= 0; i--) {
-            const char = blockText[i];
-            if (char === '.' || char === '!' || char === '?' || char === '\n') {
+            if (isSentenceBoundary(blockText, i)) {
                 start = i + 1;
                 break;
             }
         }
 
         let end = blockText.length;
-        for (let i = idx + snippet.length; i < blockText.length; i++) {
-            const char = blockText[i];
-            if (char === '.' || char === '!' || char === '?' || char === '\n') {
+        for (let i = idx + cleanSnippet.length; i < blockText.length; i++) {
+            if (isSentenceBoundary(blockText, i)) {
                 end = i + 1;
                 break;
             }
@@ -1651,6 +1772,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 .ss-reader-body {
                     color: inherit;
                     font-family: inherit;
+                    touch-action: manipulation;
                 }
                 .ss-reader-body h2 {
                     font-size: 1.5rem;
@@ -2174,7 +2296,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                         <div
                             ref={readerRef}
                             onMouseUp={handleCheckSelection}
-                            onTouchEnd={handleCheckSelection}
+                            onTouchEnd={handleTouchEnd}
+                            onDoubleClick={handleReaderDoubleClick}
                             className={`ss-reader-body ${fontClass} space-y-4`}
                         >
                             {parsedBlocks.map((block) => {
@@ -2449,17 +2572,24 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             </button>
                         </div>
 
-                        {/* Kalimat yang Disematkan */}
+                        {/* Kalimat / Kata yang Disematkan */}
                         <div>
                             <div className="flex items-center justify-between gap-1 mb-1.5 flex-wrap">
-                                <label className="text-xs font-bold text-navy-700 dark:text-gray-300">
-                                    Kalimat Terpilih:
-                                </label>
+                                <div className="flex items-center gap-1.5">
+                                    <label className="text-xs font-bold text-navy-700 dark:text-gray-300">
+                                        {inlineNoteModal.selectedText?.trim().split(/\s+/).length <= 2 ? "Kata Terpilih:" : "Kalimat Terpilih:"}
+                                    </label>
+                                    {inlineNoteModal.selectedText?.trim().split(/\s+/).length <= 2 && (
+                                        <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-800 dark:text-gold-300 border border-amber-400/30">
+                                            1 Kata
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="flex items-center gap-1.5">
                                     <button
                                         type="button"
                                         onClick={handleExpandModalToSentence}
-                                        className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-900 dark:text-gold-300 transition cursor-pointer border border-amber-400/40 flex items-center gap-1 shadow-2xs active:scale-95"
+                                        className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/25 to-gold-500/25 hover:from-amber-500/35 hover:to-gold-500/35 text-amber-900 dark:text-gold-300 transition cursor-pointer border border-amber-400/50 flex items-center gap-1 shadow-2xs active:scale-95 ring-1 ring-gold-400/30"
                                         title="Perluas pilihan mencakup seluruh kalimat"
                                     >
                                         <span>🔍</span>
@@ -2468,7 +2598,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                     <button
                                         type="button"
                                         onClick={handleExpandModalToParagraph}
-                                        className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-navy-100 hover:bg-navy-200 dark:bg-navy-800 text-navy-700 dark:text-gray-300 transition cursor-pointer border border-navy-200/60 dark:border-navy-700 flex items-center gap-1 shadow-2xs active:scale-95"
+                                        className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-navy-100 hover:bg-navy-200 dark:bg-navy-800 text-navy-700 dark:text-gray-300 transition cursor-pointer border border-navy-200/60 dark:border-navy-700 flex items-center gap-1 shadow-2xs active:scale-95"
                                         title="Pilih seluruh isi paragraf ini"
                                     >
                                         <span>📄</span>
