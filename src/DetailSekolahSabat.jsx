@@ -172,6 +172,214 @@ const BUILTIN_LESSON_5 = {
   ]
 };
 
+// ============================================================
+// RESOLVER & KAMUS ALKITAB DIGITAL LOKAL (OFFLINE-FIRST)
+// Memastikan setiap ayat yang diklik PASTI langsung menampilkan firman Tuhan lengkap
+// ============================================================
+const SS_ALKITAB_BOOK_ALIAS = {
+    "kej": 1, "kejadian": 1, "gen": 1, "ge": 1, "gn": 1,
+    "kel": 2, "keluaran": 2, "exod": 2, "exo": 2, "ex": 2,
+    "im": 3, "imamat": 3, "lev": 3, "le": 3, "lv": 3,
+    "bil": 4, "bilangan": 4, "num": 4, "nu": 4, "nm": 4,
+    "ul": 5, "ulangan": 5, "deut": 5, "deu": 5, "dt": 5,
+    "yos": 6, "yosua": 6, "josh": 6, "jos": 6,
+    "hak": 7, "hakim": 7, "hakim-hakim": 7, "judg": 7, "jdg": 7,
+    "rut": 8, "ruth": 8, "ru": 8,
+    "1sam": 9, "1 samuel": 9, "1samuel": 9,
+    "2sam": 10, "2 samuel": 10, "2samuel": 10,
+    "1raj": 11, "1 raja-raja": 11, "1rajaraja": 11, "1kgs": 11,
+    "2raj": 12, "2 raja-raja": 12, "2rajaraja": 12, "2kgs": 12,
+    "1taw": 13, "1 tawarikh": 13, "1tawarikh": 13, "1chr": 13,
+    "2taw": 14, "2 tawarikh": 14, "2tawarikh": 14, "2chr": 14,
+    "ezr": 15, "ezra": 15,
+    "neh": 16, "nehemia": 16,
+    "est": 17, "ester": 17, "esth": 17,
+    "ayb": 18, "ayub": 18, "job": 18, "jb": 18,
+    "mzm": 19, "mazmur": 19, "ps": 19, "psa": 19, "psm": 19,
+    "ams": 20, "amsal": 20, "prov": 20, "pro": 20, "pr": 20,
+    "pkh": 21, "pengkhotbah": 21, "eccl": 21, "ecc": 21, "ec": 21,
+    "kid": 22, "kidung": 22, "kidung agung": 22, "song": 22, "sg": 22,
+    "yes": 23, "yesaya": 23, "isa": 23, "is": 23,
+    "yer": 24, "yeremia": 24, "jer": 24, "jr": 24,
+    "rat": 25, "ratapan": 25, "lam": 25, "la": 25,
+    "yeh": 26, "yehezkiel": 26, "ezek": 26, "eze": 26,
+    "dan": 27, "daniel": 27, "dn": 27,
+    "hos": 28, "hosea": 28, "ho": 28,
+    "yoe": 29, "yoel": 29, "joel": 29, "jl": 29,
+    "am": 30, "amos": 30,
+    "ob": 31, "obaja": 31, "obad": 31,
+    "yun": 32, "yunus": 32, "jonah": 32, "jon": 32,
+    "mi": 33, "mikha": 33, "mic": 33,
+    "nah": 34, "nahum": 34, "na": 34,
+    "hab": 35, "habakuk": 35, "hb": 35,
+    "zef": 36, "zefanya": 36, "zeph": 36, "zp": 36,
+    "hag": 37, "hagai": 37, "hg": 37,
+    "za": 38, "zakharia": 38, "zech": 38, "zc": 38,
+    "mal": 39, "maleakhi": 39, "ml": 39,
+    "mat": 40, "matius": 40, "matt": 40, "mt": 40,
+    "mrk": 41, "markus": 41, "mark": 41, "mk": 41,
+    "luk": 42, "lukas": 42, "luke": 42, "lk": 42,
+    "yoh": 43, "yohanes": 43, "john": 43, "jn": 43,
+    "kis": 44, "kisah": 44, "kisah para rasul": 44, "acts": 44, "ac": 44,
+    "rom": 45, "roma": 45, "rm": 45, "ro": 45,
+    "1kor": 46, "1 korintus": 46, "1cor": 46, "1co": 46,
+    "2kor": 47, "2 korintus": 47, "2cor": 47, "2co": 47,
+    "gal": 48, "galatia": 48, "ga": 48,
+    "ef": 49, "efesus": 49, "eph": 49, "ep": 49,
+    "flp": 50, "filipi": 50, "phil": 50, "php": 50,
+    "kol": 51, "kolose": 51, "col": 51,
+    "1tes": 52, "1 tesalonika": 52, "1thess": 52, "1th": 52,
+    "2tes": 53, "2 tesalonika": 53, "2thess": 53, "2th": 53,
+    "1tim": 54, "1 timotius": 54, "1ti": 54,
+    "2tim": 55, "2 timotius": 55, "2ti": 55,
+    "tit": 56, "titus": 56, "ti": 56,
+    "flm": 57, "filemon": 57, "phlm": 57, "phm": 57,
+    "ibr": 58, "ibrani": 58, "heb": 58, "he": 58,
+    "yak": 59, "yakobus": 59, "jas": 59, "jm": 59,
+    "1pet": 60, "1ptr": 60, "1 petrus": 60, "1pt": 60, "1pe": 60,
+    "2pet": 61, "2ptr": 61, "2 petrus": 61, "2pt": 61, "2pe": 61,
+    "1yoh": 62, "1 yohanes": 62, "1john": 62, "1jn": 62,
+    "2yoh": 63, "2 yohanes": 63, "2john": 63, "2jn": 63,
+    "3yoh": 64, "3 yohanes": 64, "3john": 64, "3jn": 64,
+    "yud": 65, "yudas": 65, "jude": 65, "jd": 65,
+    "why": 66, "wahyu": 66, "rev": 66, "re": 66
+};
+
+const SS_ALKITAB_BOOK_NAMES = {
+    1: "Kejadian", 2: "Keluaran", 3: "Imamat", 4: "Bilangan", 5: "Ulangan",
+    6: "Yosua", 7: "Hakim-hakim", 8: "Rut", 9: "1 Samuel", 10: "2 Samuel",
+    11: "1 Raja-raja", 12: "2 Raja-raja", 13: "1 Tawarikh", 14: "2 Tawarikh",
+    15: "Ezra", 16: "Nehemia", 17: "Ester", 18: "Ayub", 19: "Mazmur",
+    20: "Amsal", 21: "Pengkhotbah", 22: "Kidung Agung", 23: "Yesaya",
+    24: "Yeremia", 25: "Ratapan", 26: "Yehezkiel", 27: "Daniel", 28: "Hosea",
+    29: "Yoel", 30: "Amos", 31: "Obaja", 32: "Yunus", 33: "Mikha",
+    34: "Nahum", 35: "Habakuk", 36: "Zefanya", 37: "Hagai", 38: "Zakharia",
+    39: "Maleakhi", 40: "Matius", 41: "Markus", 42: "Lukas", 43: "Yohanes",
+    44: "Kisah Para Rasul", 45: "Roma", 46: "1 Korintus", 47: "2 Korintus",
+    48: "Galatia", 49: "Efesus", 50: "Filipi", 51: "Kolose", 52: "1 Tesalonika",
+    53: "2 Tesalonika", 54: "1 Timotius", 55: "2 Timotius", 56: "Titus",
+    57: "Filemon", 58: "Ibrani", 59: "Yakobus", 60: "1 Petrus", 61: "2 Petrus",
+    62: "1 Yohanes", 63: "2 Yohanes", 64: "3 Yohanes", 65: "Yudas", 66: "Wahyu"
+};
+
+// Fungsi ekstraksi spesifikasi ayat dari teks label (e.g. "Ibr. 1: 1, 2; 2 Tim. 3: 15-17" atau "Daniel 7 dan 8")
+function parseCompoundRef(label) {
+    if (!label) return [];
+    const parts = label.split(";");
+    const allSpecs = [];
+    for (const part of parts) {
+        const t = part.trim();
+        if (!t) continue;
+        // Tangani "Daniel 7 dan 8"
+        const mDan = t.match(/^([123]?\s*[A-Za-z]+)\s+(\d+)\s+(?:dan|sampai|-)\s+(\d+)$/i);
+        if (mDan) {
+            const bookStr = mDan[1].toLowerCase().replace(/[\s.]/g, "");
+            const bookId = SS_ALKITAB_BOOK_ALIAS[bookStr];
+            if (bookId) {
+                allSpecs.push({ bookId, chapter: parseInt(mDan[2], 10), startV: 1, endV: 999 });
+                allSpecs.push({ bookId, chapter: parseInt(mDan[3], 10), startV: 1, endV: 999 });
+                continue;
+            }
+        }
+
+        const m = t.match(/^([123]?\s*[A-Za-z.]+)\s*(\d+)(?:\s*[:,\s]\s*([\d\s,-]+))?$/i);
+        if (m) {
+            const bookStr = m[1].toLowerCase().replace(/[\s.]/g, "");
+            const bookId = SS_ALKITAB_BOOK_ALIAS[bookStr];
+            if (bookId) {
+                const chapter = parseInt(m[2], 10);
+                const vPart = m[3] ? m[3].trim() : "";
+                if (!vPart) {
+                    allSpecs.push({ bookId, chapter, startV: 1, endV: 999 });
+                } else {
+                    const vList = [];
+                    for (const seg of vPart.split(/[,]/)) {
+                        const cleanSeg = seg.trim();
+                        if (cleanSeg.includes("-")) {
+                            const [s, e] = cleanSeg.split("-").map(x => parseInt(x.trim(), 10));
+                            if (!isNaN(s) && !isNaN(e)) vList.push({ s, e });
+                        } else {
+                            const n = parseInt(cleanSeg, 10);
+                            if (!isNaN(n)) vList.push({ s: n, e: n });
+                        }
+                    }
+                    if (vList.length === 0) {
+                        allSpecs.push({ bookId, chapter, startV: 1, endV: 999 });
+                    } else {
+                        const minV = Math.min(...vList.map(x => x.s));
+                        const maxV = Math.max(...vList.map(x => x.e));
+                        const vSet = new Set(vList.flatMap(x => {
+                            const arr = [];
+                            for (let i = x.s; i <= x.e; i++) arr.push(i);
+                            return arr;
+                        }));
+                        allSpecs.push({ bookId, chapter, startV: minV, endV: maxV, vSet });
+                    }
+                }
+            }
+        }
+    }
+    return allSpecs;
+}
+
+// Fetch dan susun HTML ayat langsung dari database Alkitab lokal (public/alkitab/*.json)
+async function resolveVersesFromLocalBible(verseLabel) {
+    const specs = parseCompoundRef(verseLabel);
+    if (!specs || specs.length === 0) return null;
+
+    let fullHtml = "";
+    for (const spec of specs) {
+        try {
+            const baseUrl = (import.meta.env && import.meta.env.BASE_URL) || "/";
+            const cleanBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+            const res = await fetch(`${cleanBase}alkitab/${spec.bookId}.json`);
+            if (!res.ok) continue;
+            const bookData = await res.json();
+            const chList = bookData[String(spec.chapter)] || [];
+            const bookName = SS_ALKITAB_BOOK_NAMES[spec.bookId] || "Kitab";
+            const rangeTitle = spec.endV === 999
+                ? `${bookName} Pasal ${spec.chapter}`
+                : `${bookName} ${spec.chapter}:${spec.startV}${spec.endV > spec.startV ? "-" + spec.endV : ""}`;
+
+            fullHtml += `<h2>${rangeTitle}</h2>\n`;
+            const matched = chList.filter(v => {
+                if (v.type !== "content") return false;
+                if (spec.endV === 999) return true;
+                if (spec.vSet) return spec.vSet.has(v.ayat);
+                return v.ayat >= spec.startV && v.ayat <= spec.endV;
+            });
+            matched.forEach(v => {
+                fullHtml += `<sup>${v.ayat}</sup> ${v.teks} `;
+            });
+            fullHtml += "\n\n";
+        } catch (e) {
+            console.warn("Gagal load Alkitab lokal:", spec, e);
+        }
+    }
+    return fullHtml.trim() || null;
+}
+
+// Cache key unik & fungsi validasi cache offline
+const SS_CACHE_PREFIX = "pisgah_ss_v5_";
+
+function getValidCachedLesson(lessonId) {
+    try {
+        // Hapus cache usang yang tidak memiliki ayat
+        localStorage.removeItem(`pisgah_ss_lesson_2026_04_${lessonId}`);
+        localStorage.removeItem(`pisgah_ss_lesson_v2_2026_04_${lessonId}`);
+        localStorage.removeItem(`pisgah_ss_lesson_v3_2026_04_${lessonId}`);
+        localStorage.removeItem(`pisgah_ss_lesson_v4_2026_04_${lessonId}`);
+
+        const raw = localStorage.getItem(`${SS_CACHE_PREFIX}${lessonId}`);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        // Pastikan ada ayat di dalamnya
+        const hasVerses = parsed?.days?.some(d => d.verses && Object.keys(d.verses).length > 0);
+        if (hasVerses) return parsed;
+    } catch (e) {}
+    return null;
+}
+
 export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideGlobalBack }) {
     useEffect(() => {
         if (setHideGlobalBack) setHideGlobalBack(true);
@@ -200,11 +408,9 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const [copiedToast, setCopiedToast] = useState(false);
 
     const [lessonData, setLessonData] = useState(() => {
-        try {
-            const cached = localStorage.getItem(`pisgah_ss_lesson_2026_04_${currentActiveLessonId}`);
-            if (cached) return JSON.parse(cached);
-        } catch (e) { }
-        return currentActiveLessonId === "05" ? BUILTIN_LESSON_5 : BUILTIN_LESSON_5;
+        const validCached = getValidCachedLesson(currentActiveLessonId);
+        if (validCached) return validCached;
+        return BUILTIN_LESSON_5;
     });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -212,21 +418,18 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     useEffect(() => {
         let isMounted = true;
         const fetchLesson = async () => {
-            // 1. Cek cache lokal
-            try {
-                const cached = localStorage.getItem(`pisgah_ss_lesson_2026_04_${selectedLessonId}`);
-                if (cached) {
-                    const parsed = JSON.parse(cached);
-                    if (isMounted) setLessonData(parsed);
-                    return;
-                }
-            } catch (e) { }
+            // 1. Cek cache lokal tervalidasi
+            const validCached = getValidCachedLesson(selectedLessonId);
+            if (validCached) {
+                if (isMounted) setLessonData(validCached);
+                return;
+            }
 
-            // 2. Jika Pelajaran 5 dan belum ada cache, gunakan builtin
+            // 2. Jika Pelajaran 5 dan belum ada cache, selalu gunakan builtin lengkap
             if (selectedLessonId === "05") {
                 if (isMounted) setLessonData(BUILTIN_LESSON_5);
                 try {
-                    localStorage.setItem("pisgah_ss_lesson_2026_04_05", JSON.stringify(BUILTIN_LESSON_5));
+                    localStorage.setItem(`${SS_CACHE_PREFIX}05`, JSON.stringify(BUILTIN_LESSON_5));
                 } catch (e) { }
                 return;
             }
@@ -279,7 +482,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 if (isMounted) {
                     setLessonData(assembled);
                     try {
-                        localStorage.setItem(`pisgah_ss_lesson_2026_04_${selectedLessonId}`, JSON.stringify(assembled));
+                        localStorage.setItem(`${SS_CACHE_PREFIX}${selectedLessonId}`, JSON.stringify(assembled));
                     } catch (e) { }
                 }
             } catch (err) {
@@ -306,7 +509,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     }, [selectedLessonId]);
 
     // Handler klik ayat di dalam konten HTML
-    const handleContentClick = (e) => {
+    const handleContentClick = async (e) => {
         const anchor = e.target.closest("a.verse");
         if (anchor) {
             e.preventDefault();
@@ -327,7 +530,17 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 }
             }
 
-            // 3. Jika ditemukan di kamus Adventech:
+            // 3. Fallback ke BUILTIN_LESSON_5 (selalu lengkap 53 perikop di memori bundle)
+            if (!verseHtml && BUILTIN_LESSON_5?.days) {
+                for (const d of BUILTIN_LESSON_5.days) {
+                    if (d.verses && d.verses[verseKey]) {
+                        verseHtml = d.verses[verseKey];
+                        break;
+                    }
+                }
+            }
+
+            // 4. Jika ditemukan di kamus Adventech:
             if (verseHtml) {
                 const titleMatch = verseHtml.match(/<h2[^>]*>(.*?)<\/h2>/i);
                 const title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, "").trim() : verseLabel;
@@ -345,10 +558,37 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 return;
             }
 
-            // 4. Fallback jika belum tersimpan di kamus
+            // 5. Lookup dinamis langsung dari Alkitab Digital lokal (sehingga isi firman Tuhan PASTI LANGSUNG MUNCUL!)
             setActiveVersePopup({
                 title: verseLabel,
-                html: `<div class="p-4 bg-amber-50/80 dark:bg-navy-800 rounded-2xl border border-amber-200/80 dark:border-navy-700 text-sm leading-relaxed"><p class="font-bold text-navy-900 dark:text-gold-400 mb-1.5 flex items-center gap-1.5">📖 ${verseLabel}</p><p class="text-xs text-navy-600 dark:text-gray-300">Teks lengkap firman Tuhan dapat Anda buka dan baca langsung secara menyeluruh di Alkitab Digital.</p></div>`,
+                html: `<div class="p-6 text-center text-navy-500 dark:text-gray-400 font-medium animate-pulse"><p>Memuat firman Tuhan untuk <b>${verseLabel}</b>...</p></div>`,
+                rawText: verseLabel,
+                verseKey,
+                verseLabel
+            });
+
+            const dynamicHtml = await resolveVersesFromLocalBible(verseLabel);
+            if (dynamicHtml) {
+                const titleMatch = dynamicHtml.match(/<h2[^>]*>(.*?)<\/h2>/i);
+                const title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, "").trim() : verseLabel;
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = dynamicHtml;
+                const rawText = tempDiv.textContent || tempDiv.innerText || "";
+
+                setActiveVersePopup({
+                    title: title || verseLabel,
+                    html: dynamicHtml,
+                    rawText: rawText.trim(),
+                    verseKey,
+                    verseLabel
+                });
+                return;
+            }
+
+            // 6. Fallback jika format teks ayat di luar pola baku
+            setActiveVersePopup({
+                title: verseLabel,
+                html: `<div class="p-4 bg-amber-50/80 dark:bg-navy-800 rounded-2xl border border-amber-200/80 dark:border-navy-700 text-sm leading-relaxed"><p class="font-bold text-navy-900 dark:text-gold-400 mb-1.5 flex items-center gap-1.5">📖 ${verseLabel}</p><p class="text-xs text-navy-600 dark:text-gray-300">Teks firman Tuhan dapat Anda buka dan baca langsung secara menyeluruh di Alkitab Digital melalui tombol di bawah.</p></div>`,
                 rawText: verseLabel,
                 verseKey,
                 verseLabel
