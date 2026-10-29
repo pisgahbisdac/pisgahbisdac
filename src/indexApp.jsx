@@ -17010,6 +17010,21 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
             return {};
         }
     });
+
+    React.useEffect(() => {
+        const handleExternalHighlightsUpdate = () => {
+            try {
+                const raw = localStorage.getItem('PISGAH_ALKITAB_HIGHLIGHTS');
+                if (raw) setHighlightsMap(JSON.parse(raw));
+            } catch (e) { }
+        };
+        window.addEventListener('alkitab-highlights-changed', handleExternalHighlightsUpdate);
+        window.addEventListener('storage', handleExternalHighlightsUpdate);
+        return () => {
+            window.removeEventListener('alkitab-highlights-changed', handleExternalHighlightsUpdate);
+            window.removeEventListener('storage', handleExternalHighlightsUpdate);
+        };
+    }, []);
     const [noteModal, setNoteModal] = React.useState(null); // { keys: [], refLabel: '', textPreview: '', initialNote: '', defaultColor: 'gold' }
     const [noteInputText, setNoteInputText] = React.useState('');
     const [cardModalData, setCardModalData] = React.useState({ isOpen: false, reference: '', verseText: '', subtitle: 'SABDA TUHAN • ALKITAB TB', verseUrl: '' });
@@ -17117,6 +17132,7 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
         try {
             localStorage.setItem('PISGAH_ALKITAB_HIGHLIGHTS', JSON.stringify(nextMap));
         } catch (e) { }
+        window.dispatchEvent(new CustomEvent('alkitab-highlights-changed', { detail: nextMap }));
     };
 
     const handleApplyHighlight = (colorId) => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { BookOpen, ArrowLeft, Calendar, ChevronRight, ChevronLeft, ExternalLink, Sparkles, X, Copy, Check } from "lucide-react";
+import { BookOpen, ArrowLeft, Calendar, ChevronRight, ChevronLeft, ExternalLink, Sparkles, X, Copy, Check, FileText, Edit, Edit3, Trash2, Share2, Bookmark, Search, Save } from "lucide-react";
 
 // ============================================================
 // MODUL PELAJARAN SEKOLAH SABAT HARIAN (ADVENTIST SABBATH SCHOOL)
@@ -8,9 +8,47 @@ import { BookOpen, ArrowLeft, Calendar, ChevronRight, ChevronLeft, ExternalLink,
 // 1. Bacaan Harian Interaktif 7 Hari (Sabat Petang s/d Jumat)
 // 2. Deteksi Hari Ini otomatis dengan indikator lencana Hari Ini
 // 3. Popup Ayat Alkitab interaktif saat ayat diklik (seperti Adventech)
-// 4. Pengatur ukuran font (A, A+, A++) ramah lansia
-// 5. Caching offline lengkap (PWA)
+// 4. Catatan & Refleksi Pelajaran Harian Jemaat (Auto-save, WA Share)
+// 5. Catatan Ayat Alkitab Terpadu (Sinkron 2-Arah dengan Alkitab Digital)
+// 6. Koleksi "Catatan Saya" dengan Pencarian Cepat
+// 7. Pengatur ukuran font (A, A+, A++) ramah lansia
+// 8. Caching offline lengkap (PWA)
 // ============================================================
+
+export const SS_HIGHLIGHT_PALETTE = {
+    gold: {
+        id: 'gold',
+        label: 'Kuning Emas',
+        dotClass: 'bg-amber-400 border-amber-200 ring-amber-400/50',
+        verseBg: 'bg-amber-100/85 dark:bg-amber-500/20 border-l-4 border-l-amber-500 border border-amber-200/80 dark:border-amber-500/35',
+        badgeBg: 'bg-amber-500 text-white',
+        chipBg: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
+    },
+    emerald: {
+        id: 'emerald',
+        label: 'Hijau Zamrud',
+        dotClass: 'bg-emerald-400 border-emerald-200 ring-emerald-400/50',
+        verseBg: 'bg-emerald-100/85 dark:bg-emerald-500/20 border-l-4 border-l-emerald-500 border border-emerald-200/80 dark:border-emerald-500/35',
+        badgeBg: 'bg-emerald-600 text-white',
+        chipBg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'
+    },
+    sky: {
+        id: 'sky',
+        label: 'Biru Langit',
+        dotClass: 'bg-sky-400 border-sky-200 ring-sky-400/50',
+        verseBg: 'bg-sky-100/85 dark:bg-sky-500/20 border-l-4 border-l-sky-500 border border-sky-200/80 dark:border-sky-500/35',
+        badgeBg: 'bg-sky-600 text-white',
+        chipBg: 'bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-300'
+    },
+    rose: {
+        id: 'rose',
+        label: 'Merah Muda',
+        dotClass: 'bg-rose-400 border-rose-200 ring-rose-400/50',
+        verseBg: 'bg-rose-100/85 dark:bg-rose-500/20 border-l-4 border-l-rose-500 border border-rose-200/80 dark:border-rose-500/35',
+        badgeBg: 'bg-rose-600 text-white',
+        chipBg: 'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300'
+    }
+};
 
 export const SS_QUARTERLY_INFO = {
     id: "2026-04",
@@ -635,6 +673,319 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         return SS_LESSONS_CATALOG.find(l => l.id === selectedLessonId) || SS_LESSONS_CATALOG[4];
     }, [selectedLessonId]);
 
+    // --- INTEGRASI SISTEM CATATAN SEKOLAH SABAT & ALKITAB DIGITAL ---
+    // 1. Catatan Refleksi Harian (Pribadi Jemaat)
+    const [dailyNotes, setDailyNotes] = useState(() => {
+        try {
+            const raw = localStorage.getItem("PISGAH_SS_DAILY_NOTES");
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    });
+
+    // 2. Catatan & Stabilo Ayat Alkitab (Sinkron 2-Arah dengan Alkitab Digital)
+    const [highlightsMap, setHighlightsMap] = useState(() => {
+        try {
+            const raw = localStorage.getItem("PISGAH_ALKITAB_HIGHLIGHTS");
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    });
+
+    // Listener sinkronisasi perubahan catatan ayat Alkitab dari Alkitab Digital atau tab lain
+    useEffect(() => {
+        const handleExternalUpdate = () => {
+            try {
+                const raw = localStorage.getItem("PISGAH_ALKITAB_HIGHLIGHTS");
+                if (raw) setHighlightsMap(JSON.parse(raw));
+            } catch (e) { }
+        };
+        window.addEventListener("alkitab-highlights-changed", handleExternalUpdate);
+        window.addEventListener("storage", handleExternalUpdate);
+        return () => {
+            window.removeEventListener("alkitab-highlights-changed", handleExternalUpdate);
+            window.removeEventListener("storage", handleExternalUpdate);
+        };
+    }, []);
+
+    // Kunci catatan hari ini: `${selectedLessonId}_${selectedDayIdx}`
+    const currentDayNoteKey = `${selectedLessonId}_${selectedDayIdx}`;
+    const [currentDayNoteText, setCurrentDayNoteText] = useState("");
+    const [dailyNoteSaveStatus, setDailyNoteSaveStatus] = useState("idle"); // 'idle' | 'saving' | 'saved'
+    const [noteCopiedToast, setNoteCopiedToast] = useState(false);
+
+    // Sinkronisasi teks catatan saat pelajaran atau hari berpindah
+    useEffect(() => {
+        const saved = dailyNotes[currentDayNoteKey]?.content || "";
+        setCurrentDayNoteText(saved);
+        setDailyNoteSaveStatus("idle");
+    }, [currentDayNoteKey, dailyNotes]);
+
+    // Fungsi simpan catatan harian
+    const persistDailyNote = (newText) => {
+        const trimmed = newText.trim();
+        const nextDailyNotes = { ...dailyNotes };
+        if (!trimmed) {
+            delete nextDailyNotes[currentDayNoteKey];
+        } else {
+            const dayTab = SS_DAY_TABS[selectedDayIdx] || { label: "Pelajaran" };
+            nextDailyNotes[currentDayNoteKey] = {
+                id: currentDayNoteKey,
+                lessonId: selectedLessonId,
+                lessonTitle: currentCatalogItem?.title || `Pelajaran ${parseInt(selectedLessonId, 10)}`,
+                dayIdx: selectedDayIdx,
+                dayLabel: dayTab.label,
+                dayTitle: currentDay?.title || dayTab.label,
+                date: currentDay?.date || currentCatalogItem?.dateRange || "",
+                content: trimmed,
+                updatedAt: Date.now()
+            };
+        }
+        setDailyNotes(nextDailyNotes);
+        try {
+            localStorage.setItem("PISGAH_SS_DAILY_NOTES", JSON.stringify(nextDailyNotes));
+        } catch (e) { }
+        setDailyNoteSaveStatus("saved");
+    };
+
+    // Auto-save debounce (600ms) untuk catatan harian
+    useEffect(() => {
+        const existing = dailyNotes[currentDayNoteKey]?.content || "";
+        if (currentDayNoteText === existing) return;
+        setDailyNoteSaveStatus("saving");
+        const timer = setTimeout(() => {
+            persistDailyNote(currentDayNoteText);
+        }, 600);
+        return () => clearTimeout(timer);
+    }, [currentDayNoteText]);
+
+    const handleDailyNoteChange = (e) => {
+        setCurrentDayNoteText(e.target.value);
+    };
+
+    const handleDeleteDailyNote = () => {
+        if (window.confirm("Hapus catatan refleksi untuk hari ini?")) {
+            setCurrentDayNoteText("");
+            const nextDailyNotes = { ...dailyNotes };
+            delete nextDailyNotes[currentDayNoteKey];
+            setDailyNotes(nextDailyNotes);
+            try {
+                localStorage.setItem("PISGAH_SS_DAILY_NOTES", JSON.stringify(nextDailyNotes));
+            } catch (e) { }
+            setDailyNoteSaveStatus("idle");
+        }
+    };
+
+    const handleCopyDailyNote = async () => {
+        if (!currentDayNoteText.trim()) return;
+        try {
+            await navigator.clipboard.writeText(currentDayNoteText.trim());
+            setNoteCopiedToast(true);
+            setTimeout(() => setNoteCopiedToast(false), 2000);
+        } catch (e) { }
+    };
+
+    const handleShareDailyNoteWA = () => {
+        if (!currentDayNoteText.trim()) return;
+        const dayLabel = SS_DAY_TABS[selectedDayIdx]?.label || "Pelajaran";
+        const lessonTitle = currentCatalogItem?.title || `Pelajaran ${parseInt(selectedLessonId, 10)}`;
+        const dateStr = currentDay?.date || "";
+        const msg = `*CATATAN SEKOLAH SABAT*\n` +
+            `📖 *Pelajaran ${parseInt(selectedLessonId, 10)}:* ${lessonTitle}\n` +
+            `🗓️ *${dayLabel}* ${dateStr ? `(${dateStr})` : ""}: ${currentDay?.title || ""}\n\n` +
+            `✍️ *Refleksi & Jawaban:* \n${currentDayNoteText.trim()}\n\n` +
+            `_Aplikasi Jemaat Pisgah Batam_`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    // Modal Edit Catatan Per-Ayat Alkitab
+    const [verseNoteModal, setVerseNoteModal] = useState(null);
+
+    const getVerseTargetKey = (target) => {
+        if (!target) return "";
+        const vNum = target.startV || parseInt(target.verse, 10) || 1;
+        const bookId = target.bookId || 66;
+        const chapter = target.chapter || 1;
+        return `${bookId}_${chapter}_${vNum}`;
+    };
+
+    const getVerseNote = (target) => {
+        const key = getVerseTargetKey(target);
+        return key ? highlightsMap[key] || null : null;
+    };
+
+    const hasVerseNote = (target) => {
+        const noteObj = getVerseNote(target);
+        return Boolean(noteObj && noteObj.note && noteObj.note.trim().length > 0);
+    };
+
+    const handleOpenVerseNoteModal = (target, verseLabel, verseHtmlOrText) => {
+        if (!target) return;
+        const vNum = target.startV || parseInt(target.verse, 10) || 1;
+        const bookId = target.bookId || 66;
+        const bookName = target.bookName || SS_ALKITAB_BOOK_NAMES[bookId] || "Alkitab";
+        const chapter = target.chapter || 1;
+        const key = `${bookId}_${chapter}_${vNum}`;
+        const existing = highlightsMap[key];
+
+        let snippet = "";
+        if (typeof verseHtmlOrText === "string") {
+            const tmp = document.createElement("div");
+            tmp.innerHTML = verseHtmlOrText;
+            snippet = (tmp.textContent || tmp.innerText || "").slice(0, 160).trim();
+            if (snippet.length >= 160) snippet += "...";
+        }
+
+        setVerseNoteModal({
+            key,
+            bookId,
+            bookName,
+            chapter,
+            verse: vNum,
+            verseLabel: verseLabel || `${bookName} ${chapter}:${vNum}`,
+            verseSnippet: snippet || existing?.teks || "",
+            color: existing?.color || "gold",
+            noteText: existing?.note || "",
+            existing: Boolean(existing?.note)
+        });
+    };
+
+    const handleSaveVerseNote = (e) => {
+        if (e) e.preventDefault();
+        if (!verseNoteModal) return;
+        const { key, bookId, bookName, chapter, verse, color, noteText, verseSnippet } = verseNoteModal;
+        const trimmed = (noteText || "").trim();
+
+        const nextMap = { ...highlightsMap };
+        const existing = nextMap[key];
+
+        if (!trimmed && !existing?.color) {
+            delete nextMap[key];
+        } else {
+            nextMap[key] = {
+                key,
+                bookId,
+                bookName,
+                chapter,
+                ayat: verse,
+                teks: existing?.teks || verseSnippet,
+                color: color || existing?.color || "gold",
+                note: trimmed,
+                updatedAt: Date.now()
+            };
+        }
+
+        setHighlightsMap(nextMap);
+        try {
+            localStorage.setItem("PISGAH_ALKITAB_HIGHLIGHTS", JSON.stringify(nextMap));
+        } catch (e) { }
+        window.dispatchEvent(new CustomEvent("alkitab-highlights-changed", { detail: nextMap }));
+        setVerseNoteModal(null);
+    };
+
+    const handleDeleteVerseNote = (key) => {
+        if (!key) return;
+        if (window.confirm("Hapus catatan pribadi pada ayat ini?")) {
+            const nextMap = { ...highlightsMap };
+            if (nextMap[key]) {
+                if (nextMap[key].color) {
+                    nextMap[key] = {
+                        ...nextMap[key],
+                        note: "",
+                        updatedAt: Date.now()
+                    };
+                } else {
+                    delete nextMap[key];
+                }
+            }
+            setHighlightsMap(nextMap);
+            try {
+                localStorage.setItem("PISGAH_ALKITAB_HIGHLIGHTS", JSON.stringify(nextMap));
+            } catch (e) { }
+            window.dispatchEvent(new CustomEvent("alkitab-highlights-changed", { detail: nextMap }));
+            setVerseNoteModal(null);
+        }
+    };
+
+    // Modal Koleksi "Catatan Saya"
+    const [isNotesCollectionOpen, setIsNotesCollectionOpen] = useState(false);
+    const [notesActiveTab, setNotesActiveTab] = useState("daily"); // "daily" | "verses"
+    const [notesSearchQuery, setNotesSearchQuery] = useState("");
+
+    const dailyNotesList = useMemo(() => {
+        return Object.values(dailyNotes).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    }, [dailyNotes]);
+
+    const verseNotesList = useMemo(() => {
+        return Object.values(highlightsMap)
+            .filter(item => item && item.note && item.note.trim().length > 0)
+            .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    }, [highlightsMap]);
+
+    const totalNotesCount = dailyNotesList.length + verseNotesList.length;
+
+    const filteredDailyNotes = useMemo(() => {
+        const q = notesSearchQuery.trim().toLowerCase();
+        if (!q) return dailyNotesList;
+        return dailyNotesList.filter(n =>
+            (n.lessonTitle && n.lessonTitle.toLowerCase().includes(q)) ||
+            (n.dayLabel && n.dayLabel.toLowerCase().includes(q)) ||
+            (n.dayTitle && n.dayTitle.toLowerCase().includes(q)) ||
+            (n.content && n.content.toLowerCase().includes(q))
+        );
+    }, [dailyNotesList, notesSearchQuery]);
+
+    const filteredVerseNotes = useMemo(() => {
+        const q = notesSearchQuery.trim().toLowerCase();
+        if (!q) return verseNotesList;
+        return verseNotesList.filter(n =>
+            (n.bookName && n.bookName.toLowerCase().includes(q)) ||
+            (`${n.chapter}:${n.ayat}`.includes(q)) ||
+            (n.teks && n.teks.toLowerCase().includes(q)) ||
+            (n.note && n.note.toLowerCase().includes(q))
+        );
+    }, [verseNotesList, notesSearchQuery]);
+
+    const handleJumpToLessonDay = (lessonId, dayIdx) => {
+        setSelectedLessonId(lessonId);
+        setSelectedDayIdx(dayIdx);
+        setIsNotesCollectionOpen(false);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleJumpToBibleVerse = (item) => {
+        setIsNotesCollectionOpen(false);
+        handleNavigateTarget({
+            bookId: item.bookId,
+            bookName: item.bookName,
+            chapter: item.chapter,
+            verse: String(item.ayat),
+            startV: item.ayat,
+            endV: item.ayat,
+            returnTab: 'belajar_sekolah_sabat'
+        });
+    };
+
+    const handleCopyVerseNote = async (item) => {
+        const text = `${item.bookName} ${item.chapter}:${item.ayat}\n"${item.teks || ''}"\n\nCatatan: ${item.note || ''}`;
+        try {
+            await navigator.clipboard.writeText(text);
+            setNoteCopiedToast(true);
+            setTimeout(() => setNoteCopiedToast(false), 2000);
+        } catch (e) { }
+    };
+
+    const handleShareVerseNoteWA = (item) => {
+        const msg = `*CATATAN AYAT ALKITAB*\n` +
+            `📖 *${item.bookName} ${item.chapter}:${item.ayat}*\n` +
+            `"${item.teks || ''}"\n\n` +
+            `✍️ *Catatan Renungan:* \n${item.note || ''}\n\n` +
+            `_Aplikasi Jemaat Pisgah Batam_`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
     // Handler klik ayat di dalam konten HTML
     const handleContentClick = async (e) => {
         const anchor = e.target.closest("a.verse");
@@ -1047,8 +1398,24 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                     </select>
                 </div>
 
-                {/* Kontrol Ukuran Teks (Ramah Lansia) & Link Luar */}
+                {/* Kontrol Ukuran Teks (Ramah Lansia), Koleksi Catatan Saya, & Link Luar */}
                 <div className="flex items-center gap-1.5 shrink-0">
+                    {/* Tombol Koleksi Catatan Saya */}
+                    <button
+                        type="button"
+                        onClick={() => setIsNotesCollectionOpen(true)}
+                        className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/15 dark:bg-gold-500/20 hover:bg-amber-500/25 text-amber-900 dark:text-gold-300 text-xs font-black transition flex items-center gap-1.5 cursor-pointer border border-amber-400/40 dark:border-gold-500/30 shrink-0 shadow-2xs active:scale-95"
+                        title="Buka Koleksi Catatan Saya (Pribadi & Alkitab)"
+                    >
+                        <FileText className="w-3.5 h-3.5 text-amber-700 dark:text-gold-400" />
+                        <span className="hidden sm:inline">Catatan Saya</span>
+                        {totalNotesCount > 0 && (
+                            <span className="px-1.5 py-0.2 rounded-full bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-950 font-black text-[10px]">
+                                {totalNotesCount}
+                            </span>
+                        )}
+                    </button>
+
                     <div className="hidden sm:flex items-center bg-white/80 dark:bg-navy-800 rounded-xl p-0.5 border border-navy-200/60 dark:border-navy-700">
                         <button
                             type="button"
@@ -1194,6 +1561,102 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             dangerouslySetInnerHTML={{ __html: currentDay.content }}
                         />
 
+                        {/* KOTAK CATATAN & REFLEKSI HARIAN JEMAAT */}
+                        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-emerald-50/80 via-white to-amber-50/40 dark:from-navy-900/90 dark:via-navy-900/90 dark:to-navy-950/90 border-2 border-emerald-600/20 dark:border-gold-500/25 shadow-sm space-y-3.5">
+                            <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-navy-100 dark:border-navy-800">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/15 dark:bg-gold-500/20 text-emerald-700 dark:text-gold-400 flex items-center justify-center shrink-0">
+                                        <FileText className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm sm:text-base font-black text-navy-900 dark:text-white flex items-center gap-1.5">
+                                            Catatan & Refleksi Harian
+                                        </h3>
+                                        <p className="text-[10.5px] sm:text-xs text-navy-500 dark:text-gray-400 font-medium">
+                                            Jawaban diskusi atau renungan rohani Anda untuk {SS_DAY_TABS[selectedDayIdx]?.label}.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
+                                        dailyNoteSaveStatus === "saving"
+                                            ? "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300"
+                                            : currentDayNoteText.trim()
+                                                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                                                : "bg-navy-100 text-navy-600 dark:bg-navy-800 dark:text-navy-400"
+                                    }`}>
+                                        {dailyNoteSaveStatus === "saving" ? (
+                                            <>
+                                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                                                <span>Menyimpan...</span>
+                                            </>
+                                        ) : currentDayNoteText.trim() ? (
+                                            <>
+                                                <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                                <span>Tersimpan Otomatis</span>
+                                            </>
+                                        ) : (
+                                            <span>Belum Ada Catatan</span>
+                                        )}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Textarea Catatan */}
+                            <div className="relative">
+                                <textarea
+                                    value={currentDayNoteText}
+                                    onChange={handleDailyNoteChange}
+                                    placeholder="Tuliskan jawaban pertanyaan diskusi, ringkasan renungan, atau pokok doa Anda untuk pelajaran hari ini di sini..."
+                                    rows={4}
+                                    className="w-full p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-navy-950/80 border border-navy-200/80 dark:border-navy-700 text-navy-900 dark:text-gray-100 text-xs sm:text-sm leading-relaxed placeholder:text-navy-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4A7045] dark:focus:ring-gold-500 transition-all resize-y min-h-[100px]"
+                                />
+                            </div>
+
+                            {/* Toolbar Bawah Catatan */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
+                                <span className="text-[10.5px] text-navy-500 dark:text-gray-400 font-medium">
+                                    {currentDayNoteText.trim() ? `${currentDayNoteText.trim().split(/\s+/).length} kata • ${currentDayNoteText.length} karakter` : "Tersimpan otomatis di memori perangkat (Offline & Aman)"}
+                                </span>
+
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                    {currentDayNoteText.trim() && (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={handleCopyDailyNote}
+                                                className="px-2.5 py-1 rounded-xl bg-white dark:bg-navy-800 hover:bg-navy-100 dark:hover:bg-navy-700 text-navy-800 dark:text-gray-200 text-xs font-bold transition flex items-center gap-1 cursor-pointer border border-navy-200 dark:border-navy-700 shadow-2xs active:scale-95"
+                                                title="Salin isi catatan"
+                                            >
+                                                {noteCopiedToast ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-navy-500" />}
+                                                <span>{noteCopiedToast ? "Tersalin!" : "Salin"}</span>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={handleShareDailyNoteWA}
+                                                className="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-xs active:scale-95"
+                                                title="Bagikan ke WhatsApp Kelas Sekolah Sabat"
+                                            >
+                                                <Share2 className="w-3.5 h-3.5" />
+                                                <span>Bagikan WA</span>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={handleDeleteDailyNote}
+                                                className="p-1.5 rounded-xl text-navy-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
+                                                title="Hapus Catatan Hari Ini"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
                         {/* NAVIGASI HARI SEBELUMNYA / SELANJUTNYA */}
                         <div className="pt-6 border-t border-navy-100 dark:border-navy-800 flex items-center justify-between gap-3 flex-wrap">
                             <button
@@ -1318,17 +1781,30 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                                     {sec.title}
                                                 </h4>
                                             </div>
-                                            {sec.target && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleNavigateTarget(sec.target)}
-                                                    className="px-2.5 py-1 text-xs font-bold rounded-lg bg-[#4A7045]/15 dark:bg-gold-500/20 hover:bg-[#4A7045] hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-[#375533] dark:text-gold-300 transition flex items-center gap-1.5 cursor-pointer border border-[#4A7045]/30 dark:border-gold-500/30 shrink-0 active:scale-95 shadow-xs"
-                                                    title={`Buka ${sec.target.buttonLabel || sec.title} di Alkitab Digital`}
-                                                >
-                                                    <BookOpen className="w-3.5 h-3.5" />
-                                                    <span>Buka di Alkitab</span>
-                                                </button>
-                                            )}
+                                            <div className="flex items-center gap-1.5 shrink-0">
+                                                {sec.target && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleOpenVerseNoteModal(sec.target, sec.title, sec.bodyHtml)}
+                                                        className="px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-500/15 dark:bg-gold-500/20 hover:bg-amber-500 hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-amber-900 dark:text-gold-300 transition flex items-center gap-1 cursor-pointer border border-amber-400/30 shrink-0 active:scale-95 shadow-xs"
+                                                        title="Tulis atau lihat catatan pribadi untuk ayat ini"
+                                                    >
+                                                        <Edit3 className="w-3.5 h-3.5" />
+                                                        <span>{hasVerseNote(sec.target) ? "Edit Catatan" : "Catatan"}</span>
+                                                    </button>
+                                                )}
+                                                {sec.target && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleNavigateTarget(sec.target)}
+                                                        className="px-2.5 py-1 text-xs font-bold rounded-lg bg-[#4A7045]/15 dark:bg-gold-500/20 hover:bg-[#4A7045] hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-[#375533] dark:text-gold-300 transition flex items-center gap-1.5 cursor-pointer border border-[#4A7045]/30 dark:border-gold-500/30 shrink-0 active:scale-95 shadow-xs"
+                                                        title={`Buka ${sec.target.buttonLabel || sec.title} di Alkitab Digital`}
+                                                    >
+                                                        <BookOpen className="w-3.5 h-3.5" />
+                                                        <span>Buka di Alkitab</span>
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
 
                                         {/* Teks Ayat Firman Tuhan */}
@@ -1336,6 +1812,32 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                             className="leading-relaxed pl-1 text-navy-800 dark:text-gray-200"
                                             dangerouslySetInnerHTML={{ __html: sec.bodyHtml }}
                                         />
+
+                                        {/* Tampilan Catatan Tersimpan pada Ayat Ini (Jika Ada) */}
+                                        {(() => {
+                                            const vNote = getVerseNote(sec.target);
+                                            if (!vNote || !vNote.note) return null;
+                                            return (
+                                                <div className="mt-2.5 p-3 rounded-2xl bg-amber-100/70 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-700/60 text-xs space-y-1">
+                                                    <div className="flex items-center justify-between gap-1">
+                                                        <span className="font-extrabold text-amber-900 dark:text-amber-300 flex items-center gap-1 uppercase tracking-wider text-[10px]">
+                                                            <Bookmark className="w-3 h-3 fill-amber-500 text-amber-500" />
+                                                            Catatan Pribadi di Alkitab
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleOpenVerseNoteModal(sec.target, sec.title, sec.bodyHtml)}
+                                                            className="text-[11px] font-bold text-amber-800 dark:text-amber-300 hover:underline cursor-pointer"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                    </div>
+                                                    <p className="text-navy-900 dark:text-amber-100 whitespace-pre-wrap leading-relaxed font-medium italic">
+                                                        "{vNote.note}"
+                                                    </p>
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 ))
                             ) : (
@@ -1358,6 +1860,404 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                 type="button"
                                 onClick={() => setActiveVersePopup(null)}
                                 className="px-4 py-2 rounded-xl bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 text-navy-700 dark:text-gray-300 text-xs font-bold cursor-pointer transition active:scale-95"
+                            >
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL EDIT CATATAN AYAT ALKITAB (TERHUBUNG KE ALKITAB DIGITAL) */}
+            {verseNoteModal && (
+                <div
+                    className="fixed inset-0 z-[140] flex items-center justify-center bg-navy-950/80 backdrop-blur-md p-4 animate-fade-in"
+                    onClick={() => setVerseNoteModal(null)}
+                >
+                    <div
+                        className="rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl animate-scale-up border-2 border-gold-400/50 bg-white dark:bg-navy-900 flex flex-col space-y-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between pb-2 border-b border-navy-100 dark:border-navy-800">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 dark:text-gold-400 flex items-center justify-center">
+                                    <Edit3 className="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <h3 className="font-black text-navy-900 dark:text-white text-sm sm:text-base">
+                                        Catatan Ayat: {verseNoteModal.verseLabel}
+                                    </h3>
+                                    <p className="text-[10px] text-gold-600 dark:text-gold-400 font-bold uppercase tracking-wider">
+                                        Tersinkronisasi ke Alkitab Digital
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setVerseNoteModal(null)}
+                                className="p-1 rounded-lg text-navy-400 hover:text-navy-700 dark:hover:text-white cursor-pointer"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {verseNoteModal.verseSnippet && (
+                            <div className="p-3 rounded-xl bg-navy-50/70 dark:bg-navy-950/70 border border-navy-100 dark:border-navy-800 text-xs italic text-navy-700 dark:text-gray-300 max-h-24 overflow-y-auto">
+                                "{verseNoteModal.verseSnippet}"
+                            </div>
+                        )}
+
+                        {/* Pilihan Warna Stabilo */}
+                        <div>
+                            <label className="text-xs font-bold text-navy-700 dark:text-gray-300 block mb-1.5">
+                                Warna Stabilo Ayat:
+                            </label>
+                            <div className="flex items-center gap-2">
+                                {Object.values(SS_HIGHLIGHT_PALETTE).map(pal => (
+                                    <button
+                                        key={pal.id}
+                                        type="button"
+                                        onClick={() => setVerseNoteModal(prev => ({ ...prev, color: pal.id }))}
+                                        className={`w-7 h-7 rounded-full border-2 ${pal.dotClass} flex items-center justify-center transition cursor-pointer ${
+                                            verseNoteModal.color === pal.id ? "scale-115 ring-2 ring-gold-400 shadow-md" : "opacity-70 hover:opacity-100"
+                                        }`}
+                                        title={pal.label}
+                                    >
+                                        {verseNoteModal.color === pal.id && <Check className="w-3.5 h-3.5 text-navy-950" />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Input Catatan */}
+                        <div>
+                            <label className="text-xs font-bold text-navy-700 dark:text-gray-300 block mb-1.5">
+                                Isi Catatan Pribadi:
+                            </label>
+                            <textarea
+                                rows={4}
+                                value={verseNoteModal.noteText}
+                                onChange={(e) => setVerseNoteModal(prev => ({ ...prev, noteText: e.target.value }))}
+                                placeholder="Tuliskan pemahaman, penjelasan, atau perenungan rohani Anda pada ayat ini..."
+                                className="w-full p-3.5 rounded-xl bg-navy-50 dark:bg-navy-950 border border-navy-200 dark:border-navy-700 text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500"
+                            />
+                        </div>
+
+                        {/* Tombol Aksi */}
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-navy-100 dark:border-navy-800">
+                            {verseNoteModal.existing ? (
+                                <button
+                                    type="button"
+                                    onClick={() => handleDeleteVerseNote(verseNoteModal.key)}
+                                    className="px-3 py-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Hapus Catatan</span>
+                                </button>
+                            ) : (
+                                <div></div>
+                            )}
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setVerseNoteModal(null)}
+                                    className="px-3 py-2 rounded-xl bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 text-navy-700 dark:text-gray-300 text-xs font-bold cursor-pointer"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleSaveVerseNote}
+                                    className="px-4 py-2 rounded-xl bg-[#4A7045] dark:bg-gold-500 hover:bg-[#385634] dark:hover:bg-gold-600 text-white dark:text-navy-950 text-xs font-black shadow-sm transition cursor-pointer"
+                                >
+                                    Simpan ke Alkitab
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL KOLEKSI "CATATAN SAYA" LENGKAP */}
+            {isNotesCollectionOpen && (
+                <div
+                    className="fixed inset-0 z-[130] flex items-center justify-center bg-navy-950/75 backdrop-blur-md p-3 sm:p-5 animate-fade-in"
+                    onClick={() => setIsNotesCollectionOpen(false)}
+                >
+                    <div
+                        className="rounded-3xl max-w-2xl w-full max-h-[90vh] bg-white dark:bg-navy-900 border-2 border-navy-100 dark:border-navy-700 shadow-2xl flex flex-col overflow-hidden animate-scale-up"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header Modal Koleksi */}
+                        <div className="p-4 sm:p-5 border-b border-navy-100 dark:border-navy-800 flex items-center justify-between gap-3 shrink-0 bg-navy-50/50 dark:bg-navy-950/50">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-gold-400 flex items-center justify-center shrink-0">
+                                    <FileText className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base sm:text-lg font-black text-navy-900 dark:text-white leading-tight">
+                                        Koleksi Catatan Saya
+                                    </h3>
+                                    <p className="text-[11px] text-navy-500 dark:text-gray-400 font-medium">
+                                        Sekolah Sabat & Ayat Alkitab Tersimpan ({totalNotesCount} Catatan)
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setIsNotesCollectionOpen(false)}
+                                className="p-2 rounded-xl text-navy-400 hover:text-navy-700 dark:hover:text-white hover:bg-navy-100 dark:hover:bg-navy-800 cursor-pointer"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Search Bar & Tab Navigasi */}
+                        <div className="p-3 sm:p-4 border-b border-navy-100 dark:border-navy-800 space-y-3 shrink-0">
+                            {/* Search Input */}
+                            <div className="relative">
+                                <Search className="w-4 h-4 text-navy-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                                <input
+                                    type="text"
+                                    value={notesSearchQuery}
+                                    onChange={(e) => setNotesSearchQuery(e.target.value)}
+                                    placeholder="Cari catatan, kata kunci, judul pelajaran, atau kitab/ayat..."
+                                    className="w-full pl-10 pr-4 py-2 rounded-xl bg-navy-50 dark:bg-navy-950 border border-navy-200 dark:border-navy-700 text-xs sm:text-sm text-navy-900 dark:text-white placeholder:text-navy-400 focus:outline-none focus:ring-2 focus:ring-[#4A7045] dark:focus:ring-gold-500"
+                                />
+                                {notesSearchQuery && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setNotesSearchQuery("")}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 hover:text-navy-700 cursor-pointer"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Tabs */}
+                            <div className="flex items-center gap-1.5 p-1 bg-navy-100 dark:bg-navy-950 rounded-xl">
+                                <button
+                                    type="button"
+                                    onClick={() => setNotesActiveTab("daily")}
+                                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                                        notesActiveTab === "daily"
+                                            ? "bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-xs font-black"
+                                            : "text-navy-600 dark:text-gray-400 hover:text-navy-900"
+                                    }`}
+                                >
+                                    <FileText className="w-3.5 h-3.5" />
+                                    <span>Catatan Pelajaran ({filteredDailyNotes.length})</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setNotesActiveTab("verses")}
+                                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                                        notesActiveTab === "verses"
+                                            ? "bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-xs font-black"
+                                            : "text-navy-600 dark:text-gray-400 hover:text-navy-900"
+                                    }`}
+                                >
+                                    <Bookmark className="w-3.5 h-3.5" />
+                                    <span>Catatan Ayat Alkitab ({filteredVerseNotes.length})</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* List Isi Catatan (Scrollable) */}
+                        <div className="p-3 sm:p-5 overflow-y-auto flex-1 space-y-3.5">
+                            {notesActiveTab === "daily" ? (
+                                filteredDailyNotes.length === 0 ? (
+                                    <div className="p-8 text-center space-y-2 text-navy-500 dark:text-gray-400">
+                                        <FileText className="w-10 h-10 mx-auto text-navy-300 dark:text-navy-600" />
+                                        <p className="font-bold text-sm">
+                                            {notesSearchQuery ? "Tidak ditemukan catatan yang sesuai pencarian." : "Belum ada catatan refleksi harian tersimpan."}
+                                        </p>
+                                        <p className="text-xs">
+                                            Anda dapat menuliskan refleksi atau jawaban diskusi di bagian bawah bacaan pelajaran harian.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    filteredDailyNotes.map(item => (
+                                        <div
+                                            key={item.id}
+                                            className="p-4 rounded-2xl bg-navy-50/70 dark:bg-navy-800/70 border border-navy-100 dark:border-navy-700/80 space-y-2.5 transition hover:shadow-sm"
+                                        >
+                                            <div className="flex items-center justify-between gap-2 flex-wrap border-b border-navy-100 dark:border-navy-700/60 pb-2">
+                                                <div>
+                                                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-gold-400">
+                                                        {item.lessonTitle || `Pelajaran ${item.lessonId}`}
+                                                    </span>
+                                                    <h4 className="text-sm font-black text-navy-900 dark:text-white">
+                                                        {item.dayLabel}: {item.dayTitle}
+                                                    </h4>
+                                                    {item.date && (
+                                                        <span className="text-[10.5px] text-navy-500 dark:text-gray-400 font-medium">
+                                                            🗓 {item.date}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleJumpToLessonDay(item.lessonId, item.dayIdx)}
+                                                    className="px-3 py-1 text-xs font-bold rounded-xl bg-[#4A7045] dark:bg-gold-500 hover:bg-[#385634] text-white dark:text-navy-950 transition flex items-center gap-1 cursor-pointer active:scale-95"
+                                                >
+                                                    <span>Buka Pelajaran</span>
+                                                    <ChevronRight className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+
+                                            <p className="text-xs sm:text-sm text-navy-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
+                                                {item.content}
+                                            </p>
+
+                                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-navy-100/80 dark:border-navy-700/40 text-xs">
+                                                <span className="text-[10px] text-navy-400 dark:text-gray-500">
+                                                    Diperbarui: {new Date(item.updatedAt || Date.now()).toLocaleDateString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                                                </span>
+                                                <div className="flex items-center gap-1.5">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(item.content);
+                                                            setNoteCopiedToast(true);
+                                                            setTimeout(() => setNoteCopiedToast(false), 2000);
+                                                        }}
+                                                        className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-navy-700 dark:text-gray-300 font-bold flex items-center gap-1 cursor-pointer hover:bg-navy-50"
+                                                        title="Salin catatan"
+                                                    >
+                                                        <Copy className="w-3 h-3" />
+                                                        <span>Salin</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const msg = `*CATATAN SEKOLAH SABAT*\n📖 *${item.lessonTitle}*\n🗓️ *${item.dayLabel}:* ${item.dayTitle}\n\n✍️ *Refleksi:* \n${item.content}\n\n_Aplikasi Jemaat Pisgah Batam_`;
+                                                            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+                                                        }}
+                                                        className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold flex items-center gap-1 cursor-pointer hover:bg-emerald-700"
+                                                        title="Bagikan ke WhatsApp"
+                                                    >
+                                                        <Share2 className="w-3 h-3" />
+                                                        <span>WA</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (window.confirm("Hapus catatan ini?")) {
+                                                                const next = { ...dailyNotes };
+                                                                delete next[item.id];
+                                                                setDailyNotes(next);
+                                                                localStorage.setItem("PISGAH_SS_DAILY_NOTES", JSON.stringify(next));
+                                                            }
+                                                        }}
+                                                        className="p-1 rounded-lg text-navy-400 hover:text-red-500 cursor-pointer"
+                                                        title="Hapus"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )
+                            ) : (
+                                filteredVerseNotes.length === 0 ? (
+                                    <div className="p-8 text-center space-y-2 text-navy-500 dark:text-gray-400">
+                                        <Bookmark className="w-10 h-10 mx-auto text-navy-300 dark:text-navy-600" />
+                                        <p className="font-bold text-sm">
+                                            {notesSearchQuery ? "Tidak ditemukan catatan ayat yang sesuai pencarian." : "Belum ada catatan pada ayat Alkitab."}
+                                        </p>
+                                        <p className="text-xs">
+                                            Saat membaca Sekolah Sabat, klik tautan ayat Alkitab lalu ketuk tombol "Catatan" untuk menyimpan perenungan firman Tuhan.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    filteredVerseNotes.map(item => {
+                                        const pal = SS_HIGHLIGHT_PALETTE[item.color] || SS_HIGHLIGHT_PALETTE.gold;
+                                        return (
+                                            <div
+                                                key={item.key}
+                                                className={`p-4 rounded-2xl bg-white dark:bg-navy-800 border space-y-2.5 transition ${pal.verseBg}`}
+                                            >
+                                                <div className="flex items-center justify-between gap-2 border-b border-navy-100 dark:border-navy-700/60 pb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`w-2.5 h-2.5 rounded-full ${pal.dotClass}`} />
+                                                        <h4 className="text-sm font-black text-navy-950 dark:text-white">
+                                                            {item.bookName} {item.chapter}:{item.ayat}
+                                                        </h4>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleJumpToBibleVerse(item)}
+                                                        className="px-3 py-1 text-xs font-bold rounded-xl bg-gold-500 hover:bg-gold-600 text-navy-950 transition flex items-center gap-1 cursor-pointer active:scale-95"
+                                                    >
+                                                        <BookOpen className="w-3.5 h-3.5" />
+                                                        <span>Buka di Alkitab</span>
+                                                    </button>
+                                                </div>
+
+                                                {item.teks && (
+                                                    <p className="text-xs text-navy-700 dark:text-gray-300 italic">
+                                                        "{item.teks}"
+                                                    </p>
+                                                )}
+
+                                                <div className="p-2.5 rounded-xl bg-white/90 dark:bg-navy-900/90 border border-navy-200/60 dark:border-navy-700 text-xs text-navy-900 dark:text-white whitespace-pre-wrap leading-relaxed font-medium">
+                                                    <span className="font-extrabold text-[10px] uppercase text-amber-700 dark:text-gold-400 block mb-0.5">
+                                                        📝 Catatan Pribadi:
+                                                    </span>
+                                                    {item.note}
+                                                </div>
+
+                                                <div className="flex items-center justify-between gap-2 pt-1 text-xs">
+                                                    <span className="text-[10px] text-navy-400 dark:text-gray-500">
+                                                        Diperbarui: {new Date(item.updatedAt || Date.now()).toLocaleDateString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                                                    </span>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCopyVerseNote(item)}
+                                                            className="px-2.5 py-1 rounded-lg bg-white dark:bg-navy-900 border border-navy-200 dark:border-navy-700 text-navy-700 dark:text-gray-300 font-bold flex items-center gap-1 cursor-pointer hover:bg-navy-50"
+                                                        >
+                                                            <Copy className="w-3 h-3" />
+                                                            <span>Salin</span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleShareVerseNoteWA(item)}
+                                                            className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold flex items-center gap-1 cursor-pointer hover:bg-emerald-700"
+                                                        >
+                                                            <Share2 className="w-3 h-3" />
+                                                            <span>WA</span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeleteVerseNote(item.key)}
+                                                            className="p-1 rounded-lg text-navy-400 hover:text-red-500 cursor-pointer"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )
+                            )}
+                        </div>
+
+                        {/* Footer Modal Koleksi */}
+                        <div className="p-3 sm:p-4 border-t border-navy-100 dark:border-navy-800 bg-navy-50/50 dark:bg-navy-950/50 flex items-center justify-between shrink-0">
+                            <span className="text-[11px] text-navy-500 dark:text-gray-400 font-medium">
+                                💡 Catatan tersimpan secara lokal di perangkat Anda (Offline & Aman)
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setIsNotesCollectionOpen(false)}
+                                className="px-4 py-2 rounded-xl bg-navy-200 dark:bg-navy-800 text-navy-800 dark:text-white text-xs font-bold cursor-pointer hover:bg-navy-300"
                             >
                                 Tutup
                             </button>
