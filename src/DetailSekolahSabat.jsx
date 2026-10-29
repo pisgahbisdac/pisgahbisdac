@@ -714,16 +714,311 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         return currentCatalogItem?.cover || lessonData?.cover || `https://sabbath-school.adventech.io/api/v1/images/global/2026-04/${selectedLessonId}/cover.png`;
     }, [currentCatalogItem, lessonData, selectedLessonId]);
 
-    // --- INTEGRASI SISTEM CATATAN SEKOLAH SABAT & ALKITAB DIGITAL ---
-    // 1. Catatan Refleksi Harian (Pribadi Jemaat)
-    const [dailyNotes, setDailyNotes] = useState(() => {
+    // --- INTEGRASI SISTEM CATATAN SEKOLAH SABAT PADA KALIMAT (INLINE PINNED NOTES) ---
+    const [inlineNotes, setInlineNotes] = useState(() => {
         try {
-            const raw = localStorage.getItem("PISGAH_SS_DAILY_NOTES");
-            return raw ? JSON.parse(raw) : {};
+            const raw = localStorage.getItem("PISGAH_SS_INLINE_NOTES");
+            let list = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(list)) list = [];
+
+            // Migrasi otomatis catatan harian lama dari PISGAH_SS_DAILY_NOTES (agar tidak ada catatan jemaat yang hilang)
+            const dailyRaw = localStorage.getItem("PISGAH_SS_DAILY_NOTES");
+            if (dailyRaw) {
+                const dailyObj = JSON.parse(dailyRaw);
+                let changed = false;
+                Object.values(dailyObj).forEach(dn => {
+                    if (dn && dn.content && dn.content.trim()) {
+                        const alreadyExists = list.some(n => n.id === dn.id || (n.lessonId === dn.lessonId && n.dayIdx === dn.dayIdx && n.content === dn.content));
+                        if (!alreadyExists) {
+                            list.push({
+                                id: dn.id || `migrated_${dn.lessonId}_${dn.dayIdx}`,
+                                lessonId: dn.lessonId || "05",
+                                lessonTitle: dn.lessonTitle || "Sekolah Sabat",
+                                dayIdx: dn.dayIdx ?? 0,
+                                dayLabel: dn.dayLabel || "Sabat Petang",
+                                dayTitle: dn.dayTitle || "",
+                                date: dn.date || "",
+                                blockIdx: 0,
+                                selectedText: dn.dayTitle ? `Refleksi: ${dn.dayTitle}` : "Refleksi Harian",
+                                content: dn.content,
+                                color: "gold",
+                                createdAt: dn.updatedAt || Date.now(),
+                                updatedAt: dn.updatedAt || Date.now()
+                            });
+                            changed = true;
+                        }
+                    }
+                });
+                if (changed) {
+                    localStorage.setItem("PISGAH_SS_INLINE_NOTES", JSON.stringify(list));
+                }
+            }
+
+            return list;
         } catch (e) {
-            return {};
+            return [];
         }
     });
+
+    const saveInlineNotesToStorage = (nextList) => {
+        setInlineNotes(nextList);
+        try {
+            localStorage.setItem("PISGAH_SS_INLINE_NOTES", JSON.stringify(nextList));
+        } catch (e) { }
+        window.dispatchEvent(new CustomEvent("ss-inline-notes-changed", { detail: nextList }));
+    };
+
+    // Sinkronisasi catatan antar tab atau komponen
+    useEffect(() => {
+        const handleExternalUpdate = () => {
+            try {
+                const raw = localStorage.getItem("PISGAH_SS_INLINE_NOTES");
+                if (raw) setInlineNotes(JSON.parse(raw));
+            } catch (e) { }
+        };
+        window.addEventListener("ss-inline-notes-changed", handleExternalUpdate);
+        window.addEventListener("storage", handleExternalUpdate);
+        return () => {
+            window.removeEventListener("ss-inline-notes-changed", handleExternalUpdate);
+            window.removeEventListener("storage", handleExternalUpdate);
+        };
+    }, []);
+
+    // State & Ref untuk Modal Catatan Inline & Floating Toolbar Seleksi
+    const [inlineNoteModal, setInlineNoteModal] = useState(null); // { mode: 'create'|'edit', id, blockIdx, selectedText, content, color, createdAt }
+    const [selectionToolbar, setSelectionToolbar] = useState(null); // { text, blockIdx, top, left }
+    const readerRef = useRef(null);
+    const selectionToolbarRef = useRef(null);
+    const [noteCopiedToast, setNoteCopiedToast] = useState(false);
+
+    // Parsing blok HTML pelajaran harian (Paragraf, Heading, Blockquote)
+    const parsedBlocks = useMemo(() => {
+        if (!currentDay || !currentDay.content) return [];
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(currentDay.content, "text/html");
+            const nodes = Array.from(doc.body.childNodes).filter(n => {
+                if (n.nodeType === Node.TEXT_NODE) return n.textContent.trim().length > 0;
+                return n.nodeType === Node.ELEMENT_NODE;
+            });
+
+            if (nodes.length === 0) {
+                return [{
+                    id: "b_0",
+                    idx: 0,
+                    html: currentDay.content,
+                    text: ""
+                }];
+            }
+
+            return nodes.map((node, idx) => {
+                const isEl = node.nodeType === Node.ELEMENT_NODE;
+                const html = isEl ? node.outerHTML : `<p>${node.textContent}</p>`;
+                const text = (node.textContent || "").trim();
+                return {
+                    id: `b_${idx}`,
+                    idx,
+                    html,
+                    text
+                };
+            });
+        } catch (e) {
+            return [{
+                id: "b_0",
+                idx: 0,
+                html: currentDay.content || "",
+                text: ""
+            }];
+        }
+    }, [currentDay]);
+
+    // Mengambil catatan yang tersemat pada blok/paragraf tertentu
+    const getNotesForBlock = (bIdx, blockText) => {
+        return inlineNotes.filter(n => {
+            if (n.lessonId !== selectedLessonId || n.dayIdx !== selectedDayIdx) return false;
+            if (n.blockIdx === bIdx) return true;
+            if (n.selectedText && blockText && blockText.includes(n.selectedText.slice(0, 30))) {
+                return true;
+            }
+            return false;
+        });
+    };
+
+    // Catatan hari ini yang tidak terikat ke blok spesifik (misal hasil migrasi)
+    const unmatchedDayNotes = useMemo(() => {
+        return inlineNotes.filter(n => {
+            if (n.lessonId !== selectedLessonId || n.dayIdx !== selectedDayIdx) return false;
+            const matched = parsedBlocks.some((b, bIdx) => n.blockIdx === bIdx || (n.selectedText && b.text.includes(n.selectedText.slice(0, 30))));
+            return !matched;
+        });
+    }, [inlineNotes, selectedLessonId, selectedDayIdx, parsedBlocks]);
+
+    // Menghitung jumlah catatan tersemat hari ini
+    const dayInlineNotesCount = useMemo(() => {
+        return inlineNotes.filter(n => n.lessonId === selectedLessonId && n.dayIdx === selectedDayIdx).length;
+    }, [inlineNotes, selectedLessonId, selectedDayIdx]);
+
+    // Fungsi highlight kalimat tersemat dalam HTML paragraf
+    const renderBlockHtml = (block, blockNotes) => {
+        let html = block.html;
+        if (!blockNotes || blockNotes.length === 0) return html;
+
+        blockNotes.forEach(note => {
+            if (!note.selectedText) return;
+            const target = note.selectedText.trim();
+            if (target.length < 3) return;
+            const pal = SS_HIGHLIGHT_PALETTE[note.color] || SS_HIGHLIGHT_PALETTE.gold;
+
+            const searchSample = target.length > 60 ? target.slice(0, 60) : target;
+            const escaped = searchSample.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            try {
+                const regex = new RegExp(`(${escaped})`, 'i');
+                if (regex.test(html) && !html.includes(`data-note-id="${note.id}"`)) {
+                    html = html.replace(regex, `<mark class="ss-inline-mark px-1.5 py-0.5 rounded-md font-bold ${pal.chipBg} border-b-2 border-gold-500 cursor-pointer shadow-2xs transition inline-flex items-center gap-1" data-note-id="${note.id}" title="Klik untuk menuju ke catatan tersemat">$1<span class="text-[11px] pointer-events-none">📌</span></mark>`);
+                }
+            } catch (e) { }
+        });
+
+        return html;
+    };
+
+    // Listener seleksi teks pembaca untuk floating toolbar
+    const handleCheckSelection = () => {
+        setTimeout(() => {
+            const sel = window.getSelection();
+            if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+            const text = sel.toString().trim();
+            if (text.length < 3) return;
+
+            if (readerRef.current && readerRef.current.contains(sel.anchorNode)) {
+                const range = sel.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    let foundBlockIdx = 0;
+                    let node = sel.anchorNode;
+                    while (node && node !== readerRef.current) {
+                        if (node.getAttribute && node.getAttribute('data-block-idx') !== null) {
+                            foundBlockIdx = parseInt(node.getAttribute('data-block-idx'), 10);
+                            break;
+                        }
+                        node = node.parentNode;
+                    }
+
+                    setSelectionToolbar({
+                        text,
+                        blockIdx: foundBlockIdx,
+                        top: Math.max(70, rect.top - 54),
+                        left: Math.max(20, Math.min(window.innerWidth - 220, rect.left + rect.width / 2 - 100))
+                    });
+                }
+            }
+        }, 60);
+    };
+
+    // Auto-dismiss floating toolbar saat klik di luar
+    useEffect(() => {
+        const handleDocClick = (e) => {
+            if (selectionToolbarRef.current && selectionToolbarRef.current.contains(e.target)) return;
+            setTimeout(() => {
+                const sel = window.getSelection();
+                if (!sel || sel.isCollapsed) {
+                    setSelectionToolbar(null);
+                }
+            }, 100);
+        };
+        document.addEventListener("mousedown", handleDocClick);
+        document.addEventListener("touchstart", handleDocClick);
+        return () => {
+            document.removeEventListener("mousedown", handleDocClick);
+            document.removeEventListener("touchstart", handleDocClick);
+        };
+    }, []);
+
+    // Aksi-aksi catatan inline
+    const handleSaveInlineNote = (e) => {
+        if (e) e.preventDefault();
+        if (!inlineNoteModal || !inlineNoteModal.content.trim()) return;
+
+        const isEdit = inlineNoteModal.mode === 'edit';
+        const dayTab = SS_DAY_TABS[selectedDayIdx] || { label: "Pelajaran" };
+        const noteObj = {
+            id: isEdit ? inlineNoteModal.id : `sn_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            lessonId: selectedLessonId,
+            lessonTitle: currentCatalogItem?.title || `Pelajaran ${parseInt(selectedLessonId, 10)}`,
+            dayIdx: selectedDayIdx,
+            dayLabel: dayTab.label,
+            dayTitle: currentDay?.title || dayTab.label,
+            date: currentDay?.date || currentCatalogItem?.dateRange || "",
+            blockIdx: inlineNoteModal.blockIdx ?? 0,
+            selectedText: (inlineNoteModal.selectedText || "").trim(),
+            content: inlineNoteModal.content.trim(),
+            color: inlineNoteModal.color || 'gold',
+            createdAt: isEdit ? (inlineNoteModal.createdAt || Date.now()) : Date.now(),
+            updatedAt: Date.now()
+        };
+
+        let nextList = [...inlineNotes];
+        if (isEdit) {
+            nextList = nextList.map(n => n.id === noteObj.id ? noteObj : n);
+        } else {
+            nextList.push(noteObj);
+        }
+
+        saveInlineNotesToStorage(nextList);
+        setInlineNoteModal(null);
+    };
+
+    const handleDeleteInlineNote = (id) => {
+        if (window.confirm("Hapus catatan tersemat ini?")) {
+            const nextList = inlineNotes.filter(n => n.id !== id);
+            saveInlineNotesToStorage(nextList);
+            if (inlineNoteModal?.id === id) {
+                setInlineNoteModal(null);
+            }
+        }
+    };
+
+    const handleOpenEditInlineNote = (note) => {
+        setInlineNoteModal({
+            mode: 'edit',
+            id: note.id,
+            blockIdx: note.blockIdx,
+            selectedText: note.selectedText,
+            content: note.content,
+            color: note.color || 'gold',
+            createdAt: note.createdAt
+        });
+    };
+
+    const handleCopyInlineNote = async (note) => {
+        const text = `${note.selectedText ? `"${note.selectedText}"\n\n` : ''}Catatan: ${note.content}`;
+        try {
+            await navigator.clipboard.writeText(text);
+            setNoteCopiedToast(true);
+            setTimeout(() => setNoteCopiedToast(false), 2000);
+        } catch (e) { }
+    };
+
+    const handleShareInlineNoteWA = (note) => {
+        const lessonTitle = note.lessonTitle || currentCatalogItem?.title || `Pelajaran ${parseInt(note.lessonId, 10)}`;
+        const msg = `*CATATAN SEKOLAH SABAT*\n` +
+            `📖 *Pelajaran ${parseInt(note.lessonId, 10)}:* ${lessonTitle}\n` +
+            `🗓️ *${note.dayLabel}* (${note.date || ''}): ${note.dayTitle || ''}\n\n` +
+            (note.selectedText ? `📌 *Kalimat:* \n"${note.selectedText}"\n\n` : '') +
+            `✍️ *Catatan Saya:* \n${note.content.trim()}\n\n` +
+            `_Aplikasi Jemaat Pisgah Batam_`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    const handleOpenAddNoteForBlock = (block) => {
+        setInlineNoteModal({
+            mode: 'create',
+            blockIdx: block.idx,
+            selectedText: block.text.slice(0, 180).trim() + (block.text.length > 180 ? '...' : ''),
+            content: '',
+            color: 'gold'
+        });
+    };
 
     // 2. Catatan & Stabilo Ayat Alkitab (Sinkron 2-Arah dengan Alkitab Digital)
     const [highlightsMap, setHighlightsMap] = useState(() => {
@@ -750,96 +1045,6 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             window.removeEventListener("storage", handleExternalUpdate);
         };
     }, []);
-
-    // Kunci catatan hari ini: `${selectedLessonId}_${selectedDayIdx}`
-    const currentDayNoteKey = `${selectedLessonId}_${selectedDayIdx}`;
-    const [currentDayNoteText, setCurrentDayNoteText] = useState("");
-    const [dailyNoteSaveStatus, setDailyNoteSaveStatus] = useState("idle"); // 'idle' | 'saving' | 'saved'
-    const [noteCopiedToast, setNoteCopiedToast] = useState(false);
-
-    // Sinkronisasi teks catatan saat pelajaran atau hari berpindah
-    useEffect(() => {
-        const saved = dailyNotes[currentDayNoteKey]?.content || "";
-        setCurrentDayNoteText(saved);
-        setDailyNoteSaveStatus("idle");
-    }, [currentDayNoteKey, dailyNotes]);
-
-    // Fungsi simpan catatan harian
-    const persistDailyNote = (newText) => {
-        const trimmed = newText.trim();
-        const nextDailyNotes = { ...dailyNotes };
-        if (!trimmed) {
-            delete nextDailyNotes[currentDayNoteKey];
-        } else {
-            const dayTab = SS_DAY_TABS[selectedDayIdx] || { label: "Pelajaran" };
-            nextDailyNotes[currentDayNoteKey] = {
-                id: currentDayNoteKey,
-                lessonId: selectedLessonId,
-                lessonTitle: currentCatalogItem?.title || `Pelajaran ${parseInt(selectedLessonId, 10)}`,
-                dayIdx: selectedDayIdx,
-                dayLabel: dayTab.label,
-                dayTitle: currentDay?.title || dayTab.label,
-                date: currentDay?.date || currentCatalogItem?.dateRange || "",
-                content: trimmed,
-                updatedAt: Date.now()
-            };
-        }
-        setDailyNotes(nextDailyNotes);
-        try {
-            localStorage.setItem("PISGAH_SS_DAILY_NOTES", JSON.stringify(nextDailyNotes));
-        } catch (e) { }
-        setDailyNoteSaveStatus("saved");
-    };
-
-    // Auto-save debounce (600ms) untuk catatan harian
-    useEffect(() => {
-        const existing = dailyNotes[currentDayNoteKey]?.content || "";
-        if (currentDayNoteText === existing) return;
-        setDailyNoteSaveStatus("saving");
-        const timer = setTimeout(() => {
-            persistDailyNote(currentDayNoteText);
-        }, 600);
-        return () => clearTimeout(timer);
-    }, [currentDayNoteText]);
-
-    const handleDailyNoteChange = (e) => {
-        setCurrentDayNoteText(e.target.value);
-    };
-
-    const handleDeleteDailyNote = () => {
-        if (window.confirm("Hapus catatan refleksi untuk hari ini?")) {
-            setCurrentDayNoteText("");
-            const nextDailyNotes = { ...dailyNotes };
-            delete nextDailyNotes[currentDayNoteKey];
-            setDailyNotes(nextDailyNotes);
-            try {
-                localStorage.setItem("PISGAH_SS_DAILY_NOTES", JSON.stringify(nextDailyNotes));
-            } catch (e) { }
-            setDailyNoteSaveStatus("idle");
-        }
-    };
-
-    const handleCopyDailyNote = async () => {
-        if (!currentDayNoteText.trim()) return;
-        try {
-            await navigator.clipboard.writeText(currentDayNoteText.trim());
-            setNoteCopiedToast(true);
-            setTimeout(() => setNoteCopiedToast(false), 2000);
-        } catch (e) { }
-    };
-
-    const handleShareDailyNoteWA = () => {
-        if (!currentDayNoteText.trim()) return;
-        const dayLabel = SS_DAY_TABS[selectedDayIdx]?.label || "Pelajaran";
-        const lessonTitle = currentCatalogItem?.title || `Pelajaran ${parseInt(selectedLessonId, 10)}`;
-        const dateStr = currentDay?.date || "";
-        const msg = `*CATATAN SEKOLAH SABAT*\n` +
-            `📖 *Pelajaran ${parseInt(selectedLessonId, 10)}:* ${lessonTitle}\n` +
-            `🗓️ *${dayLabel}* ${dateStr ? `(${dateStr})` : ""}: ${currentDay?.title || ""}\n\n` +
-            `✍️ *Refleksi & Jawaban:* \n${currentDayNoteText.trim()}\n\n` +
-            `_Aplikasi Jemaat Pisgah Batam_`;
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
-    };
 
     // Modal Edit Catatan Per-Ayat Alkitab
     const [verseNoteModal, setVerseNoteModal] = useState(null);
@@ -956,8 +1161,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const [notesSearchQuery, setNotesSearchQuery] = useState("");
 
     const dailyNotesList = useMemo(() => {
-        return Object.values(dailyNotes).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-    }, [dailyNotes]);
+        return [...inlineNotes].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    }, [inlineNotes]);
 
     const verseNotesList = useMemo(() => {
         return Object.values(highlightsMap)
@@ -974,6 +1179,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             (n.lessonTitle && n.lessonTitle.toLowerCase().includes(q)) ||
             (n.dayLabel && n.dayLabel.toLowerCase().includes(q)) ||
             (n.dayTitle && n.dayTitle.toLowerCase().includes(q)) ||
+            (n.selectedText && n.selectedText.toLowerCase().includes(q)) ||
             (n.content && n.content.toLowerCase().includes(q))
         );
     }, [dailyNotesList, notesSearchQuery]);
@@ -989,11 +1195,22 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         );
     }, [verseNotesList, notesSearchQuery]);
 
-    const handleJumpToLessonDay = (lessonId, dayIdx) => {
+    const handleJumpToLessonDay = (lessonId, dayIdx, noteId) => {
         setSelectedLessonId(lessonId);
         setSelectedDayIdx(dayIdx);
         setIsNotesCollectionOpen(false);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (noteId) {
+            setTimeout(() => {
+                const targetCard = document.getElementById(`note-${noteId}`);
+                if (targetCard) {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetCard.classList.add("ring-4", "ring-gold-400", "scale-[1.02]");
+                    setTimeout(() => targetCard.classList.remove("ring-4", "ring-gold-400", "scale-[1.02]"), 1500);
+                }
+            }, 300);
+        } else {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
     };
 
     const handleJumpToBibleVerse = (item) => {
@@ -1027,8 +1244,25 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    // Handler klik ayat di dalam konten HTML
+    // Handler klik ayat di dalam konten HTML & tanda catatan kalimat tersemat
     const handleContentClick = async (e) => {
+        // Handler klik tanda catatan tersemat pada kalimat
+        const markEl = e.target.closest("mark[data-note-id]");
+        if (markEl) {
+            e.preventDefault();
+            e.stopPropagation();
+            const noteId = markEl.getAttribute("data-note-id");
+            const targetCard = document.getElementById(`note-${noteId}`);
+            if (targetCard) {
+                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetCard.classList.add("ring-4", "ring-gold-400", "scale-[1.02]");
+                setTimeout(() => {
+                    targetCard.classList.remove("ring-4", "ring-gold-400", "scale-[1.02]");
+                }, 1500);
+            }
+            return;
+        }
+
         const anchor = e.target.closest("a.verse");
         if (anchor) {
             e.preventDefault();
@@ -1370,6 +1604,16 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 .ss-reader-body i {
                     font-style: italic;
                 }
+                /* Sorotan Kalimat Tersemat Catatan */
+                .ss-reader-body mark.ss-inline-mark {
+                    cursor: pointer;
+                    text-decoration: none;
+                    transition: all 0.2s ease-in-out;
+                }
+                .ss-reader-body mark.ss-inline-mark:hover {
+                    filter: brightness(0.95);
+                    transform: translateY(-1px);
+                }
                 /* Tautan Ayat Alkitab Interaktif */
                 .ss-reader-body a.verse {
                     color: #2e7d32;
@@ -1474,9 +1718,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             )}
                         </div>
                         <ChevronDown
-                            className={`w-4 h-4 text-navy-400 dark:text-gold-400/80 shrink-0 transition-transform duration-300 ${
-                                isLessonDropdownOpen ? "rotate-180 text-gold-500" : "group-hover:text-navy-700 dark:group-hover:text-gold-300"
-                            }`}
+                            className={`w-4 h-4 text-navy-400 dark:text-gold-400/80 shrink-0 transition-transform duration-300 ${isLessonDropdownOpen ? "rotate-180 text-gold-500" : "group-hover:text-navy-700 dark:group-hover:text-gold-300"
+                                }`}
                         />
                     </button>
 
@@ -1517,21 +1760,19 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                                 setSelectedDayIdx(0);
                                                 setIsLessonDropdownOpen(false);
                                             }}
-                                            className={`w-full px-3 py-2 rounded-xl text-left transition-all flex items-center gap-2.5 cursor-pointer group ${
-                                                isSelected
+                                            className={`w-full px-3 py-2 rounded-xl text-left transition-all flex items-center gap-2.5 cursor-pointer group ${isSelected
                                                     ? "bg-gradient-to-r from-gold-500/20 via-gold-500/10 to-transparent dark:from-gold-500/25 dark:via-gold-500/15 border border-gold-500/40 text-navy-950 dark:text-gold-100 shadow-2xs font-black"
                                                     : "hover:bg-navy-50/80 dark:hover:bg-navy-900/60 border border-transparent text-navy-800 dark:text-navy-200 font-medium"
-                                            }`}
+                                                }`}
                                         >
                                             {/* Nomor Pekan */}
                                             <div
-                                                className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0 transition-colors ${
-                                                    isSelected
+                                                className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0 transition-colors ${isSelected
                                                         ? "bg-gold-500 text-white shadow-xs"
                                                         : isCurrent
-                                                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
-                                                        : "bg-navy-100/70 dark:bg-navy-800/80 text-navy-600 dark:text-navy-400 group-hover:bg-gold-500/20 group-hover:text-gold-600 dark:group-hover:text-gold-400"
-                                                }`}
+                                                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                                                            : "bg-navy-100/70 dark:bg-navy-800/80 text-navy-600 dark:text-navy-400 group-hover:bg-gold-500/20 group-hover:text-gold-600 dark:group-hover:text-gold-400"
+                                                    }`}
                                             >
                                                 {parseInt(item.id, 10)}
                                             </div>
@@ -1748,106 +1989,192 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             </div>
                         </div>
 
-                        {/* Isi Teks Pelajaran (Event Delegated Click untuk Tautan Ayat) */}
-                        <div
-                            onClick={handleContentClick}
-                            className={`ss-reader-body ${fontClass}`}
-                            dangerouslySetInnerHTML={{ __html: currentDay.content }}
-                        />
-
-                        {/* KOTAK CATATAN & REFLEKSI HARIAN JEMAAT */}
-                        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-emerald-50/80 via-white to-amber-50/40 dark:from-navy-900/90 dark:via-navy-900/90 dark:to-navy-950/90 border-2 border-emerald-600/20 dark:border-gold-500/25 shadow-sm space-y-3.5">
-                            <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-navy-100 dark:border-navy-800">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/15 dark:bg-gold-500/20 text-emerald-700 dark:text-gold-400 flex items-center justify-center shrink-0">
-                                        <FileText className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-sm sm:text-base font-black text-navy-900 dark:text-white flex items-center gap-1.5">
-                                            Catatan & Refleksi Harian
-                                        </h3>
-                                        <p className="text-[10.5px] sm:text-xs text-navy-500 dark:text-gray-400 font-medium">
-                                            Jawaban diskusi atau renungan rohani Anda untuk {SS_DAY_TABS[selectedDayIdx]?.label}.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <span className={`text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${dailyNoteSaveStatus === "saving"
-                                        ? "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300"
-                                        : currentDayNoteText.trim()
-                                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
-                                            : "bg-navy-100 text-navy-600 dark:bg-navy-800 dark:text-navy-400"
-                                        }`}>
-                                        {dailyNoteSaveStatus === "saving" ? (
-                                            <>
-                                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                                                <span>Menyimpan...</span>
-                                            </>
-                                        ) : currentDayNoteText.trim() ? (
-                                            <>
-                                                <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                                                <span>Tersimpan Otomatis</span>
-                                            </>
-                                        ) : (
-                                            <span>Belum Ada Catatan</span>
-                                        )}
+                        {/* TIP & STATUS CATATAN TERSEMAT HARI INI */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5 rounded-2xl bg-amber-500/10 dark:bg-gold-500/10 border border-amber-300/40 dark:border-gold-500/25 text-xs">
+                            <div className="flex items-center gap-1.5 text-amber-900 dark:text-gold-300 font-semibold">
+                                <span className="text-sm">💡</span>
+                                <span>Sorot (pilih) kalimat mana pun dalam bacaan untuk menyematkan catatan pribadi.</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {dayInlineNotesCount > 0 ? (
+                                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-900 dark:text-gold-200 font-black text-[11px] border border-amber-400/40 flex items-center gap-1">
+                                        <span>📌</span>
+                                        <span>{dayInlineNotesCount} Catatan Tersemat</span>
                                     </span>
+                                ) : (
+                                    <span className="text-[11px] text-navy-400 dark:text-gray-400 font-medium">
+                                        Belum ada catatan hari ini
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* ISI TEKS PELAJARAN DENGAN SOROTAN & KARTU CATATAN TERSEMAT INLINE PADA KALIMAT */}
+                        <div
+                            ref={readerRef}
+                            onMouseUp={handleCheckSelection}
+                            onTouchEnd={handleCheckSelection}
+                            className={`ss-reader-body ${fontClass} space-y-4`}
+                        >
+                            {parsedBlocks.map((block) => {
+                                const blockNotes = getNotesForBlock(block.idx, block.text);
+                                const blockHtml = renderBlockHtml(block, blockNotes);
+
+                                return (
+                                    <div key={block.id} data-block-idx={block.idx} className="relative group/block transition-all">
+                                        {/* Teks Paragraf / Heading / Blockquote */}
+                                        <div
+                                            onClick={handleContentClick}
+                                            dangerouslySetInnerHTML={{ __html: blockHtml }}
+                                        />
+
+                                        {/* Tombol Cepat Sematkan Catatan Paragraf (Hover / Focus) */}
+                                        <div className="opacity-0 group-hover/block:opacity-100 focus-within:opacity-100 transition-opacity duration-150 flex justify-end -mt-2 mb-2 pr-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleOpenAddNoteForBlock(block)}
+                                                className="px-2.5 py-1 rounded-lg bg-amber-500/15 dark:bg-gold-500/20 hover:bg-amber-500/30 text-amber-900 dark:text-gold-300 text-[11px] font-extrabold transition flex items-center gap-1.5 cursor-pointer border border-amber-400/40 dark:border-gold-500/30 shadow-2xs active:scale-95"
+                                                title="Sematkan catatan pada kalimat/paragraf ini"
+                                            >
+                                                <span>📌</span>
+                                                <span>Sematkan Catatan</span>
+                                            </button>
+                                        </div>
+
+                                        {/* KARTU CATATAN TERSEMAT SECARA INLINE TEPAT DI BAWAH KALIMAT */}
+                                        {blockNotes.length > 0 && (
+                                            <div className="space-y-2.5 my-3 pt-1">
+                                                {blockNotes.map((note) => {
+                                                    const pal = SS_HIGHLIGHT_PALETTE[note.color] || SS_HIGHLIGHT_PALETTE.gold;
+                                                    return (
+                                                        <div
+                                                            key={note.id}
+                                                            id={`note-${note.id}`}
+                                                            className={`p-3.5 sm:p-4 rounded-2xl ${pal.verseBg} shadow-xs space-y-2 animate-scale-up transition-all duration-300`}
+                                                        >
+                                                            <div className="flex items-center justify-between gap-2 text-xs font-bold">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="text-base">📌</span>
+                                                                    <span className="uppercase tracking-wider font-black text-[11px] text-navy-900 dark:text-white">
+                                                                        Catatan Tersemat
+                                                                    </span>
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${pal.chipBg}`}>
+                                                                        {pal.label}
+                                                                    </span>
+                                                                </div>
+                                                                <span className="text-[10px] text-navy-500 dark:text-gray-400 font-medium">
+                                                                    {new Date(note.updatedAt || note.createdAt || Date.now()).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                                                                </span>
+                                                            </div>
+
+                                                            {/* Kalimat yang Disematkan */}
+                                                            {note.selectedText && (
+                                                                <blockquote className="text-xs italic text-navy-700 dark:text-gray-300 pl-2.5 border-l-2 border-amber-500/70 dark:border-gold-400/70 py-0.5 line-clamp-3">
+                                                                    "{note.selectedText}"
+                                                                </blockquote>
+                                                            )}
+
+                                                            {/* Isi Catatan */}
+                                                            <p className="text-xs sm:text-sm font-bold text-navy-950 dark:text-white whitespace-pre-wrap leading-relaxed">
+                                                                {note.content}
+                                                            </p>
+
+                                                            {/* Tombol Aksi: Edit, Salin, WA, Hapus */}
+                                                            <div className="flex items-center justify-between pt-2 border-t border-black/5 dark:border-white/10 text-xs">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleOpenEditInlineNote(note)}
+                                                                        className="px-2.5 py-1 rounded-lg bg-white/70 dark:bg-navy-800/80 hover:bg-white dark:hover:bg-navy-700 text-navy-800 dark:text-gray-200 font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs text-[11px] active:scale-95"
+                                                                    >
+                                                                        <Edit className="w-3 h-3 text-gold-600 dark:text-gold-400" />
+                                                                        <span>Edit</span>
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleCopyInlineNote(note)}
+                                                                        className="px-2.5 py-1 rounded-lg bg-white/70 dark:bg-navy-800/80 hover:bg-white dark:hover:bg-navy-700 text-navy-800 dark:text-gray-200 font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs text-[11px] active:scale-95"
+                                                                    >
+                                                                        <Copy className="w-3 h-3 text-navy-500 dark:text-gray-400" />
+                                                                        <span>Salin</span>
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleShareInlineNoteWA(note)}
+                                                                        className="px-2.5 py-1 rounded-lg bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-800 dark:text-emerald-300 font-bold transition flex items-center gap-1 cursor-pointer shadow-2xs text-[11px] active:scale-95"
+                                                                        title="Bagikan ke WhatsApp"
+                                                                    >
+                                                                        <Share2 className="w-3 h-3" />
+                                                                        <span className="hidden sm:inline">WhatsApp</span>
+                                                                    </button>
+                                                                </div>
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleDeleteInlineNote(note.id)}
+                                                                    className="p-1 rounded-lg text-red-500 hover:bg-red-500/10 cursor-pointer transition"
+                                                                    title="Hapus Catatan Ini"
+                                                                >
+                                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+
+                            {/* Catatan yang Tidak Terikat Paragraf Spesifik (misal hasil migrasi) */}
+                            {unmatchedDayNotes.length > 0 && (
+                                <div className="space-y-2.5 my-4 pt-2 border-t border-navy-100 dark:border-navy-800">
+                                    <h4 className="text-xs font-black uppercase tracking-wider text-navy-600 dark:text-gray-400 flex items-center gap-1.5">
+                                        <span>📌</span>
+                                        <span>Catatan Tambahan Hari Ini</span>
+                                    </h4>
+                                    {unmatchedDayNotes.map((note) => {
+                                        const pal = SS_HIGHLIGHT_PALETTE[note.color] || SS_HIGHLIGHT_PALETTE.gold;
+                                        return (
+                                            <div
+                                                key={note.id}
+                                                id={`note-${note.id}`}
+                                                className={`p-3.5 sm:p-4 rounded-2xl ${pal.verseBg} shadow-xs space-y-2 animate-scale-up`}
+                                            >
+                                                <div className="flex items-center justify-between text-xs font-bold">
+                                                    <span className="uppercase tracking-wider font-black text-[11px]">
+                                                        {note.selectedText || "Catatan Hari Ini"}
+                                                    </span>
+                                                    <span className="text-[10px] text-navy-400 font-medium">
+                                                        {new Date(note.updatedAt || Date.now()).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs sm:text-sm font-bold text-navy-950 dark:text-white whitespace-pre-wrap leading-relaxed">
+                                                    {note.content}
+                                                </p>
+                                                <div className="flex items-center justify-between pt-2 border-t border-black/5 dark:border-white/10 text-xs">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleOpenEditInlineNote(note)}
+                                                        className="px-2.5 py-1 rounded-lg bg-white/70 dark:bg-navy-800/80 hover:bg-white text-navy-800 dark:text-gray-200 font-bold transition flex items-center gap-1 cursor-pointer text-[11px]"
+                                                    >
+                                                        <Edit className="w-3 h-3 text-gold-600" />
+                                                        <span>Edit</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDeleteInlineNote(note.id)}
+                                                        className="p-1 rounded-lg text-red-500 hover:bg-red-500/10 cursor-pointer transition"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                            </div>
-
-                            {/* Textarea Catatan */}
-                            <div className="relative">
-                                <textarea
-                                    value={currentDayNoteText}
-                                    onChange={handleDailyNoteChange}
-                                    placeholder="Tuliskan jawaban pertanyaan diskusi, ringkasan renungan, atau pokok doa Anda untuk pelajaran hari ini di sini..."
-                                    rows={4}
-                                    className="w-full p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-navy-950/80 border border-navy-200/80 dark:border-navy-700 text-navy-900 dark:text-gray-100 text-xs sm:text-sm leading-relaxed placeholder:text-navy-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4A7045] dark:focus:ring-gold-500 transition-all resize-y min-h-[100px]"
-                                />
-                            </div>
-
-                            {/* Toolbar Bawah Catatan */}
-                            <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
-                                <span className="text-[10.5px] text-navy-500 dark:text-gray-400 font-medium">
-                                    {currentDayNoteText.trim() ? `${currentDayNoteText.trim().split(/\s+/).length} kata • ${currentDayNoteText.length} karakter` : "Tersimpan otomatis di memori perangkat (Offline & Aman)"}
-                                </span>
-
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                    {currentDayNoteText.trim() && (
-                                        <>
-                                            <button
-                                                type="button"
-                                                onClick={handleCopyDailyNote}
-                                                className="px-2.5 py-1 rounded-xl bg-white dark:bg-navy-800 hover:bg-navy-100 dark:hover:bg-navy-700 text-navy-800 dark:text-gray-200 text-xs font-bold transition flex items-center gap-1 cursor-pointer border border-navy-200 dark:border-navy-700 shadow-2xs active:scale-95"
-                                                title="Salin isi catatan"
-                                            >
-                                                {noteCopiedToast ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-navy-500" />}
-                                                <span>{noteCopiedToast ? "Tersalin!" : "Salin"}</span>
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                onClick={handleShareDailyNoteWA}
-                                                className="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-xs active:scale-95"
-                                                title="Bagikan ke WhatsApp Kelas Sekolah Sabat"
-                                            >
-                                                <Share2 className="w-3.5 h-3.5" />
-                                                <span>Bagikan WA</span>
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                onClick={handleDeleteDailyNote}
-                                                className="p-1.5 rounded-xl text-navy-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
-                                                title="Hapus Catatan Hari Ini"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
+                            )}
                         </div>
 
                         {/* NAVIGASI HARI SEBELUMNYA / SELANJUTNYA */}
@@ -1883,6 +2210,181 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                     </div>
                 )}
             </div>
+
+            {/* FLOATING ACTION TOOLBAR SAAT TEKS/KALIMAT DISOROT (MEDIUM / KINDLE STYLE) */}
+            {selectionToolbar && (
+                <div
+                    ref={selectionToolbarRef}
+                    className="fixed z-[100] transform -translate-x-1/2 flex items-center gap-1.5 p-1 rounded-2xl bg-navy-950/92 dark:bg-navy-900/95 backdrop-blur-xl border border-gold-400/50 shadow-2xl animate-scale-up"
+                    style={{
+                        top: `${selectionToolbar.top}px`,
+                        left: `${selectionToolbar.left}px`
+                    }}
+                >
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setInlineNoteModal({
+                                mode: 'create',
+                                blockIdx: selectionToolbar.blockIdx,
+                                selectedText: selectionToolbar.text,
+                                content: '',
+                                color: 'gold'
+                            });
+                            setSelectionToolbar(null);
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-gold-500 hover:from-amber-600 hover:to-gold-600 text-navy-950 font-black text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition active:scale-95"
+                    >
+                        <span>📌</span>
+                        <span>Sematkan Catatan</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={async () => {
+                            try {
+                                await navigator.clipboard.writeText(selectionToolbar.text);
+                                setNoteCopiedToast(true);
+                                setTimeout(() => setNoteCopiedToast(false), 2000);
+                            } catch (e) { }
+                            setSelectionToolbar(null);
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl hover:bg-white/10 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition active:scale-95"
+                        title="Salin Kalimat"
+                    >
+                        <Copy className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Salin</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setSelectionToolbar(null)}
+                        className="p-1 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white cursor-pointer"
+                        title="Tutup"
+                    >
+                        <X className="w-3.5 h-3.5" />
+                    </button>
+                </div>
+            )}
+
+            {/* MODAL SEMATKAN / EDIT CATATAN KALIMAT INLINE */}
+            {inlineNoteModal && (
+                <div
+                    className="fixed inset-0 z-[140] flex items-center justify-center bg-navy-950/80 backdrop-blur-md p-4 animate-fade-in"
+                    onClick={() => setInlineNoteModal(null)}
+                >
+                    <div
+                        className="rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl animate-scale-up border-2 border-gold-400/50 bg-white dark:bg-navy-900 flex flex-col space-y-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header Modal */}
+                        <div className="flex items-center justify-between pb-2 border-b border-navy-100 dark:border-navy-800">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 dark:text-gold-400 flex items-center justify-center font-bold text-base">
+                                    📌
+                                </div>
+                                <div>
+                                    <h3 className="font-black text-navy-900 dark:text-white text-sm sm:text-base">
+                                        {inlineNoteModal.mode === 'edit' ? 'Edit Catatan Tersemat' : 'Sematkan Catatan pada Kalimat'}
+                                    </h3>
+                                    <p className="text-[10px] text-gold-600 dark:text-gold-400 font-bold uppercase tracking-wider">
+                                        {currentDay?.title || "Sekolah Sabat"}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setInlineNoteModal(null)}
+                                className="p-1 rounded-lg text-navy-400 hover:text-navy-700 dark:hover:text-white cursor-pointer"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Kalimat yang Disematkan */}
+                        <div>
+                            <label className="text-xs font-bold text-navy-700 dark:text-gray-300 block mb-1">
+                                Kalimat Terpilih:
+                            </label>
+                            <div className="p-3 rounded-xl bg-amber-500/10 dark:bg-navy-950 border border-amber-300/40 dark:border-navy-800 text-xs italic text-navy-800 dark:text-gray-300 max-h-28 overflow-y-auto leading-relaxed border-l-4 border-l-amber-500">
+                                "{inlineNoteModal.selectedText}"
+                            </div>
+                        </div>
+
+                        {/* Pilihan Warna Penanda */}
+                        <div>
+                            <label className="text-xs font-bold text-navy-700 dark:text-gray-300 block mb-1.5">
+                                Warna Penanda:
+                            </label>
+                            <div className="flex items-center gap-2">
+                                {Object.values(SS_HIGHLIGHT_PALETTE).map(pal => (
+                                    <button
+                                        key={pal.id}
+                                        type="button"
+                                        onClick={() => setInlineNoteModal(prev => ({ ...prev, color: pal.id }))}
+                                        className={`w-7 h-7 rounded-full border-2 ${pal.dotClass} flex items-center justify-center transition cursor-pointer ${
+                                            inlineNoteModal.color === pal.id ? "scale-115 ring-2 ring-gold-400 shadow-md" : "opacity-70 hover:opacity-100"
+                                        }`}
+                                        title={pal.label}
+                                    >
+                                        {inlineNoteModal.color === pal.id && <Check className="w-3.5 h-3.5 text-navy-950" />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Input Isi Catatan */}
+                        <div>
+                            <label className="text-xs font-bold text-navy-700 dark:text-gray-300 block mb-1.5">
+                                Isi Catatan / Refleksi Pribadi:
+                            </label>
+                            <textarea
+                                rows={4}
+                                value={inlineNoteModal.content}
+                                onChange={(e) => setInlineNoteModal(prev => ({ ...prev, content: e.target.value }))}
+                                placeholder="Tuliskan pemahaman, jawaban diskusi, atau perenungan rohani Anda pada kalimat ini..."
+                                className="w-full p-3.5 rounded-xl bg-navy-50 dark:bg-navy-950 border border-navy-200 dark:border-navy-700 text-sm text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500 leading-relaxed"
+                                autoFocus
+                            />
+                        </div>
+
+                        {/* Tombol Aksi */}
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-navy-100 dark:border-navy-800">
+                            {inlineNoteModal.mode === 'edit' ? (
+                                <button
+                                    type="button"
+                                    onClick={() => handleDeleteInlineNote(inlineNoteModal.id)}
+                                    className="px-3 py-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Hapus</span>
+                                </button>
+                            ) : (
+                                <div></div>
+                            )}
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setInlineNoteModal(null)}
+                                    className="px-3 py-2 rounded-xl bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 text-navy-700 dark:text-gray-300 text-xs font-bold cursor-pointer"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleSaveInlineNote}
+                                    disabled={!inlineNoteModal.content.trim()}
+                                    className="px-4 py-2 rounded-xl bg-[#4A7045] dark:bg-gold-500 hover:bg-[#385634] dark:hover:bg-gold-600 disabled:opacity-50 text-white dark:text-navy-950 text-xs font-black shadow-sm transition cursor-pointer flex items-center gap-1.5"
+                                >
+                                    <Save className="w-3.5 h-3.5" />
+                                    <span>Sematkan Catatan</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* MODAL POPUP AYAT ALKITAB ELEGAN (SEPERTI PADA WEB ADVENTECH) */}
             {activeVersePopup && (
@@ -2263,10 +2765,10 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                     <div className="p-8 text-center space-y-2 text-navy-500 dark:text-gray-400">
                                         <FileText className="w-10 h-10 mx-auto text-navy-300 dark:text-navy-600" />
                                         <p className="font-bold text-sm">
-                                            {notesSearchQuery ? "Tidak ditemukan catatan yang sesuai pencarian." : "Belum ada catatan refleksi harian tersimpan."}
+                                            {notesSearchQuery ? "Tidak ditemukan catatan yang sesuai pencarian." : "Belum ada catatan tersemat tersimpan."}
                                         </p>
                                         <p className="text-xs">
-                                            Anda dapat menuliskan refleksi atau jawaban diskusi di bagian bawah bacaan pelajaran harian.
+                                            Anda dapat menyorot (memilih) kalimat mana pun pada bacaan pelajaran untuk menyematkan catatan pribadi.
                                         </p>
                                     </div>
                                 ) : (
@@ -2291,7 +2793,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                                 </div>
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleJumpToLessonDay(item.lessonId, item.dayIdx)}
+                                                    onClick={() => handleJumpToLessonDay(item.lessonId, item.dayIdx, item.id)}
                                                     className="px-3 py-1 text-xs font-bold rounded-xl bg-[#4A7045] dark:bg-gold-500 hover:bg-[#385634] text-white dark:text-navy-950 transition flex items-center gap-1 cursor-pointer active:scale-95"
                                                 >
                                                     <span>Buka Pelajaran</span>
@@ -2299,7 +2801,13 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                                 </button>
                                             </div>
 
-                                            <p className="text-xs sm:text-sm text-navy-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
+                                            {item.selectedText && (
+                                                <blockquote className="text-xs italic text-navy-700 dark:text-gray-300 pl-2.5 border-l-2 border-amber-500/70 py-0.5 line-clamp-2">
+                                                    "{item.selectedText}"
+                                                </blockquote>
+                                            )}
+
+                                            <p className="text-xs sm:text-sm text-navy-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed font-semibold">
                                                 {item.content}
                                             </p>
 
@@ -2311,7 +2819,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                                     <button
                                                         type="button"
                                                         onClick={() => {
-                                                            navigator.clipboard.writeText(item.content);
+                                                            navigator.clipboard.writeText(`${item.selectedText ? `"${item.selectedText}"\n\n` : ''}Catatan: ${item.content}`);
                                                             setNoteCopiedToast(true);
                                                             setTimeout(() => setNoteCopiedToast(false), 2000);
                                                         }}
@@ -2324,7 +2832,9 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                                     <button
                                                         type="button"
                                                         onClick={() => {
-                                                            const msg = `*CATATAN SEKOLAH SABAT*\n📖 *${item.lessonTitle}*\n🗓️ *${item.dayLabel}:* ${item.dayTitle}\n\n✍️ *Refleksi:* \n${item.content}\n\n_Aplikasi Jemaat Pisgah Batam_`;
+                                                            const msg = `*CATATAN SEKOLAH SABAT*\n📖 *${item.lessonTitle}*\n🗓️ *${item.dayLabel}:* ${item.dayTitle}\n\n` +
+                                                                (item.selectedText ? `📌 *Kalimat:* \n"${item.selectedText}"\n\n` : '') +
+                                                                `✍️ *Refleksi:* \n${item.content}\n\n_Aplikasi Jemaat Pisgah Batam_`;
                                                             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
                                                         }}
                                                         className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold flex items-center gap-1 cursor-pointer hover:bg-emerald-700"
@@ -2335,14 +2845,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                                     </button>
                                                     <button
                                                         type="button"
-                                                        onClick={() => {
-                                                            if (window.confirm("Hapus catatan ini?")) {
-                                                                const next = { ...dailyNotes };
-                                                                delete next[item.id];
-                                                                setDailyNotes(next);
-                                                                localStorage.setItem("PISGAH_SS_DAILY_NOTES", JSON.stringify(next));
-                                                            }
-                                                        }}
+                                                        onClick={() => handleDeleteInlineNote(item.id)}
                                                         className="p-1 rounded-lg text-navy-400 hover:text-red-500 cursor-pointer"
                                                         title="Hapus"
                                                     >
