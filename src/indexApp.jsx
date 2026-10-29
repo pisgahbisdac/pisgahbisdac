@@ -9,12 +9,12 @@ import DetailSekolahSabat from './DetailSekolahSabat';
 // --- PWA & SERVICE WORKER LOGIC ---
 if ('serviceWorker' in navigator) {
     const isDev = window.location.hostname === 'localhost' ||
-                  window.location.hostname === '127.0.0.1' ||
-                  window.location.port === '4000' ||
-                  window.location.port === '5173' ||
-                  window.location.hostname.startsWith('192.168.') ||
-                  window.location.hostname.startsWith('10.') ||
-                  window.location.hostname.endsWith('.local');
+        window.location.hostname === '127.0.0.1' ||
+        window.location.port === '4000' ||
+        window.location.port === '5173' ||
+        window.location.hostname.startsWith('192.168.') ||
+        window.location.hostname.startsWith('10.') ||
+        window.location.hostname.endsWith('.local');
 
     if (isDev) {
         navigator.serviceWorker.getRegistrations().then(regs => {
@@ -6059,91 +6059,91 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                     )}
                 </div>
 
-            {/* Grid Buku - 2 kolom di mobile */}
-            {isLoadingBooks ? (
-                <div className="text-center py-12">
-                    <div className="w-12 h-12 border-1 border-navy-100 border-t-gold-500 rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-navy-400 font-medium">Memuat buku...</p>
-                </div>
-            ) : filteredBooks.length > 0 ? (
-                <div className="max-h-[calc(170vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
-                    {searchQuery.length >= 2 && (
-                        <p className="text-xs text-navy-400 font-semibold mb-3 px-1">
-                            {filteredBooks.length} hasil untuk &quot;{searchQuery}&quot;
-                        </p>
-                    )}
-                    {/* GRID: 2 kolom di mobile, 3 di sm, 4 di md, 5 di lg */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {filteredBooks.map((book, idx) => {
-                            const isNew = newestBookIds.has(String(book.id)) && sortBy === 'newest' && !searchQuery.trim();
-                            return (
-                                <div
-                                    key={book.id}
-                                    className={`w-full glass-box rounded-2xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300 cursor-pointer ${isNew ? 'border-2 border-emerald-400/80 dark:border-emerald-500/80 shadow-emerald-500/5' : 'border border-navy-100/60 dark:border-navy-700/60 hover:border-gold-400 dark:hover:border-gold-500'}`}
-                                    onClick={() => setSelectedBook(book)}
-                                >
-                                    <div className="h-[10rem] overflow-hidden relative">
-                                        <img
-                                            src={getCoverFallback(book)}
-                                            alt={book.title}
-                                            loading="lazy"
-                                            decoding="async"
-                                            referrerPolicy="no-referrer"
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                            onError={(e) => handleBookCoverError(e, book)}
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
-                                        <DocumentBadge book={book} />
-                                        <div className="absolute top-2 right-2 flex items-center gap-1">
-                                            {isNew && (
-                                                <span className="bg-emerald-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                                                    Baru
+                {/* Grid Buku - 2 kolom di mobile */}
+                {isLoadingBooks ? (
+                    <div className="text-center py-12">
+                        <div className="w-12 h-12 border-1 border-navy-100 border-t-gold-500 rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="text-navy-400 font-medium">Memuat buku...</p>
+                    </div>
+                ) : filteredBooks.length > 0 ? (
+                    <div className="max-h-[calc(170vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
+                        {searchQuery.length >= 2 && (
+                            <p className="text-xs text-navy-400 font-semibold mb-3 px-1">
+                                {filteredBooks.length} hasil untuk &quot;{searchQuery}&quot;
+                            </p>
+                        )}
+                        {/* GRID: 2 kolom di mobile, 3 di sm, 4 di md, 5 di lg */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            {filteredBooks.map((book, idx) => {
+                                const isNew = newestBookIds.has(String(book.id)) && sortBy === 'newest' && !searchQuery.trim();
+                                return (
+                                    <div
+                                        key={book.id}
+                                        className={`w-full glass-box rounded-2xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300 cursor-pointer ${isNew ? 'border-2 border-emerald-400/80 dark:border-emerald-500/80 shadow-emerald-500/5' : 'border border-navy-100/60 dark:border-navy-700/60 hover:border-gold-400 dark:hover:border-gold-500'}`}
+                                        onClick={() => setSelectedBook(book)}
+                                    >
+                                        <div className="h-[10rem] overflow-hidden relative">
+                                            <img
+                                                src={getCoverFallback(book)}
+                                                alt={book.title}
+                                                loading="lazy"
+                                                decoding="async"
+                                                referrerPolicy="no-referrer"
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                                onError={(e) => handleBookCoverError(e, book)}
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent" />
+                                            <DocumentBadge book={book} />
+                                            <div className="absolute top-2 right-2 flex items-center gap-1">
+                                                {isNew && (
+                                                    <span className="bg-emerald-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                                        Baru
+                                                    </span>
+                                                )}
+                                                <span className="bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                    {book.category}
                                                 </span>
-                                            )}
-                                            <span className="bg-gold-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                                {book.category}
-                                            </span>
+                                            </div>
+                                        </div>
+                                        <div className="p-3 flex-1 flex flex-col">
+                                            <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-3">{book.title}</p>
+                                            <p className="text-xs text-navy-400 font-semibold mb-3">{book.author}</p>
+                                            <button className="mt-auto w-full py-2 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-navy-800 transition">
+                                                <Icon name="BookOpen" className="w-3.5 h-3.5" /> Baca Buku
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="p-3 flex-1 flex flex-col">
-                                        <p className="font-bold text-navy-900 text-sm leading-tight mb-1 line-clamp-3">{book.title}</p>
-                                        <p className="text-xs text-navy-400 font-semibold mb-3">{book.author}</p>
-                                        <button className="mt-auto w-full py-2 rounded-xl bg-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-navy-800 transition">
-                                            <Icon name="BookOpen" className="w-3.5 h-3.5" /> Baca Buku
-                                        </button>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
-            ) : (
-                <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-12 text-center">
-                    <Icon name="BookOpen" className="w-16 h-16 text-navy-200 mx-auto mb-4" />
-                    {searchQuery.length >= 2
-                        ? <><p className="text-navy-700 font-bold mb-1">Buku tidak ditemukan</p>
-                            <p className="text-navy-400 text-sm">Tidak ada buku yang cocok dengan &quot;{searchQuery}&quot;</p>
-                            <button onClick={() => setSearchQuery('')} className="mt-4 px-5 py-2 bg-navy-900 text-gold-400 rounded-xl text-sm font-bold hover:bg-navy-800 transition">Hapus Pencarian</button></>
-                        : <p className="text-navy-500 font-medium">Belum ada buku di kategori ini.</p>
-                    }
-                </div>
-            )}
+                ) : (
+                    <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-12 text-center">
+                        <Icon name="BookOpen" className="w-16 h-16 text-navy-200 mx-auto mb-4" />
+                        {searchQuery.length >= 2
+                            ? <><p className="text-navy-700 font-bold mb-1">Buku tidak ditemukan</p>
+                                <p className="text-navy-400 text-sm">Tidak ada buku yang cocok dengan &quot;{searchQuery}&quot;</p>
+                                <button onClick={() => setSearchQuery('')} className="mt-4 px-5 py-2 bg-navy-900 text-gold-400 rounded-xl text-sm font-bold hover:bg-navy-800 transition">Hapus Pencarian</button></>
+                            : <p className="text-navy-500 font-medium">Belum ada buku di kategori ini.</p>
+                        }
+                    </div>
+                )}
 
-            {/* Tautan Download Eksternal */}
-            <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-6 mx-auto max-w-4xl">
-                <h3 className="font-bold text-gold-500 text-base mb-1">Koleksi Lengkap di Google Drive</h3>
-                <p className="text-sm text-navy-500 mb-4 font-medium">Akses koleksi buku, MP3 lagu, dan materi lainnya secara lengkap.</p>
-                <div className="flex flex-wrap gap-3">
-                    <a href="https://drive.google.com/drive/folders/1EP9dOY3Azcm2K21kKiOiVvAOhIZrUJqv?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Lagu Sion MP3</a>
-                    <a href="https://drive.google.com/drive/folders/0B69W7zsbdDmVflRoZUF4cDA1U1RWeVMwN1dYQmZNaE1Bbm5qQmc4NkVXU1hBUlpNVVpwem8?resourcekey=0-mDboNMKK-a6RJA4ClzRDWw&usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Buku-Buku Rohani</a>
-                    <a href="https://drive.google.com/drive/folders/1d_smrJAY13h5x85A2Y_bAIIXg9sR012r" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">28 Doktrin</a>
-                    <a href="https://drive.google.com/drive/folders/1FxfoHGqVxW22_xTlz3BMhi9nfkOuDjUm?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Panduan Pelayan</a>
-                    <a href="https://drive.google.com/drive/folders/1aQh9EpelV1wych30tXbFIHtqahANsXM4?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Materi Kepahaman</a>
+                {/* Tautan Download Eksternal */}
+                <div className="bg-navy-50 rounded-[1.5rem] border border-navy-100/60 p-6 mx-auto max-w-4xl">
+                    <h3 className="font-bold text-gold-500 text-base mb-1">Koleksi Lengkap di Google Drive</h3>
+                    <p className="text-sm text-navy-500 mb-4 font-medium">Akses koleksi buku, MP3 lagu, dan materi lainnya secara lengkap.</p>
+                    <div className="flex flex-wrap gap-3">
+                        <a href="https://drive.google.com/drive/folders/1EP9dOY3Azcm2K21kKiOiVvAOhIZrUJqv?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Lagu Sion MP3</a>
+                        <a href="https://drive.google.com/drive/folders/0B69W7zsbdDmVflRoZUF4cDA1U1RWeVMwN1dYQmZNaE1Bbm5qQmc4NkVXU1hBUlpNVVpwem8?resourcekey=0-mDboNMKK-a6RJA4ClzRDWw&usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Buku-Buku Rohani</a>
+                        <a href="https://drive.google.com/drive/folders/1d_smrJAY13h5x85A2Y_bAIIXg9sR012r" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">28 Doktrin</a>
+                        <a href="https://drive.google.com/drive/folders/1FxfoHGqVxW22_xTlz3BMhi9nfkOuDjUm?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Panduan Pelayan</a>
+                        <a href="https://drive.google.com/drive/folders/1aQh9EpelV1wych30tXbFIHtqahANsXM4?usp=drive_link" target="_blank" rel="noopener noreferrer" className="bg-gold-500 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow hover:bg-navy-800 transition">Materi Kepahaman</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     );
 };
 

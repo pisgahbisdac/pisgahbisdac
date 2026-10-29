@@ -163,12 +163,12 @@
     <script>
         // Nonaktifkan & bersihkan service worker jika sedang berjalan di mode development (localhost / port dev)
         var isDevEnv = window.location.hostname === 'localhost' ||
-                       window.location.hostname === '127.0.0.1' ||
-                       window.location.port === '4000' ||
-                       window.location.port === '5173' ||
-                       window.location.hostname.startsWith('192.168.') ||
-                       window.location.hostname.startsWith('10.') ||
-                       window.location.hostname.endsWith('.local');
+            window.location.hostname === '127.0.0.1' ||
+            window.location.port === '4000' ||
+            window.location.port === '5173' ||
+            window.location.hostname.startsWith('192.168.') ||
+            window.location.hostname.startsWith('10.') ||
+            window.location.hostname.endsWith('.local');
 
         if (isDevEnv && 'serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function (regs) {
