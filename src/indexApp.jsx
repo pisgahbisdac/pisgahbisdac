@@ -17507,21 +17507,36 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
         setSelectedAyat(String(start));
 
         // 2. Lakukan scrolling presisi dan animasi sorotan visual (spotlight)
-        const tryScroll = (attemptsLeft = 15) => {
+        let attempts = 0;
+        const maxAttempts = 30;
+
+        const tryScroll = () => {
             const el = document.getElementById(`ayat-${start}`);
             if (el) {
+                const headerOffset = 135;
+                const rect = el.getBoundingClientRect();
+                const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                const targetY = Math.max(0, currentScrollY + rect.top - headerOffset);
+
+                // Langsung posisikan window ke target (instant di awal agar langsung melompat tanpa tertinggal di atas)
                 try {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } catch (e) {
-                    const headerOffset = 145;
-                    const elementPosition = el.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
                     window.scrollTo({
-                        top: Math.max(0, offsetPosition),
-                        behavior: 'smooth'
+                        top: targetY,
+                        behavior: attempts < 2 ? 'instant' : 'smooth'
                     });
+                } catch (e) {
+                    window.scrollTo(0, targetY);
                 }
 
+                // Scroll element ke viewport tengah
+                try {
+                    el.scrollIntoView({
+                        behavior: attempts < 2 ? 'auto' : 'smooth',
+                        block: 'center'
+                    });
+                } catch (e) { }
+
+                // Sorot visual ayat dengan bingkai emas dan efek spotlight
                 for (let v = start; v <= end; v++) {
                     const vEl = document.getElementById(`ayat-${v}`);
                     if (vEl) {
@@ -17533,12 +17548,30 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                         }, 3500);
                     }
                 }
-            } else if (attemptsLeft > 0) {
-                setTimeout(() => tryScroll(attemptsLeft - 1), 100);
+
+                // Verifikasi berkala apakah ayat sudah benar-benar berada di area yang terlihat
+                if (attempts < 10) {
+                    attempts++;
+                    setTimeout(() => {
+                        const checkEl = document.getElementById(`ayat-${start}`);
+                        if (checkEl) {
+                            const r = checkEl.getBoundingClientRect();
+                            const vh = window.innerHeight || 800;
+                            // Jika ayat masih di luar area layar yang terlihat
+                            if (r.top < 50 || r.top > vh - 60) {
+                                tryScroll();
+                            }
+                        }
+                    }, 150);
+                }
+            } else if (attempts < maxAttempts) {
+                attempts++;
+                setTimeout(tryScroll, 60);
             }
         };
 
-        tryScroll();
+        // Mulai eksekusi scroll
+        setTimeout(tryScroll, 50);
     }, []);
 
     const processDirectTarget = React.useCallback((target) => {
@@ -17737,10 +17770,7 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                 }
                 setSelectedVerses(targetSet);
                 setSelectedAyat(String(startAyat));
-                const timer = setTimeout(() => {
-                    scrollToVerse(startAyat, endAyat);
-                }, 150);
-                return () => clearTimeout(timer);
+                scrollToVerse(startAyat, endAyat);
             }
         }
     }, [verses, isLoadingChapter, pendingTarget, selectedBook, selectedChapter, scrollToVerse]);

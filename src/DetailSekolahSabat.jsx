@@ -809,6 +809,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             bookName: target.bookName || SS_ALKITAB_BOOK_NAMES[target.bookId] || "Wahyu",
             chapter: target.chapter || 1,
             verse: target.verse || (target.startV ? String(target.startV) : "1"),
+            startAyat: target.startV || parseInt(target.verse, 10) || 1,
+            endAyat: target.endV || target.startV || parseInt(target.verse, 10) || 1,
             returnTab: 'belajar_sekolah_sabat'
         };
 
