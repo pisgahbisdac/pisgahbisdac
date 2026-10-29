@@ -624,6 +624,76 @@ const initialJadwalSabat = {
     ]
 };
 
+// 66 Kitab Alkitab Terjemahan Baru (PL & PB) - Tersedia untuk Alkitab Digital dan Admin Selector
+const ALKITAB_BOOKS = [
+    { id: 1, nama: 'Kejadian', singkat: 'Kej', pasal: 50, testamen: 'PL' },
+    { id: 2, nama: 'Keluaran', singkat: 'Kel', pasal: 40, testamen: 'PL' },
+    { id: 3, nama: 'Imamat', singkat: 'Im', pasal: 27, testamen: 'PL' },
+    { id: 4, nama: 'Bilangan', singkat: 'Bil', pasal: 36, testamen: 'PL' },
+    { id: 5, nama: 'Ulangan', singkat: 'Ul', pasal: 34, testamen: 'PL' },
+    { id: 6, nama: 'Yosua', singkat: 'Yos', pasal: 24, testamen: 'PL' },
+    { id: 7, nama: 'Hakim-hakim', singkat: 'Hak', pasal: 21, testamen: 'PL' },
+    { id: 8, nama: 'Rut', singkat: 'Rut', pasal: 4, testamen: 'PL' },
+    { id: 9, nama: '1 Samuel', singkat: '1Sam', pasal: 31, testamen: 'PL' },
+    { id: 10, nama: '2 Samuel', singkat: '2Sam', pasal: 24, testamen: 'PL' },
+    { id: 11, nama: '1 Raja-raja', singkat: '1Raj', pasal: 22, testamen: 'PL' },
+    { id: 12, nama: '2 Raja-raja', singkat: '2Raj', pasal: 25, testamen: 'PL' },
+    { id: 13, nama: '1 Tawarikh', singkat: '1Taw', pasal: 29, testamen: 'PL' },
+    { id: 14, nama: '2 Tawarikh', singkat: '2Taw', pasal: 36, testamen: 'PL' },
+    { id: 15, nama: 'Ezra', singkat: 'Ezr', pasal: 10, testamen: 'PL' },
+    { id: 16, nama: 'Nehemia', singkat: 'Neh', pasal: 13, testamen: 'PL' },
+    { id: 17, nama: 'Ester', singkat: 'Est', pasal: 10, testamen: 'PL' },
+    { id: 18, nama: 'Ayub', singkat: 'Ayb', pasal: 42, testamen: 'PL' },
+    { id: 19, nama: 'Mazmur', singkat: 'Mzm', pasal: 150, testamen: 'PL' },
+    { id: 20, nama: 'Amsal', singkat: 'Ams', pasal: 31, testamen: 'PL' },
+    { id: 21, nama: 'Pengkhotbah', singkat: 'Pkh', pasal: 12, testamen: 'PL' },
+    { id: 22, nama: 'Kidung Agung', singkat: 'Kid', pasal: 8, testamen: 'PL' },
+    { id: 23, nama: 'Yesaya', singkat: 'Yes', pasal: 66, testamen: 'PL' },
+    { id: 24, nama: 'Yeremia', singkat: 'Yer', pasal: 52, testamen: 'PL' },
+    { id: 25, nama: 'Ratapan', singkat: 'Rat', pasal: 5, testamen: 'PL' },
+    { id: 26, nama: 'Yehezkiel', singkat: 'Yeh', pasal: 48, testamen: 'PL' },
+    { id: 27, nama: 'Daniel', singkat: 'Dan', pasal: 12, testamen: 'PL' },
+    { id: 28, nama: 'Hosea', singkat: 'Hos', pasal: 14, testamen: 'PL' },
+    { id: 29, nama: 'Yoel', singkat: 'Yoe', pasal: 3, testamen: 'PL' },
+    { id: 30, nama: 'Amos', singkat: 'Am', pasal: 9, testamen: 'PL' },
+    { id: 31, nama: 'Obaja', singkat: 'Ob', pasal: 1, testamen: 'PL' },
+    { id: 32, nama: 'Yunus', singkat: 'Yun', pasal: 4, testamen: 'PL' },
+    { id: 33, nama: 'Mikha', singkat: 'Mi', pasal: 7, testamen: 'PL' },
+    { id: 34, nama: 'Nahum', singkat: 'Nah', pasal: 3, testamen: 'PL' },
+    { id: 35, nama: 'Habakuk', singkat: 'Hab', pasal: 3, testamen: 'PL' },
+    { id: 36, nama: 'Zefanya', singkat: 'Zef', pasal: 3, testamen: 'PL' },
+    { id: 37, nama: 'Hagai', singkat: 'Hag', pasal: 2, testamen: 'PL' },
+    { id: 38, nama: 'Zakharia', singkat: 'Za', pasal: 14, testamen: 'PL' },
+    { id: 39, nama: 'Maleakhi', singkat: 'Mal', pasal: 4, testamen: 'PL' },
+    { id: 40, nama: 'Matius', singkat: 'Mat', pasal: 28, testamen: 'PB' },
+    { id: 41, nama: 'Markus', singkat: 'Mrk', pasal: 16, testamen: 'PB' },
+    { id: 42, nama: 'Lukas', singkat: 'Luk', pasal: 24, testamen: 'PB' },
+    { id: 43, nama: 'Yohanes', singkat: 'Yoh', pasal: 21, testamen: 'PB' },
+    { id: 44, nama: 'Kisah Para Rasul', singkat: 'Kis', pasal: 28, testamen: 'PB' },
+    { id: 45, nama: 'Roma', singkat: 'Rom', pasal: 16, testamen: 'PB' },
+    { id: 46, nama: '1 Korintus', singkat: '1Kor', pasal: 16, testamen: 'PB' },
+    { id: 47, nama: '2 Korintus', singkat: '2Kor', pasal: 13, testamen: 'PB' },
+    { id: 48, nama: 'Galatia', singkat: 'Gal', pasal: 6, testamen: 'PB' },
+    { id: 49, nama: 'Efesus', singkat: 'Ef', pasal: 6, testamen: 'PB' },
+    { id: 50, nama: 'Filipi', singkat: 'Flp', pasal: 4, testamen: 'PB' },
+    { id: 51, nama: 'Kolose', singkat: 'Kol', pasal: 4, testamen: 'PB' },
+    { id: 52, nama: '1 Tesalonika', singkat: '1Tes', pasal: 5, testamen: 'PB' },
+    { id: 53, nama: '2 Tesalonika', singkat: '2Tes', pasal: 3, testamen: 'PB' },
+    { id: 54, nama: '1 Timotius', singkat: '1Tim', pasal: 6, testamen: 'PB' },
+    { id: 55, nama: '2 Timotius', singkat: '2Tim', pasal: 4, testamen: 'PB' },
+    { id: 56, nama: 'Titus', singkat: 'Tit', pasal: 3, testamen: 'PB' },
+    { id: 57, nama: 'Filemon', singkat: 'Flm', pasal: 1, testamen: 'PB' },
+    { id: 58, nama: 'Ibrani', singkat: 'Ibr', pasal: 13, testamen: 'PB' },
+    { id: 59, nama: 'Yakobus', singkat: 'Yak', pasal: 5, testamen: 'PB' },
+    { id: 60, nama: '1 Petrus', singkat: '1Pet', pasal: 5, testamen: 'PB' },
+    { id: 61, nama: '2 Petrus', singkat: '2Pet', pasal: 3, testamen: 'PB' },
+    { id: 62, nama: '1 Yohanes', singkat: '1Yoh', pasal: 5, testamen: 'PB' },
+    { id: 63, nama: '2 Yohanes', singkat: '2Yoh', pasal: 1, testamen: 'PB' },
+    { id: 64, nama: '3 Yohanes', singkat: '3Yoh', pasal: 1, testamen: 'PB' },
+    { id: 65, nama: 'Yudas', singkat: 'Yud', pasal: 1, testamen: 'PB' },
+    { id: 66, nama: 'Wahyu', singkat: 'Why', pasal: 22, testamen: 'PB' },
+];
+
 
 const IosInstallModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
@@ -5515,7 +5585,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     );
 };
 
-const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], setLaguSionInitialSong = () => {}, setLaguSionSubTab = () => {} }) => {
+const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], setLaguSionInitialSong = () => { }, setLaguSionSubTab = () => { } }) => {
     const [openSection, setOpenSection] = React.useState('khotbah');
 
     const getOfficer = (arr, role) => arr?.find(p => p.tugas === role)?.nama || "-";
@@ -6590,11 +6660,10 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                                                 <span className="font-black text-navy-900 dark:text-white">
                                                     📅 {formatIndoDate(m.dateStr)}
                                                 </span>
-                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                                                    m.isRabu
+                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${m.isRabu
                                                         ? 'bg-blue-500/20 text-blue-700 dark:text-blue-300'
                                                         : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
-                                                }`}>
+                                                    }`}>
                                                     {m.isRabu ? 'Rabu' : 'Sabat'}
                                                 </span>
                                             </div>
@@ -11250,10 +11319,443 @@ const AdminPastoralAndCalendarPanel = () => {
     );
 };
 
+// --- MODAL SELECTOR LAGU SION UNTUK ADMIN ---
+const AdminSongPickerModal = ({ isOpen, onClose, onSelect, laguSionDb = [], title = "Pilih Lagu Sion" }) => {
+    const [query, setQuery] = React.useState('');
+    const [formatMode, setFormatMode] = React.useState('full'); // 'full' -> "LS 15 - Judul", 'simple' -> "LS 15"
+    const [localDb, setLocalDb] = React.useState(laguSionDb || []);
+
+    React.useEffect(() => {
+        if (laguSionDb && laguSionDb.length > 0) {
+            setLocalDb(laguSionDb);
+        } else if (isOpen) {
+            fetch('./lagu_sion.json')
+                .then(r => r.json())
+                .then(d => setLocalDb(d))
+                .catch(e => console.error(e));
+        }
+    }, [laguSionDb, isOpen]);
+
+    React.useEffect(() => {
+        if (isOpen) {
+            setQuery('');
+        }
+    }, [isOpen]);
+
+    const filtered = React.useMemo(() => {
+        if (!localDb || localDb.length === 0) return [];
+        const q = query.trim().toLowerCase();
+        if (!q) return localDb;
+        const numQ = parseInt(q, 10);
+        return localDb.filter(s => {
+            if (!isNaN(numQ) && s.number === numQ) return true;
+            if (String(s.number).includes(q)) return true;
+            if (s.title && s.title.toLowerCase().includes(q)) return true;
+            if (s.verses && s.verses.some(v => v.lines && v.lines.some(l => l.toLowerCase().includes(q)))) return true;
+            return false;
+        }).sort((a, b) => {
+            if (!isNaN(numQ)) {
+                if (a.number === numQ) return -1;
+                if (b.number === numQ) return 1;
+            }
+            return a.number - b.number;
+        });
+    }, [localDb, query]);
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[120] bg-navy-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fade-in" onClick={onClose}>
+            <div
+                className="bg-white dark:bg-navy-900 rounded-3xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl border border-navy-100 dark:border-navy-700 overflow-hidden animate-scale-up"
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div className="px-5 py-4 bg-gradient-to-r from-amber-500/10 via-gold-500/10 to-transparent border-b border-navy-100 dark:border-navy-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-gold-500 text-navy-950 font-black flex items-center justify-center shadow-sm">
+                            🎵
+                        </div>
+                        <div>
+                            <h3 className="font-black text-base text-navy-900 dark:text-white">{title}</h3>
+                            <p className="text-[11px] text-navy-500 dark:text-gray-400">Tersedia {localDb.length || 525} Lagu Sion</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="w-8 h-8 rounded-full bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-600 dark:text-gray-300 flex items-center justify-center font-bold transition cursor-pointer"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                {/* Search Bar & Options */}
+                <div className="p-4 border-b border-navy-100 dark:border-navy-800 space-y-3 bg-navy-50/50 dark:bg-navy-950/40">
+                    <div className="relative">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-navy-400">
+                            <Icon name="Search" className="w-4 h-4" />
+                        </div>
+                        <input
+                            type="text"
+                            value={query}
+                            onChange={e => setQuery(e.target.value)}
+                            placeholder="Ketik nomor lagu (1-525) atau judul lagu..."
+                            autoFocus
+                            className="w-full bg-white dark:bg-navy-800 border border-navy-200 dark:border-navy-700 rounded-xl py-2.5 pl-10 pr-9 text-sm font-bold text-navy-900 dark:text-white placeholder-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400"
+                        />
+                        {query && (
+                            <button
+                                type="button"
+                                onClick={() => setQuery('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-navy-400 hover:text-navy-600 dark:hover:text-white"
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs flex-wrap gap-2">
+                        <span className="text-[11px] font-bold text-navy-500 dark:text-gray-400">
+                            Format Masukan:
+                        </span>
+                        <div className="flex items-center bg-white dark:bg-navy-800 rounded-lg p-0.5 border border-navy-200 dark:border-navy-700">
+                            <button
+                                type="button"
+                                onClick={() => setFormatMode('full')}
+                                className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${formatMode === 'full' ? 'bg-gold-500 text-navy-950 shadow-xs' : 'text-navy-500 dark:text-gray-400 hover:text-navy-900'}`}
+                            >
+                                LS No - Judul (Rekomendasi)
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setFormatMode('simple')}
+                                className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${formatMode === 'simple' ? 'bg-gold-500 text-navy-950 shadow-xs' : 'text-navy-500 dark:text-gray-400 hover:text-navy-900'}`}
+                            >
+                                LS No Saja
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Song List */}
+                <div className="flex-1 overflow-y-auto p-3 space-y-1.5 divide-y divide-navy-50 dark:divide-navy-800/60 max-h-[55vh]">
+                    {filtered.length === 0 ? (
+                        <div className="p-8 text-center text-navy-400 dark:text-gray-500 text-xs">
+                            Tidak ada lagu yang cocok dengan pencarian "{query}".
+                        </div>
+                    ) : (
+                        filtered.slice(0, 100).map(song => {
+                            const formattedVal = formatMode === 'simple'
+                                ? `LS ${song.number}`
+                                : `LS ${song.number} - ${song.title}`;
+                            return (
+                                <div
+                                    key={song.number}
+                                    onClick={() => {
+                                        onSelect(formattedVal);
+                                        onClose();
+                                    }}
+                                    className="pt-1.5 first:pt-0 flex items-center justify-between p-2.5 rounded-xl hover:bg-gold-50 dark:hover:bg-navy-800 cursor-pointer transition group"
+                                >
+                                    <div className="flex items-center gap-3 min-w-0 flex-1 pr-2">
+                                        <div className="w-9 h-9 rounded-xl bg-gold-500/15 text-gold-700 dark:text-gold-400 border border-gold-400/30 flex items-center justify-center font-black text-xs shrink-0 group-hover:bg-gold-500 group-hover:text-navy-950 transition-colors">
+                                            {song.number}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="font-bold text-xs sm:text-sm text-navy-900 dark:text-white truncate group-hover:text-gold-600 dark:group-hover:text-gold-400">
+                                                {song.title}
+                                            </div>
+                                            <div className="text-[10px] text-navy-500 dark:text-gray-400 truncate">
+                                                {song.keyTime} {song.artist ? `• ${song.artist}` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onSelect(formattedVal);
+                                            onClose();
+                                        }}
+                                        className="px-3 py-1.5 rounded-lg bg-navy-900 dark:bg-gold-500 text-white dark:text-navy-950 text-xs font-bold shrink-0 opacity-80 group-hover:opacity-100 transition shadow-2xs hover:scale-105"
+                                    >
+                                        Pilih
+                                    </button>
+                                </div>
+                            );
+                        })
+                    )}
+                    {filtered.length > 100 && (
+                        <div className="p-3 text-center text-xs text-navy-400">
+                            Menampilkan 100 lagu pertama. Ketik nomor atau kata kunci lebih spesifik untuk menyaring.
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// --- MODAL SELECTOR AYAT ALKITAB UNTUK ADMIN ---
+const AdminBibleVersePickerModal = ({ isOpen, onClose, onSelect, title = "Pilih Ayat Alkitab", isAyatBersahutan = false, alkitabBooks = ALKITAB_BOOKS }) => {
+    const [pickerTab, setPickerTab] = React.useState(isAyatBersahutan ? 'bersahutan' : 'alkitab');
+    const [bookFilter, setBookFilter] = React.useState('ALL'); // 'ALL' | 'PL' | 'PB'
+    const [bookSearch, setBookSearch] = React.useState('');
+    const [selectedBook, setSelectedBook] = React.useState(null);
+    const [selectedChapter, setSelectedChapter] = React.useState(1);
+    const [verseStart, setVerseStart] = React.useState('');
+    const [verseEnd, setVerseEnd] = React.useState('');
+
+    React.useEffect(() => {
+        if (isOpen) {
+            setPickerTab(isAyatBersahutan ? 'bersahutan' : 'alkitab');
+            setSelectedBook(alkitabBooks?.find(b => b.nama === 'Yohanes') || alkitabBooks?.[0] || null);
+            setSelectedChapter(1);
+            setVerseStart('1');
+            setVerseEnd('');
+            setBookSearch('');
+        }
+    }, [isOpen, isAyatBersahutan, alkitabBooks]);
+
+    const filteredBooks = React.useMemo(() => {
+        let list = alkitabBooks || [];
+        if (bookFilter === 'PL') list = list.filter(b => b.testamen === 'PL');
+        if (bookFilter === 'PB') list = list.filter(b => b.testamen === 'PB');
+        if (bookSearch.trim()) {
+            const q = bookSearch.trim().toLowerCase();
+            list = list.filter(b => b.nama.toLowerCase().includes(q) || b.singkat.toLowerCase().includes(q));
+        }
+        return list;
+    }, [alkitabBooks, bookFilter, bookSearch]);
+
+    // Live preview string
+    const previewVerseString = React.useMemo(() => {
+        if (!selectedBook) return '';
+        const ch = selectedChapter || 1;
+        const vStart = String(verseStart).trim();
+        const vEnd = String(verseEnd).trim();
+
+        if (vStart && vEnd && vEnd !== vStart) {
+            return `${selectedBook.nama} ${ch}:${vStart}-${vEnd}`;
+        } else if (vStart) {
+            return `${selectedBook.nama} ${ch}:${vStart}`;
+        }
+        return `${selectedBook.nama} ${ch}`;
+    }, [selectedBook, selectedChapter, verseStart, verseEnd]);
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[120] bg-navy-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fade-in" onClick={onClose}>
+            <div
+                className="bg-white dark:bg-navy-900 rounded-3xl w-full max-w-xl max-h-[92vh] flex flex-col shadow-2xl border border-navy-100 dark:border-navy-700 overflow-hidden animate-scale-up"
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div className="px-5 py-4 bg-gradient-to-r from-emerald-500/10 via-gold-500/10 to-transparent border-b border-navy-100 dark:border-navy-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white font-black flex items-center justify-center shadow-sm">
+                            📖
+                        </div>
+                        <div>
+                            <h3 className="font-black text-base text-navy-900 dark:text-white">{title}</h3>
+                            <p className="text-[11px] text-navy-500 dark:text-gray-400">Pilih Kitab, Pasal, dan Nomor Ayat</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="w-8 h-8 rounded-full bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-600 dark:text-gray-300 flex items-center justify-center font-bold transition cursor-pointer"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                {/* Tabs (Alkitab vs No. Bersahutan) */}
+                {isAyatBersahutan && (
+                    <div className="flex border-b border-navy-100 dark:border-navy-800 p-2 bg-navy-50/50 dark:bg-navy-950/50 gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setPickerTab('bersahutan')}
+                            className={`flex-1 py-2 rounded-xl text-xs font-black transition ${pickerTab === 'bersahutan' ? 'bg-gold-500 text-navy-950 shadow-sm' : 'text-navy-600 dark:text-gray-300 hover:bg-navy-100 dark:hover:bg-navy-800'}`}
+                        >
+                            📜 No. Bacaan Bersahutan (Buku Lagu)
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setPickerTab('alkitab')}
+                            className={`flex-1 py-2 rounded-xl text-xs font-black transition ${pickerTab === 'alkitab' ? 'bg-gold-500 text-navy-950 shadow-sm' : 'text-navy-600 dark:text-gray-300 hover:bg-navy-100 dark:hover:bg-navy-800'}`}
+                        >
+                            📖 Dari Kitab Alkitab
+                        </button>
+                    </div>
+                )}
+
+                {/* Tab: Bacaan Bersahutan No. 1 - 72 */}
+                {pickerTab === 'bersahutan' ? (
+                    <div className="p-4 space-y-4 flex-1 overflow-y-auto">
+                        <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 rounded-xl text-xs text-amber-800 dark:text-amber-300">
+                            Pilih nomor bacaan bersahutan dari bagian belakang buku Lagu Sion (No. 1 s/d No. 72):
+                        </div>
+                        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                            {Array.from({ length: 72 }, (_, i) => i + 1).map(num => (
+                                <button
+                                    key={num}
+                                    type="button"
+                                    onClick={() => {
+                                        onSelect(`No. ${num}`);
+                                        onClose();
+                                    }}
+                                    className="p-2.5 rounded-xl bg-navy-50 dark:bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-navy-900 dark:text-white font-black text-xs transition cursor-pointer border border-navy-100 dark:border-navy-700 shadow-2xs active:scale-95"
+                                >
+                                    No. {num}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    /* Tab: Alkitab */
+                    <div className="p-4 space-y-4 flex-1 overflow-y-auto">
+                        {/* Selector Kitab */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <label className="text-xs font-black text-navy-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                                    <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-600 flex items-center justify-center text-[10px]">1</span>
+                                    <span>Pilih Kitab:</span>
+                                    {selectedBook && <span className="text-gold-600 dark:text-gold-400 font-bold">{selectedBook.nama} ({selectedBook.pasal} ps)</span>}
+                                </label>
+                                <div className="flex items-center gap-1 text-[11px] font-bold">
+                                    {['ALL', 'PL', 'PB'].map(f => (
+                                        <button
+                                            key={f}
+                                            type="button"
+                                            onClick={() => setBookFilter(f)}
+                                            className={`px-2 py-0.5 rounded-md transition ${bookFilter === f ? 'bg-navy-900 text-white dark:bg-gold-500 dark:text-navy-950' : 'bg-navy-100 dark:bg-navy-800 text-navy-600 dark:text-gray-300'}`}
+                                        >
+                                            {f === 'ALL' ? 'Semua (66)' : f}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <input
+                                type="text"
+                                value={bookSearch}
+                                onChange={e => setBookSearch(e.target.value)}
+                                placeholder="Cari nama kitab (misal: Yohanes, Kejadian, Mazmur)..."
+                                className="w-full p-2 bg-navy-50 dark:bg-navy-800 border border-navy-200 dark:border-navy-700 rounded-xl text-xs font-bold text-navy-900 dark:text-white placeholder-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400"
+                            />
+
+                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 max-h-36 overflow-y-auto p-1 border border-navy-100 dark:border-navy-800 rounded-xl">
+                                {filteredBooks.map(b => {
+                                    const isSel = selectedBook?.id === b.id;
+                                    return (
+                                        <button
+                                            key={b.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedBook(b);
+                                                setSelectedChapter(1);
+                                            }}
+                                            className={`p-1.5 rounded-lg text-left text-xs font-bold truncate transition cursor-pointer ${isSel ? 'bg-gold-500 text-navy-950 font-black shadow-2xs' : 'hover:bg-navy-100 dark:hover:bg-navy-800 text-navy-800 dark:text-gray-200'}`}
+                                        >
+                                            {b.nama}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Selector Pasal */}
+                        {selectedBook && (
+                            <div className="space-y-2">
+                                <label className="text-xs font-black text-navy-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                                    <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-600 flex items-center justify-center text-[10px]">2</span>
+                                    <span>Pilih Pasal ({selectedBook.nama}):</span>
+                                </label>
+                                <div className="grid grid-cols-6 sm:grid-cols-10 gap-1.5 max-h-28 overflow-y-auto p-1 border border-navy-100 dark:border-navy-800 rounded-xl">
+                                    {Array.from({ length: selectedBook.pasal }, (_, i) => i + 1).map(ch => {
+                                        const isSel = selectedChapter === ch;
+                                        return (
+                                            <button
+                                                key={ch}
+                                                type="button"
+                                                onClick={() => setSelectedChapter(ch)}
+                                                className={`py-1.5 rounded-lg text-center text-xs font-black transition cursor-pointer ${isSel ? 'bg-gold-500 text-navy-950 shadow-2xs' : 'bg-navy-50 dark:bg-navy-800 hover:bg-gold-100 text-navy-800 dark:text-gray-200'}`}
+                                            >
+                                                {ch}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Input Nomor Ayat (Mulai & Sampai) */}
+                        {selectedBook && (
+                            <div className="space-y-2">
+                                <label className="text-xs font-black text-navy-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                                    <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-600 flex items-center justify-center text-[10px]">3</span>
+                                    <span>Nomor Ayat (Bisa Tunggal atau Rentang):</span>
+                                </label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <span className="text-[10px] font-bold text-navy-500 block mb-1">Ayat Mulai:</span>
+                                        <input
+                                            type="text"
+                                            value={verseStart}
+                                            onChange={e => setVerseStart(e.target.value)}
+                                            placeholder="Contoh: 16"
+                                            className="w-full p-2 bg-navy-50 dark:bg-navy-800 border border-navy-200 dark:border-navy-700 rounded-xl text-xs font-bold text-navy-900 dark:text-white outline-none focus:ring-2 focus:ring-gold-400"
+                                        />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-bold text-navy-500 block mb-1">Sampai Ayat (Opsional):</span>
+                                        <input
+                                            type="text"
+                                            value={verseEnd}
+                                            onChange={e => setVerseEnd(e.target.value)}
+                                            placeholder="Contoh: 17 (kosongkan jika 1 ayat)"
+                                            className="w-full p-2 bg-navy-50 dark:bg-navy-800 border border-navy-200 dark:border-navy-700 rounded-xl text-xs font-bold text-navy-900 dark:text-white outline-none focus:ring-2 focus:ring-gold-400"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Live Preview Box & Submit */}
+                        <div className="p-4 bg-gradient-to-r from-emerald-50 to-gold-50 dark:from-navy-800 dark:to-navy-800/80 rounded-2xl border border-emerald-200 dark:border-navy-700 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+                            <div className="text-center sm:text-left min-w-0">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block">
+                                    Hasil Pilihan Ayat:
+                                </span>
+                                <span className="text-base sm:text-lg font-black text-navy-900 dark:text-white truncate block">
+                                    📖 {previewVerseString}
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    onSelect(previewVerseString);
+                                    onClose();
+                                }}
+                                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs uppercase tracking-wider shadow-md transition cursor-pointer active:scale-95 shrink-0"
+                            >
+                                ✓ Gunakan Ayat Ini
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
 const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken,
     youtubeUrl, setYoutubeUrl, anthemUrl, setAnthemUrl, anthemUrl2, setAnthemUrl2, anthemTitle, setAnthemTitle, anthemTitle2, setAnthemTitle2, youtubeTitle, setYoutubeTitle, youtubeChannelTitle, setYoutubeChannelTitle, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
-    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, perjamuanNote, setPerjamuanNote, perpuluhanNote, setPerpuluhanNote, daftarRekening, setDaftarRekening, handleLogout, carouselEvents, setCarouselEvents, carouselVideos, setCarouselVideos }) => {
+    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, perjamuanNote, setPerjamuanNote, perpuluhanNote, setPerpuluhanNote, daftarRekening, setDaftarRekening, handleLogout, carouselEvents, setCarouselEvents, carouselVideos, setCarouselVideos, laguSionDb = [] }) => {
     const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku
     React.useEffect(() => {
         scrollToTop();
@@ -11265,6 +11767,18 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
     const [editForm, setEditForm] = React.useState([]);
     const [isSavingJadwal, setIsSavingJadwal] = React.useState(false);
     const [isSavingPejabat, setIsSavingPejabat] = React.useState(false);
+
+    // Modal Selector Lagu Sion & Ayat Alkitab untuk Susunan Acara
+    const [songPicker, setSongPicker] = React.useState(null); // { field: string, title?: string }
+    const [versePicker, setVersePicker] = React.useState(null); // { field: string, isAyatBersahutan?: boolean, title?: string }
+
+    const openSongPicker = (field, title) => {
+        setSongPicker({ field, title: title || "Pilih Lagu Sion" });
+    };
+
+    const openVersePicker = (field, isAyatBersahutan = false, title) => {
+        setVersePicker({ field, isAyatBersahutan, title: title || "Pilih Ayat Alkitab" });
+    };
 
     // ============ STATE CAROUSEL EVENTS & VIDEOS ============
     const [editCarouselEvents, setEditCarouselEvents] = React.useState([]);
@@ -14301,42 +14815,255 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                         isEditing ? (
                                                             <td colSpan="2" className="p-4 bg-gold-50/30">
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                                                                    <div className="space-y-3 p-5 glass-box rounded-2xl border border-navy-100/60 shadow-sm h-fit">
+                                                                    <div className="space-y-4 p-5 glass-box rounded-2xl border border-navy-100/60 shadow-sm h-fit">
                                                                         <h4 className="font-black text-sm text-navy-800 border-b border-navy-50 pb-2">Sekolah Sabat</h4>
-                                                                        <div><label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">Lagu Buka</label><input type="text" value={editForm.ssLaguBuka || ''} onChange={(e) => handleEditFormChangeSusunan('ssLaguBuka', e.target.value)} placeholder="Contoh: LS 210" className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" /></div>
-                                                                        <div><label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">Lagu Tutup</label><input type="text" value={editForm.ssLaguTutup || ''} onChange={(e) => handleEditFormChangeSusunan('ssLaguTutup', e.target.value)} placeholder="Contoh: LS 251" className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" /></div>
+                                                                        <div>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Lagu Buka (SS)</label>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('ssLaguBuka', 'Pilih Lagu Buka Sekolah Sabat')}
+                                                                                    className="inline-flex items-center gap-1 text-[11px] font-black text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-amber-300/60"
+                                                                                    title="Pilih langsung dari 525 Lagu Sion"
+                                                                                >
+                                                                                    <span>🎵</span>
+                                                                                    <span>Pilih Lagu</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="relative flex items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editForm.ssLaguBuka || ''}
+                                                                                    onChange={(e) => handleEditFormChangeSusunan('ssLaguBuka', e.target.value)}
+                                                                                    placeholder="Contoh: LS 210 - Sucikanlah Harapanku"
+                                                                                    className="w-full p-2.5 pr-20 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('ssLaguBuka', 'Pilih Lagu Buka Sekolah Sabat')}
+                                                                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-gold-50 text-gold-700 hover:text-navy-900 border border-gold-300/60 rounded-lg shadow-2xs transition cursor-pointer"
+                                                                                >
+                                                                                    Pilih ▾
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Lagu Tutup (SS)</label>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('ssLaguTutup', 'Pilih Lagu Tutup Sekolah Sabat')}
+                                                                                    className="inline-flex items-center gap-1 text-[11px] font-black text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-amber-300/60"
+                                                                                    title="Pilih langsung dari 525 Lagu Sion"
+                                                                                >
+                                                                                    <span>🎵</span>
+                                                                                    <span>Pilih Lagu</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="relative flex items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editForm.ssLaguTutup || ''}
+                                                                                    onChange={(e) => handleEditFormChangeSusunan('ssLaguTutup', e.target.value)}
+                                                                                    placeholder="Contoh: LS 251 - Tetap Pada-Mu"
+                                                                                    className="w-full p-2.5 pr-20 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('ssLaguTutup', 'Pilih Lagu Tutup Sekolah Sabat')}
+                                                                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-gold-50 text-gold-700 hover:text-navy-900 border border-gold-300/60 rounded-lg shadow-2xs transition cursor-pointer"
+                                                                                >
+                                                                                    Pilih ▾
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="space-y-3 p-5 bg-white rounded-xl border border-navy-100/60 shadow-sm">
+                                                                    <div className="space-y-4 p-5 bg-white rounded-xl border border-navy-100/60 shadow-sm">
                                                                         <h4 className="font-black text-sm text-gold-600 border-b border-navy-50 pb-2">Khotbah Umum</h4>
-                                                                        <div><label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">Ayat Bersahutan</label><input type="text" value={editForm.kAyatBersahutan || ''} onChange={(e) => handleEditFormChangeSusunan('kAyatBersahutan', e.target.value)} placeholder="Contoh: No. 12" className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" /></div>
-                                                                        <div><label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">Lagu Buka</label><input type="text" value={editForm.kLaguBuka || ''} onChange={(e) => handleEditFormChangeSusunan('kLaguBuka', e.target.value)} placeholder="Contoh: LS 15" className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" /></div>
-
-                                                                        <div className="flex items-center space-x-3 border border-navy-100 p-3 rounded-xl bg-navy-50/30">
-                                                                            <input type="checkbox" checked={editForm.kLaguPujian1_show || false} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian1_show', e.target.checked)} className="w-5 h-5 text-gold-500 rounded focus:ring-gold-500 accent-gold-500" />
-                                                                            <div className="flex-1">
-                                                                                <label className="text-[10px] text-navy-600 font-bold uppercase tracking-widest block mb-0.5">Lagu Pujian 1 (Sebelum Persembahan)</label>
-                                                                                {editForm.kLaguPujian1_show && <input type="text" value={editForm.kLaguPujian1_judul || ''} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian1_judul', e.target.value)} placeholder="Misal: Koor Pemuda" className="w-full p-2 border border-navy-200 rounded-lg text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-white" />}
+                                                                        <div>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Ayat Bersahutan</label>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openVersePicker('kAyatBersahutan', true, 'Pilih Ayat Bersahutan (No. atau Alkitab)')}
+                                                                                    className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-emerald-300/60"
+                                                                                    title="Pilih No. Bersahutan 1-72 atau dari Kitab Alkitab"
+                                                                                >
+                                                                                    <span>📖</span>
+                                                                                    <span>Pilih Ayat / No.</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="relative flex items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editForm.kAyatBersahutan || ''}
+                                                                                    onChange={(e) => handleEditFormChangeSusunan('kAyatBersahutan', e.target.value)}
+                                                                                    placeholder="Contoh: No. 12 atau Mazmur 23:1-6"
+                                                                                    className="w-full p-2.5 pr-20 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openVersePicker('kAyatBersahutan', true, 'Pilih Ayat Bersahutan (No. atau Alkitab)')}
+                                                                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-emerald-50 text-emerald-700 hover:text-navy-900 border border-emerald-300/60 rounded-lg shadow-2xs transition cursor-pointer"
+                                                                                >
+                                                                                    Pilih ▾
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Lagu Buka (Khotbah)</label>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('kLaguBuka', 'Pilih Lagu Buka Khotbah')}
+                                                                                    className="inline-flex items-center gap-1 text-[11px] font-black text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-amber-300/60"
+                                                                                    title="Pilih langsung dari 525 Lagu Sion"
+                                                                                >
+                                                                                    <span>🎵</span>
+                                                                                    <span>Pilih Lagu</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="relative flex items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editForm.kLaguBuka || ''}
+                                                                                    onChange={(e) => handleEditFormChangeSusunan('kLaguBuka', e.target.value)}
+                                                                                    placeholder="Contoh: LS 15 - Berlutut Di Hadirat-Mu"
+                                                                                    className="w-full p-2.5 pr-20 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('kLaguBuka', 'Pilih Lagu Buka Khotbah')}
+                                                                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-gold-50 text-gold-700 hover:text-navy-900 border border-gold-300/60 rounded-lg shadow-2xs transition cursor-pointer"
+                                                                                >
+                                                                                    Pilih ▾
+                                                                                </button>
                                                                             </div>
                                                                         </div>
 
-                                                                        <div className="flex items-center space-x-3 border border-navy-100 p-3 rounded-xl bg-navy-50/30">
-                                                                            <input type="checkbox" checked={editForm.kLaguPujian2_show || false} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian2_show', e.target.checked)} className="w-5 h-5 text-gold-500 rounded focus:ring-gold-500 accent-gold-500" />
-                                                                            <div className="flex-1">
-                                                                                <label className="text-[10px] text-navy-600 font-bold uppercase tracking-widest block mb-0.5">Lagu Pujian 2 (Sebelum Cerita Anak)</label>
-                                                                                {editForm.kLaguPujian2_show && <input type="text" value={editForm.kLaguPujian2_judul || ''} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian2_judul', e.target.value)} placeholder="Misal: Vocal Group" className="w-full p-2 border border-navy-200 rounded-lg text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-white" />}
+                                                                        <div className="border border-navy-100 p-3 rounded-xl bg-navy-50/30 space-y-2">
+                                                                            <div className="flex items-center justify-between gap-2">
+                                                                                <div className="flex items-center space-x-2.5">
+                                                                                    <input type="checkbox" checked={editForm.kLaguPujian1_show || false} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian1_show', e.target.checked)} className="w-5 h-5 text-gold-500 rounded focus:ring-gold-500 accent-gold-500" />
+                                                                                    <label className="text-[10px] text-navy-600 font-bold uppercase tracking-widest">Lagu Pujian 1 (Sebelum Persembahan)</label>
+                                                                                </div>
+                                                                                {editForm.kLaguPujian1_show && (
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() => openSongPicker('kLaguPujian1_judul', 'Pilih Lagu Sion untuk Pujian 1')}
+                                                                                        className="text-[10.5px] font-bold text-amber-700 bg-amber-100/60 hover:bg-amber-100 px-2 py-0.5 rounded transition cursor-pointer border border-amber-300/60"
+                                                                                    >
+                                                                                        🎵 Dari Lagu Sion
+                                                                                    </button>
+                                                                                )}
                                                                             </div>
+                                                                            {editForm.kLaguPujian1_show && (
+                                                                                <input type="text" value={editForm.kLaguPujian1_judul || ''} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian1_judul', e.target.value)} placeholder="Misal: Koor Pemuda atau LS 10" className="w-full p-2 border border-navy-200 rounded-lg text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-white" />
+                                                                            )}
                                                                         </div>
 
-                                                                        <div className="flex items-center space-x-3 border border-navy-100 p-3 rounded-xl bg-navy-50/30">
-                                                                            <input type="checkbox" checked={editForm.kLaguPujian3_show || false} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian3_show', e.target.checked)} className="w-5 h-5 text-gold-500 rounded focus:ring-gold-500 accent-gold-500" />
-                                                                            <div className="flex-1">
-                                                                                <label className="text-[10px] text-navy-600 font-bold uppercase tracking-widest block mb-0.5">Lagu Pujian 3 (Sesudah Cerita Anak)</label>
-                                                                                {editForm.kLaguPujian3_show && <input type="text" value={editForm.kLaguPujian3_judul || ''} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian3_judul', e.target.value)} placeholder="Misal: Solo" className="w-full p-2 border border-navy-200 rounded-lg text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-white" />}
+                                                                        <div className="border border-navy-100 p-3 rounded-xl bg-navy-50/30 space-y-2">
+                                                                            <div className="flex items-center justify-between gap-2">
+                                                                                <div className="flex items-center space-x-2.5">
+                                                                                    <input type="checkbox" checked={editForm.kLaguPujian2_show || false} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian2_show', e.target.checked)} className="w-5 h-5 text-gold-500 rounded focus:ring-gold-500 accent-gold-500" />
+                                                                                    <label className="text-[10px] text-navy-600 font-bold uppercase tracking-widest">Lagu Pujian 2 (Sebelum Cerita Anak)</label>
+                                                                                </div>
+                                                                                {editForm.kLaguPujian2_show && (
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() => openSongPicker('kLaguPujian2_judul', 'Pilih Lagu Sion untuk Pujian 2')}
+                                                                                        className="text-[10.5px] font-bold text-amber-700 bg-amber-100/60 hover:bg-amber-100 px-2 py-0.5 rounded transition cursor-pointer border border-amber-300/60"
+                                                                                    >
+                                                                                        🎵 Dari Lagu Sion
+                                                                                    </button>
+                                                                                )}
                                                                             </div>
+                                                                            {editForm.kLaguPujian2_show && (
+                                                                                <input type="text" value={editForm.kLaguPujian2_judul || ''} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian2_judul', e.target.value)} placeholder="Misal: Vocal Group atau LS 20" className="w-full p-2 border border-navy-200 rounded-lg text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-white" />
+                                                                            )}
                                                                         </div>
 
-                                                                        <div><label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">Ayat Inti</label><input type="text" value={editForm.kAyatInti || ''} onChange={(e) => handleEditFormChangeSusunan('kAyatInti', e.target.value)} placeholder="Contoh: Yohanes 3:16" className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" /></div>
-                                                                        <div><label className="text-[10px] font-bold uppercase tracking-widest text-navy-500 block mb-1">Lagu Tutup</label><input type="text" value={editForm.kLaguTutup || ''} onChange={(e) => handleEditFormChangeSusunan('kLaguTutup', e.target.value)} placeholder="Contoh: LS 300" className="w-full p-2.5 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors" /></div>
+                                                                        <div className="border border-navy-100 p-3 rounded-xl bg-navy-50/30 space-y-2">
+                                                                            <div className="flex items-center justify-between gap-2">
+                                                                                <div className="flex items-center space-x-2.5">
+                                                                                    <input type="checkbox" checked={editForm.kLaguPujian3_show || false} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian3_show', e.target.checked)} className="w-5 h-5 text-gold-500 rounded focus:ring-gold-500 accent-gold-500" />
+                                                                                    <label className="text-[10px] text-navy-600 font-bold uppercase tracking-widest">Lagu Pujian 3 (Sesudah Cerita Anak)</label>
+                                                                                </div>
+                                                                                {editForm.kLaguPujian3_show && (
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() => openSongPicker('kLaguPujian3_judul', 'Pilih Lagu Sion untuk Pujian 3')}
+                                                                                        className="text-[10.5px] font-bold text-amber-700 bg-amber-100/60 hover:bg-amber-100 px-2 py-0.5 rounded transition cursor-pointer border border-amber-300/60"
+                                                                                    >
+                                                                                        🎵 Dari Lagu Sion
+                                                                                    </button>
+                                                                                )}
+                                                                            </div>
+                                                                            {editForm.kLaguPujian3_show && (
+                                                                                <input type="text" value={editForm.kLaguPujian3_judul || ''} onChange={(e) => handleEditFormChangeSusunan('kLaguPujian3_judul', e.target.value)} placeholder="Misal: Solo atau LS 35" className="w-full p-2 border border-navy-200 rounded-lg text-xs font-bold text-navy-900 outline-none focus:border-gold-500 bg-white" />
+                                                                            )}
+                                                                        </div>
+
+                                                                        <div>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Ayat Inti</label>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openVersePicker('kAyatInti', false, 'Pilih Ayat Inti Khotbah')}
+                                                                                    className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-emerald-300/60"
+                                                                                    title="Pilih Kitab, Pasal, dan Ayat Alkitab"
+                                                                                >
+                                                                                    <span>📖</span>
+                                                                                    <span>Pilih Ayat</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="relative flex items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editForm.kAyatInti || ''}
+                                                                                    onChange={(e) => handleEditFormChangeSusunan('kAyatInti', e.target.value)}
+                                                                                    placeholder="Contoh: Yohanes 3:16"
+                                                                                    className="w-full p-2.5 pr-20 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openVersePicker('kAyatInti', false, 'Pilih Ayat Inti Khotbah')}
+                                                                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-emerald-50 text-emerald-700 hover:text-navy-900 border border-emerald-300/60 rounded-lg shadow-2xs transition cursor-pointer"
+                                                                                >
+                                                                                    Pilih ▾
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Lagu Tutup (Khotbah)</label>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('kLaguTutup', 'Pilih Lagu Tutup Khotbah')}
+                                                                                    className="inline-flex items-center gap-1 text-[11px] font-black text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-amber-300/60"
+                                                                                    title="Pilih langsung dari 525 Lagu Sion"
+                                                                                >
+                                                                                    <span>🎵</span>
+                                                                                    <span>Pilih Lagu</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="relative flex items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editForm.kLaguTutup || ''}
+                                                                                    onChange={(e) => handleEditFormChangeSusunan('kLaguTutup', e.target.value)}
+                                                                                    placeholder="Contoh: LS 300 - Pandang Pada Yesus"
+                                                                                    className="w-full p-2.5 pr-20 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('kLaguTutup', 'Pilih Lagu Tutup Khotbah')}
+                                                                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-gold-50 text-gold-700 hover:text-navy-900 border border-gold-300/60 rounded-lg shadow-2xs transition cursor-pointer"
+                                                                                >
+                                                                                    Pilih ▾
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                                 <div className="mt-5 flex justify-end space-x-3">
@@ -16996,80 +17723,39 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                 {adminTab === 'pastoral' && (
                     <AdminPastoralAndCalendarPanel />
                 )}
+
+                {/* Modal Selector Lagu Sion & Ayat Alkitab untuk Susunan Acara */}
+                <AdminSongPickerModal
+                    isOpen={Boolean(songPicker)}
+                    onClose={() => setSongPicker(null)}
+                    laguSionDb={laguSionDb}
+                    title={songPicker?.title || "Pilih Lagu Sion"}
+                    onSelect={(val) => {
+                        if (songPicker?.field) {
+                            handleEditFormChangeSusunan(songPicker.field, val);
+                        }
+                    }}
+                />
+
+                <AdminBibleVersePickerModal
+                    isOpen={Boolean(versePicker)}
+                    onClose={() => setVersePicker(null)}
+                    isAyatBersahutan={Boolean(versePicker?.isAyatBersahutan)}
+                    title={versePicker?.title || "Pilih Ayat Alkitab"}
+                    alkitabBooks={ALKITAB_BOOKS}
+                    onSelect={(val) => {
+                        if (versePicker?.field) {
+                            handleEditFormChangeSusunan(versePicker.field, val);
+                        }
+                    }}
+                />
             </div>
         </div>
     );
 };
 
 // --- COMPONENT: ALKITAB ---
-const ALKITAB_BOOKS = [
-    { id: 1, nama: 'Kejadian', singkat: 'Kej', pasal: 50, testamen: 'PL' },
-    { id: 2, nama: 'Keluaran', singkat: 'Kel', pasal: 40, testamen: 'PL' },
-    { id: 3, nama: 'Imamat', singkat: 'Im', pasal: 27, testamen: 'PL' },
-    { id: 4, nama: 'Bilangan', singkat: 'Bil', pasal: 36, testamen: 'PL' },
-    { id: 5, nama: 'Ulangan', singkat: 'Ul', pasal: 34, testamen: 'PL' },
-    { id: 6, nama: 'Yosua', singkat: 'Yos', pasal: 24, testamen: 'PL' },
-    { id: 7, nama: 'Hakim-hakim', singkat: 'Hak', pasal: 21, testamen: 'PL' },
-    { id: 8, nama: 'Rut', singkat: 'Rut', pasal: 4, testamen: 'PL' },
-    { id: 9, nama: '1 Samuel', singkat: '1Sam', pasal: 31, testamen: 'PL' },
-    { id: 10, nama: '2 Samuel', singkat: '2Sam', pasal: 24, testamen: 'PL' },
-    { id: 11, nama: '1 Raja-raja', singkat: '1Raj', pasal: 22, testamen: 'PL' },
-    { id: 12, nama: '2 Raja-raja', singkat: '2Raj', pasal: 25, testamen: 'PL' },
-    { id: 13, nama: '1 Tawarikh', singkat: '1Taw', pasal: 29, testamen: 'PL' },
-    { id: 14, nama: '2 Tawarikh', singkat: '2Taw', pasal: 36, testamen: 'PL' },
-    { id: 15, nama: 'Ezra', singkat: 'Ezr', pasal: 10, testamen: 'PL' },
-    { id: 16, nama: 'Nehemia', singkat: 'Neh', pasal: 13, testamen: 'PL' },
-    { id: 17, nama: 'Ester', singkat: 'Est', pasal: 10, testamen: 'PL' },
-    { id: 18, nama: 'Ayub', singkat: 'Ayb', pasal: 42, testamen: 'PL' },
-    { id: 19, nama: 'Mazmur', singkat: 'Mzm', pasal: 150, testamen: 'PL' },
-    { id: 20, nama: 'Amsal', singkat: 'Ams', pasal: 31, testamen: 'PL' },
-    { id: 21, nama: 'Pengkhotbah', singkat: 'Pkh', pasal: 12, testamen: 'PL' },
-    { id: 22, nama: 'Kidung Agung', singkat: 'Kid', pasal: 8, testamen: 'PL' },
-    { id: 23, nama: 'Yesaya', singkat: 'Yes', pasal: 66, testamen: 'PL' },
-    { id: 24, nama: 'Yeremia', singkat: 'Yer', pasal: 52, testamen: 'PL' },
-    { id: 25, nama: 'Ratapan', singkat: 'Rat', pasal: 5, testamen: 'PL' },
-    { id: 26, nama: 'Yehezkiel', singkat: 'Yeh', pasal: 48, testamen: 'PL' },
-    { id: 27, nama: 'Daniel', singkat: 'Dan', pasal: 12, testamen: 'PL' },
-    { id: 28, nama: 'Hosea', singkat: 'Hos', pasal: 14, testamen: 'PL' },
-    { id: 29, nama: 'Yoel', singkat: 'Yoe', pasal: 3, testamen: 'PL' },
-    { id: 30, nama: 'Amos', singkat: 'Am', pasal: 9, testamen: 'PL' },
-    { id: 31, nama: 'Obaja', singkat: 'Ob', pasal: 1, testamen: 'PL' },
-    { id: 32, nama: 'Yunus', singkat: 'Yun', pasal: 4, testamen: 'PL' },
-    { id: 33, nama: 'Mikha', singkat: 'Mi', pasal: 7, testamen: 'PL' },
-    { id: 34, nama: 'Nahum', singkat: 'Nah', pasal: 3, testamen: 'PL' },
-    { id: 35, nama: 'Habakuk', singkat: 'Hab', pasal: 3, testamen: 'PL' },
-    { id: 36, nama: 'Zefanya', singkat: 'Zef', pasal: 3, testamen: 'PL' },
-    { id: 37, nama: 'Hagai', singkat: 'Hag', pasal: 2, testamen: 'PL' },
-    { id: 38, nama: 'Zakharia', singkat: 'Za', pasal: 14, testamen: 'PL' },
-    { id: 39, nama: 'Maleakhi', singkat: 'Mal', pasal: 4, testamen: 'PL' },
-    { id: 40, nama: 'Matius', singkat: 'Mat', pasal: 28, testamen: 'PB' },
-    { id: 41, nama: 'Markus', singkat: 'Mrk', pasal: 16, testamen: 'PB' },
-    { id: 42, nama: 'Lukas', singkat: 'Luk', pasal: 24, testamen: 'PB' },
-    { id: 43, nama: 'Yohanes', singkat: 'Yoh', pasal: 21, testamen: 'PB' },
-    { id: 44, nama: 'Kisah Para Rasul', singkat: 'Kis', pasal: 28, testamen: 'PB' },
-    { id: 45, nama: 'Roma', singkat: 'Rom', pasal: 16, testamen: 'PB' },
-    { id: 46, nama: '1 Korintus', singkat: '1Kor', pasal: 16, testamen: 'PB' },
-    { id: 47, nama: '2 Korintus', singkat: '2Kor', pasal: 13, testamen: 'PB' },
-    { id: 48, nama: 'Galatia', singkat: 'Gal', pasal: 6, testamen: 'PB' },
-    { id: 49, nama: 'Efesus', singkat: 'Ef', pasal: 6, testamen: 'PB' },
-    { id: 50, nama: 'Filipi', singkat: 'Flp', pasal: 4, testamen: 'PB' },
-    { id: 51, nama: 'Kolose', singkat: 'Kol', pasal: 4, testamen: 'PB' },
-    { id: 52, nama: '1 Tesalonika', singkat: '1Tes', pasal: 5, testamen: 'PB' },
-    { id: 53, nama: '2 Tesalonika', singkat: '2Tes', pasal: 3, testamen: 'PB' },
-    { id: 54, nama: '1 Timotius', singkat: '1Tim', pasal: 6, testamen: 'PB' },
-    { id: 55, nama: '2 Timotius', singkat: '2Tim', pasal: 4, testamen: 'PB' },
-    { id: 56, nama: 'Titus', singkat: 'Tit', pasal: 3, testamen: 'PB' },
-    { id: 57, nama: 'Filemon', singkat: 'Flm', pasal: 1, testamen: 'PB' },
-    { id: 58, nama: 'Ibrani', singkat: 'Ibr', pasal: 13, testamen: 'PB' },
-    { id: 59, nama: 'Yakobus', singkat: 'Yak', pasal: 5, testamen: 'PB' },
-    { id: 60, nama: '1 Petrus', singkat: '1Pet', pasal: 5, testamen: 'PB' },
-    { id: 61, nama: '2 Petrus', singkat: '2Pet', pasal: 3, testamen: 'PB' },
-    { id: 62, nama: '1 Yohanes', singkat: '1Yoh', pasal: 5, testamen: 'PB' },
-    { id: 63, nama: '2 Yohanes', singkat: '2Yoh', pasal: 1, testamen: 'PB' },
-    { id: 64, nama: '3 Yohanes', singkat: '3Yoh', pasal: 1, testamen: 'PB' },
-    { id: 65, nama: 'Yudas', singkat: 'Yud', pasal: 1, testamen: 'PB' },
-    { id: 66, nama: 'Wahyu', singkat: 'Why', pasal: 22, testamen: 'PB' },
-];
+// Catatan: Definisi ALKITAB_BOOKS (66 Kitab) ditempatkan di root global scope agar dapat digunakan bersama oleh Admin dan Alkitab.
 
 const HIGHLIGHT_PALETTE = {
     gold: {
@@ -19809,11 +20495,10 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                     <button
                                         type="button"
                                         onClick={() => toggleFavoriteSong(selectedSong.number)}
-                                        className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition-colors relative shrink-0 cursor-pointer ${
-                                            favoriteSongNos.includes(selectedSong.number)
+                                        className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition-colors relative shrink-0 cursor-pointer ${favoriteSongNos.includes(selectedSong.number)
                                                 ? 'bg-amber-300 text-navy-950 shadow-md ring-2 ring-white/50'
                                                 : 'bg-white/15 hover:bg-white/25 active:bg-white/35 text-white'
-                                        }`}
+                                            }`}
                                         title={favoriteSongNos.includes(selectedSong.number) ? "Hapus dari Favorit" : "Simpan ke Lagu Favorit"}
                                     >
                                         <Icon name="Star" className={`w-4 h-4 sm:w-5 sm:h-5 ${favoriteSongNos.includes(selectedSong.number) ? 'fill-current' : ''}`} />
@@ -19823,11 +20508,10 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                     <button
                                         type="button"
                                         onClick={() => setPitchPipeOpen(prev => !prev)}
-                                        className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition-colors relative shrink-0 cursor-pointer ${
-                                            pitchPipeOpen
+                                        className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition-colors relative shrink-0 cursor-pointer ${pitchPipeOpen
                                                 ? 'bg-white text-navy-950 shadow-md ring-2 ring-gold-300'
                                                 : 'bg-white/15 hover:bg-white/25 active:bg-white/35 text-white'
-                                        }`}
+                                            }`}
                                         title="Buka Pembidik Nada Dasar (Pitch Pipe)"
                                     >
                                         <span className="text-sm sm:text-base select-none">🎵</span>
@@ -19872,11 +20556,10 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                                     key={p.note}
                                                     type="button"
                                                     onClick={() => playPitch(p.freq, p.note)}
-                                                    className={`py-2 px-1 rounded-xl text-xs font-black transition-all cursor-pointer flex flex-col items-center justify-center active:scale-95 ${
-                                                        isPlaying
+                                                    className={`py-2 px-1 rounded-xl text-xs font-black transition-all cursor-pointer flex flex-col items-center justify-center active:scale-95 ${isPlaying
                                                             ? 'bg-gold-500 text-navy-950 shadow-lg scale-105 ring-2 ring-white'
                                                             : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
-                                                    }`}
+                                                        }`}
                                                     title={`Bunyikan nada ${p.label} (${p.freq} Hz)`}
                                                 >
                                                     <span className="text-sm font-black">{p.note}</span>
@@ -21752,7 +22435,7 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} setLaguSionSubTab={setLaguSionSubTab} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} /> : <Home setShowManualInstall={setShowManualInstall} setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} laguSionDb={laguSionDb} /> : <Home setShowManualInstall={setShowManualInstall} setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
             case 'alkitab': return <Alkitab setActiveTab={setActiveTab} setHideGlobalBack={setHideGlobalBack} />;
             case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} setSelectedWarta={setSelectedWartaDetail} />;
