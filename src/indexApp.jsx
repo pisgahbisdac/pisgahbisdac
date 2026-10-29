@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import ReactDOM from 'react-dom/client';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Play, Maximize, FileText, Download, Share2, Info, BookOpen, Search as SearchIcon, X, CheckCircle, Navigation, MapPin, Calendar, Phone, Mail, Clock, Globe, ArrowRight, User, PlusCircle, PenTool, Layout, ExternalLink, Menu, Music, Activity, Megaphone, Video, ArrowLeft, MoreHorizontal, MessageCircle, Heart, Star, Compass, Anchor, Copy, Check, Upload, Trash2, Map as MapIcon } from 'lucide-react';
+import DetailSekolahSabat from './DetailSekolahSabat';
 
 // searchlaporan: redirect ke laporan.html (Cek Transaksi)
 
@@ -257,8 +258,8 @@ const decodeHTML = (html) => {
     return txt.value;
 };
 
-// Fungsi kompresi gambar otomatis sebelum diupload (Mencegah Limit Size Apps Script & Menjaga Transparansi PNG/WebP)
-const compressImage = (file, maxWidth = 1200, quality = 0.65) => {
+// Fungsi kompresi gambar otomatis berbasis WebP (Mencegah Limit Size Apps Script, Menghemat Kuota hingga 85%, & Menjaga Transparansi)
+const compressImage = (file, maxWidth = 1280, quality = 0.75) => {
     return new Promise((resolve, reject) => {
         if (!file) return resolve('');
 
@@ -280,9 +281,12 @@ const compressImage = (file, maxWidth = 1200, quality = 0.65) => {
                 ctx.clearRect(0, 0, width, height);
                 ctx.drawImage(img, 0, 0, width, height);
                 try {
-                    const q = quality || 0.65;
-                    const res = canvas.toDataURL('image/jpeg', q);
-                    resolve(res);
+                    const q = quality || 0.75;
+                    const webpData = canvas.toDataURL('image/webp', q);
+                    if (webpData && webpData.startsWith('data:image/webp')) {
+                        return resolve(webpData);
+                    }
+                    resolve(canvas.toDataURL('image/jpeg', q));
                 } catch (e) {
                     resolve(file);
                 }
@@ -293,9 +297,6 @@ const compressImage = (file, maxWidth = 1200, quality = 0.65) => {
 
         const mimeType = (file.type || '').toLowerCase();
         const fileName = (file.name || '').toLowerCase();
-        const isPng = mimeType === 'image/png' || fileName.endsWith('.png');
-        const isWebp = mimeType === 'image/webp' || fileName.endsWith('.webp');
-        const isGif = mimeType === 'image/gif' || fileName.endsWith('.gif');
         const isSvg = mimeType === 'image/svg+xml' || fileName.endsWith('.svg');
 
         // Jika berkas SVG, langsung gunakan DataURL tanpa rasterisasi agar tetap vektor transparan
@@ -323,42 +324,23 @@ const compressImage = (file, maxWidth = 1200, quality = 0.65) => {
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
-
-                // Bersihkan canvas agar transparan bersih sebelum menggambar
                 ctx.clearRect(0, 0, width, height);
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Deteksi apakah gambar memiliki pixel transparan (alpha channel < 250)
-                let hasTransparency = false;
-                if (isPng || isWebp || isGif) {
-                    try {
-                        const imgData = ctx.getImageData(0, 0, width, height).data;
-                        const step = Math.max(1, Math.floor(imgData.length / 4000)) * 4;
-                        for (let i = 3; i < imgData.length; i += step) {
-                            if (imgData[i] < 250) {
-                                hasTransparency = true;
-                                break;
-                            }
-                        }
-                    } catch (e) {
-                        hasTransparency = isPng || isWebp || isGif;
+                // Prioritaskan kompresi WebP modern untuk efisiensi ruang maksimum & transparansi sempurna
+                try {
+                    const webpData = canvas.toDataURL('image/webp', quality || 0.75);
+                    if (webpData && webpData.startsWith('data:image/webp')) {
+                        resolve(webpData);
+                        return;
                     }
-                }
+                } catch (e) { }
 
-                // JIKA GAMBAR TRANSPARAN:
-                // Prioritaskan WebP agar hemat memori namun tetap menjaga transparansi
-                if (hasTransparency) {
-                    try {
-                        const webpData = canvas.toDataURL('image/webp', quality || 0.7);
-                        if (webpData && webpData.startsWith('data:image/webp')) {
-                            resolve(webpData);
-                            return;
-                        }
-                    } catch (e) { }
-                    resolve(canvas.toDataURL('image/png'));
-                } else {
-                    // Jika tidak transparan (foto biasa), kompres sebagai JPEG untuk menghemat ukuran memori
-                    resolve(canvas.toDataURL('image/jpeg', quality || 0.65));
+                // Fallback jika browser lawas
+                try {
+                    resolve(canvas.toDataURL('image/jpeg', quality || 0.75));
+                } catch (e) {
+                    resolve(event.target.result);
                 }
             };
             img.src = event.target.result;
@@ -649,38 +631,232 @@ const IosInstallModal = ({ isOpen, onClose }) => {
 
 const ManualInstallModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
-    const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-    const isAndroid = /android/.test(navigator.userAgent.toLowerCase());
+    const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/.test((navigator.userAgent || '').toLowerCase());
+    const isAndroid = typeof navigator !== 'undefined' && /android/.test((navigator.userAgent || '').toLowerCase());
+    const [activeOsTab, setActiveOsTab] = React.useState(isIos ? 'ios' : isAndroid ? 'android' : 'desktop');
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/60 backdrop-blur-sm p-4" onClick={onClose}>
-            <div className="glass-box rounded-2xl max-w-sm w-full p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
-                <div className="text-center mb-4">
-                    <Icon name="MonitorDown" className="w-12 h-12 mx-auto text-gold-500" />
-                    <h3 className="text-xl font-bold mt-2">Instal Aplikasi</h3>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-900/70 backdrop-blur-md p-4 animate-fade-in" onClick={onClose}>
+            <div className="glass-box rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl animate-scale-up border-2 border-navy-100 dark:border-navy-700 bg-white/95 dark:bg-navy-900/95" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-navy-100 dark:border-navy-800">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-[#4A7045]/15 dark:bg-gold-500/20 text-[#4A7045] dark:text-gold-400 flex items-center justify-center">
+                            <Icon name="MonitorDown" className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="text-base sm:text-lg font-extrabold text-navy-900 dark:text-white leading-tight">Panduan Pasang Aplikasi PWA</h3>
+                            <p className="text-[11px] text-navy-500 dark:text-gray-400">GMAHK Jemaat Pisgah BISDAC</p>
+                        </div>
+                    </div>
+                    <button onClick={onClose} className="p-1.5 rounded-lg text-navy-400 hover:text-navy-700 dark:hover:text-white hover:bg-navy-100 dark:hover:bg-navy-800 transition cursor-pointer">
+                        <Icon name="X" className="w-5 h-5" />
+                    </button>
                 </div>
-                {isIos ? (
-                    <div className="space-y-3 text-sm">
-                        <p>1. Tekan ikon <b>Titik Tiga</b> <Icon name="Titik" className="w-4 h-4 inline" /> di kanan bawah browser Safari.</p>
-                        <p>2. Tekan ikon <b>Bagikan</b> <Icon name="Share" className="w-4 h-4 inline" /></p>
-                        <p>3. Gulir ke atas (View More) dan pilih <b className="text-gold-600">"Tambahkan ke Layar Utama"</b>.</p>
-                        <p>4. Klik <b>"Tambah"</b>.</p>
-                    </div>
-                ) : isAndroid ? (
-                    <div className="space-y-3 text-sm">
-                        <p>1. Tekan ikon <b> titik tiga </b> <Icon name="Titik" className="w-4 h-4 inline" /> di pojok kanan bawah.</p>
-                        <p>2. Pilih <b className="text-gold-600">"Instal Aplikasi"</b> atau <b>"Tambahkan ke Layar Utama"</b>.</p>
-                        <p>3. Ikuti petunjuk selanjutnya.</p>
-                    </div>
-                ) : (
-                    <div className="space-y-3 text-sm">
-                        <p>1. Tekan ikon <b>Titik Tiga</b> <Icon name="Titik" className="w-4 h-4 inline" /> di kanan bawah browser Safari.</p>
-                        <p>2. Tekan ikon <b>Bagikan</b> <Icon name="Share" className="w-4 h-4 inline" /></p>
-                        <p>3. Gulir ke atas (View More) dan pilih <b className="text-gold-600">"Tambahkan ke Layar Utama"</b>.</p>
-                        <p>4. Klik <b>"Tambah"</b>.</p>
+
+                {/* OS Switcher Tabs */}
+                <div className="flex rounded-xl bg-navy-100/70 dark:bg-navy-800 p-1 mb-4 gap-1">
+                    <button
+                        type="button"
+                        onClick={() => setActiveOsTab('ios')}
+                        className={`flex-1 py-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${activeOsTab === 'ios' ? 'bg-white dark:bg-navy-900 text-[#4A7045] dark:text-gold-400 shadow-xs' : 'text-navy-600 dark:text-gray-300 hover:text-navy-900'}`}
+                    >
+                        <span>🍎 iPhone / iPad</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveOsTab('android')}
+                        className={`flex-1 py-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${activeOsTab === 'android' ? 'bg-white dark:bg-navy-900 text-[#4A7045] dark:text-gold-400 shadow-xs' : 'text-navy-600 dark:text-gray-300 hover:text-navy-900'}`}
+                    >
+                        <span>🤖 Android</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveOsTab('desktop')}
+                        className={`flex-1 py-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${activeOsTab === 'desktop' ? 'bg-white dark:bg-navy-900 text-[#4A7045] dark:text-gold-400 shadow-xs' : 'text-navy-600 dark:text-gray-300 hover:text-navy-900'}`}
+                    >
+                        <span>💻 PC / Laptop</span>
+                    </button>
+                </div>
+
+                {/* Tab Content */}
+                {activeOsTab === 'ios' && (
+                    <div className="space-y-3 text-xs sm:text-sm text-navy-700 dark:text-gray-200">
+                        <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-amber-900 dark:text-amber-300 text-xs">
+                            💡 <b>Penting:</b> Pemasangan di iPhone/iPad wajib menggunakan browser <b>Safari</b>.
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-navy-900 text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+                            <div>Buka alamat website gereja ini di browser bawaan <b>Safari</b>.</div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-navy-900 text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+                            <div>Ketuk tombol <b>Bagikan (Share)</b> <Icon name="Share" className="w-3.5 h-3.5 inline text-blue-500 mx-1" /> (ikon kotak panah ke atas di bilah navigasi Safari).</div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-navy-900 text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+                            <div>Gulir menu ke bawah lalu pilih opsi <b className="text-[#4A7045] dark:text-gold-400">"Tambahkan ke Layar Utama" (Add to Home Screen)</b>.</div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-navy-900 text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">4</span>
+                            <div>Ketuk tombol <b>"Tambah" (Add)</b> di sudut kanan atas. Ikon aplikasi resmi GMAHK Pisgah akan langsung muncul di home screen iPhone/iPad Anda!</div>
+                        </div>
                     </div>
                 )}
-                <button onClick={onClose} className="mt-6 w-full bg-navy-900 text-gold-400 py-2.5 rounded-xl font-bold">Tutup</button>
+
+                {activeOsTab === 'android' && (
+                    <div className="space-y-3 text-xs sm:text-sm text-navy-700 dark:text-gray-200">
+                        <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-emerald-900 dark:text-emerald-300 text-xs">
+                            💡 Gunakan browser <b>Google Chrome</b> atau <b>Samsung Internet</b> untuk instalasi 1-klik otomatis.
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-navy-900 text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+                            <div>Buka menu browser dengan mengetuk ikon <b>Titik Tiga (⋮)</b> di sudut kanan atas Chrome.</div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-navy-900 text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+                            <div>Pilih menu <b className="text-[#4A7045] dark:text-gold-400">"Instal aplikasi"</b> atau <b>"Tambahkan ke Layar Utama"</b>.</div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-navy-900 text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+                            <div>Ketuk tombol <b>"Instal"</b> pada jendela konfirmasi. Aplikasi Pisgah BISDAC akan terpasang di daftar aplikasi HP Anda dan siap digunakan offline.</div>
+                        </div>
+                    </div>
+                )}
+
+                {activeOsTab === 'desktop' && (
+                    <div className="space-y-3 text-xs sm:text-sm text-navy-700 dark:text-gray-200">
+                        <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 text-blue-900 dark:text-blue-300 text-xs">
+                            💡 Didukung di <b>Google Chrome</b>, <b>Microsoft Edge</b>, dan <b>Brave</b> pada sistem Windows, macOS, & Linux.
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-navy-900 text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+                            <div>Perhatikan di ujung kanan <b>Bilah Alamat (URL Bar)</b> di bagian atas browser Anda.</div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-navy-900 text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+                            <div>Klik ikon <b>Pasang / Install App</b> <Icon name="MonitorDown" className="w-3.5 h-3.5 inline text-blue-500 mx-1" /> (ikon monitor berpanah atau tanda tambah ⊕).</div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-navy-900 text-gold-400 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+                            <div>Klik <b>"Instal"</b>. Jendela aplikasi mandiri akan terbuka dan pintasan dibuat di Desktop & Menu Start komputer Anda.</div>
+                        </div>
+                    </div>
+                )}
+
+                <div className="mt-6 pt-4 border-t border-navy-100 dark:border-navy-800 flex items-center justify-between gap-2 flex-wrap">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            onClose();
+                            if (window.installPWA) window.installPWA();
+                        }}
+                        className="px-4 py-2.5 rounded-xl bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-950 font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm cursor-pointer"
+                    >
+                        <Icon name="MonitorDown" className="w-4 h-4" />
+                        <span>Coba Pasang Otomatis</span>
+                    </button>
+                    <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-gray-300 font-bold text-xs sm:text-sm cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Banner PWA Kaya Informasi di Halaman Depan
+const PwaInstallBanner = ({ onOpenGuide }) => {
+    const [isDismissed, setIsDismissed] = React.useState(() => {
+        try {
+            const val = localStorage.getItem('pisgah_pwa_banner_dismissed_until');
+            return val && Number(val) > Date.now();
+        } catch (e) {
+            return false;
+        }
+    });
+
+    const isStandalone = typeof window !== 'undefined' && (
+        Boolean(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+        window.navigator.standalone === true
+    );
+
+    if (isStandalone || isDismissed) return null;
+
+    const handleDismiss = () => {
+        try {
+            localStorage.setItem('pisgah_pwa_banner_dismissed_until', String(Date.now() + 7 * 24 * 60 * 60 * 1000));
+        } catch (e) { }
+        setIsDismissed(true);
+    };
+
+    return (
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#1C2C16] via-[#2A4422] to-[#1E3019] dark:from-navy-900 dark:via-navy-950 dark:to-navy-900 p-5 sm:p-7 text-white shadow-xl border-2 border-[#4A7045]/60 dark:border-gold-500/40 animate-fade-in group">
+            <div className="absolute top-0 right-0 w-72 h-72 bg-gold-400/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+            <div className="relative z-10">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-400/20 text-gold-300 border border-gold-400/40 font-extrabold text-[10.5px] uppercase tracking-wider">
+                        <Icon name="MonitorDown" className="w-3.5 h-3.5" /> Pasang Aplikasi Resmi PWA
+                    </span>
+                    <button
+                        type="button"
+                        onClick={handleDismiss}
+                        className="text-white/60 hover:text-white text-xs px-2.5 py-1 rounded-lg hover:bg-white/10 transition cursor-pointer"
+                        title="Tutup ajakan pasang selama 7 hari"
+                    >
+                        ✕ Nanti Saja
+                    </button>
+                </div>
+
+                <div className="max-w-2xl mb-4">
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white mb-1.5">
+                        Pasang di Layar Utama HP atau Komputer Anda
+                    </h2>
+                    <p className="text-xs sm:text-sm text-white/85 leading-relaxed font-medium">
+                        Akses warta jemaat, Alkitab digital, Buku Lagu Sion, dan jadwal ibadah secara instan dengan 1-ketukan tanpa perlu membuka browser tiap kali.
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
+                    <div className="p-3 rounded-xl bg-white/10 dark:bg-navy-800/80 backdrop-blur-sm border border-white/15">
+                        <div className="text-lg mb-1">⚡</div>
+                        <div className="text-xs font-black text-gold-300">1-Ketukan Cepat</div>
+                        <div className="text-[10px] text-white/75 mt-0.5 leading-tight">Buka langsung dari home screen tanpa ketik alamat web</div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-white/10 dark:bg-navy-800/80 backdrop-blur-sm border border-white/15">
+                        <div className="text-lg mb-1">📶</div>
+                        <div className="text-xs font-black text-gold-300">Mode Offline</div>
+                        <div className="text-[10px] text-white/75 mt-0.5 leading-tight">Warta, alkitab & lagu tetap bisa dibaca tanpa internet</div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-white/10 dark:bg-navy-800/80 backdrop-blur-sm border border-white/15">
+                        <div className="text-lg mb-1">📱</div>
+                        <div className="text-xs font-black text-gold-300">Layar Penuh</div>
+                        <div className="text-[10px] text-white/75 mt-0.5 leading-tight">Tampilan bersih lega bebas bilah navigasi browser</div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-white/10 dark:bg-navy-800/80 backdrop-blur-sm border border-white/15">
+                        <div className="text-lg mb-1">💾</div>
+                        <div className="text-xs font-black text-gold-300">Sangat Ringan</div>
+                        <div className="text-[10px] text-white/75 mt-0.5 leading-tight">Ukuran &lt; 3 MB, hemat memori dan hemat baterai</div>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3 flex-wrap">
+                    <button
+                        type="button"
+                        onClick={() => window.installPWA && window.installPWA()}
+                        className="px-5 py-2.5 rounded-xl bg-[#D19B45] hover:bg-[#B4791E] text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition active:scale-95 cursor-pointer"
+                    >
+                        <Icon name="MonitorDown" className="w-4 h-4" />
+                        <span>Pasang Aplikasi Sekarang</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onOpenGuide}
+                        className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95 cursor-pointer border border-white/20"
+                    >
+                        <Icon name="Info" className="w-4 h-4 text-gold-300" />
+                        <span>Panduan Cara Pasang (iOS / Android / PC)</span>
+                    </button>
+                </div>
             </div>
         </div>
     );
@@ -4303,7 +4479,7 @@ const DEFAULT_HERO_CAPTIONS = [
     }
 ];
 
-const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, youtubeTitle, youtubeChannelTitle, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja, carouselVideos = [], carouselEvents = [] }) => {
+const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, anthemTitle2, youtubeTitle, youtubeChannelTitle, heroImages = [], jadwalDB, dataPejabat, pengumuman, daftarWarta = [], setSelectedWarta, daftarBuku = [], setInitialBook, showPerjamuan, perjamuanYMD, showPerpuluhan, perpuluhanYMD, perjamuanNote, perpuluhanNote, kontakGereja, carouselVideos = [], carouselEvents = [], setShowManualInstall }) => {
     const [currentSlide, setCurrentSlide] = React.useState(0);
     const [isHeroHovered, setIsHeroHovered] = React.useState(false);
     const [isHeroPaused, setIsHeroPaused] = React.useState(false);
@@ -4421,6 +4597,11 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     };
 
     const handleMenuClick = (e, item) => {
+        if (item.id === 'sekolah_sabat') {
+            e.preventDefault();
+            setActiveTab('belajar_sekolah_sabat');
+            return;
+        }
         if (!item.isExternal && !item.isSameTab) {
             e.preventDefault();
             setActiveTab(item.id);
@@ -4456,7 +4637,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     };
 
     const featureItems = [
-        { id: 'sekolah_sabat', label: 'Sekolah Sabat', icon: 'BookOpen', isExternal: true, link: 'https://sabbath-school.adventech.io/in' },
+        { id: 'sekolah_sabat', label: 'Sekolah Sabat', icon: 'BookOpen' },
         { id: 'lagu_sion', label: 'Lagu Sion', icon: 'Music' },
         { id: 'alkitab', label: 'Alkitab', icon: 'Cross' },
         { id: 'keanggotaan', label: 'Keanggotaan', icon: 'Users' },
@@ -4674,6 +4855,9 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                 {/* UNIFIED HOME SECTIONS CONTAINER: CONSISTENT SPACING & MATCHING MODERN CARDS */}
                 <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-6 md:mt-8 space-y-6 relative z-20">
+                    {/* BANNER AJAKAN PASANG APLIKASI PWA RESMI */}
+                    <PwaInstallBanner onOpenGuide={() => setShowManualInstall && setShowManualInstall(true)} />
+
                     {/* ROW 1: HITUNG MUNDUR SABAT & AYAT HARIAN */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                         <SabbathCountdownWidget setActiveTab={setActiveTab} />
@@ -5424,7 +5608,7 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
 
 const Belajar = ({ setActiveTab }) => {
     const items = [
-        { id: 'sekolah_sabat', title: 'Sekolah Sabat', desc: 'Akses pelajaran harian Sekolah Sabat secara online untuk pedalaman rohani Anda.', img: 'https://images.spr.so/cdn-cgi/imagedelivery/j42No7y-dcokJuNgXeA0ig/ecfa0085-8c09-46ef-97df-6be05cd44019/1000129545/w=800,quality=80,fit=scale-down', color: 'blue', isExternal: true, link: 'https://sabbath-school.adventech.io/in' },
+        { id: 'sekolah_sabat', title: 'Sekolah Sabat', desc: 'Akses pelajaran harian Sekolah Sabat Dewasa lengkap dengan Ayat Hafalan, renungan harian, dan Alkitab.', img: 'https://images.spr.so/cdn-cgi/imagedelivery/j42No7y-dcokJuNgXeA0ig/ecfa0085-8c09-46ef-97df-6be05cd44019/1000129545/w=800,quality=80,fit=scale-down', color: 'blue' },
         { id: 'belajar', title: 'Belajar Online', desc: 'Pembelajaran tanpa batas, lebih banyak kemungkinan untuk mengenal-Nya, Bertemulah dengan-Nya kapan dan dimana saja', img: 'https://suaranubuatan.id/wp-content/uploads/2021/09/book-4126481_1920.jpg', color: 'purple', isExternal: true, link: 'https://suaranubuatan.id/' },
         { id: 'alkitab', title: 'Alkitab', desc: 'Alkitab adalah firman Allah yang diilhamkan, satu-satunya aturan iman dan praktik.', img: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?q=80&w=1200&auto=format&fit=crop', color: 'orange' },
         { id: '28dasar', title: '28 Dasar Kepercayaan', desc: 'Gereja Advent memegang keyakinan dasar tertentu sebagai ajaran Kitab Suci.', img: 'https://images.unsplash.com/photo-1447069387593-a5de0862481e?q=80&w=1200&auto=format&fit=crop', color: 'green' },
@@ -10263,6 +10447,123 @@ const AdminPastoralAndCalendarPanel = () => {
         }
     };
 
+    const [isSyncingHadirDB, setIsSyncingHadirDB] = React.useState(false);
+
+    const handleSyncBirthdaysFromHadirDB = async () => {
+        setIsSyncingHadirDB(true);
+        try {
+            let jemaatList = [];
+            // 1. Cek cache lokal database presensi jemaat (hadir.html)
+            try {
+                const cached = localStorage.getItem('pisgah_data_cache');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (parsed && Array.isArray(parsed.jemaat) && parsed.jemaat.length > 0) {
+                        jemaatList = parsed.jemaat;
+                    }
+                }
+            } catch (e) { }
+
+            // 2. Jika cache kosong, tarik langsung dari API Kehadiran Apps Script
+            const HADIR_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwW-Km_huyHl-RZ18MSjVXTF46bNJGDb634-hqqhGCwRgV2VsCqx6vG3dmQSqStJhE-/exec";
+            if (jemaatList.length === 0 && HADIR_APPS_SCRIPT_URL) {
+                try {
+                    const res = await fetch(`${HADIR_APPS_SCRIPT_URL}?_=${Date.now()}`);
+                    const json = await res.json();
+                    if (json && json.success && json.data && Array.isArray(json.data.jemaat)) {
+                        jemaatList = json.data.jemaat;
+                        try { localStorage.setItem('pisgah_data_cache', JSON.stringify(json.data)); } catch (e) { }
+                    }
+                } catch (e) {
+                    console.warn('Gagal fetch hadir API:', e);
+                }
+            }
+
+            if (jemaatList.length === 0) {
+                alert('Tidak ditemukan data jemaat dari Database Presensi (hadir.html). Silakan pastikan koneksi internet aktif atau buka laman Kehadiran.');
+                setIsSyncingHadirDB(false);
+                return;
+            }
+
+            // 3. Filter dan ekstrak tanggal lahir jemaat
+            let syncedCount = 0;
+            const currentMap = new Map();
+            birthdays.forEach(b => {
+                if (b && b.nama) {
+                    currentMap.set(b.nama.trim().toLowerCase(), { ...b });
+                }
+            });
+
+            jemaatList.forEach((j, idx) => {
+                const rawDate = (j.tglLahir || '').trim();
+                if (!rawDate) return;
+
+                let day = null;
+                let month = null;
+
+                // Format YYYY-MM-DD
+                if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(rawDate)) {
+                    const parts = rawDate.split('-');
+                    month = parseInt(parts[1], 10);
+                    day = parseInt(parts[2], 10);
+                }
+                // Format DD-MM-YYYY atau DD/MM/YYYY
+                else if (/^\d{1,2}[-\/]\d{1,2}[-\/]\d{4}$/.test(rawDate)) {
+                    const parts = rawDate.split(/[-\/]/);
+                    day = parseInt(parts[0], 10);
+                    month = parseInt(parts[1], 10);
+                }
+                // Format DD-MM atau DD/MM
+                else if (/^\d{1,2}[-\/]\d{1,2}$/.test(rawDate)) {
+                    const parts = rawDate.split(/[-\/]/);
+                    day = parseInt(parts[0], 10);
+                    month = parseInt(parts[1], 10);
+                }
+
+                if (!day || !month || day < 1 || day > 31 || month < 1 || month > 12) return;
+
+                const nameKey = (j.nama || '').trim().toLowerCase();
+                if (!nameKey) return;
+
+                const phone = (j.telepon || j.wa || '').trim();
+                const kat = (j.subKelasNama || j.kelasNama || 'Anggota Jemaat').trim();
+
+                const existing = currentMap.get(nameKey);
+                if (existing) {
+                    existing.birthDay = day;
+                    existing.birthMonth = month;
+                    if (phone && !existing.wa) existing.wa = phone;
+                    if (kat && (!existing.kategori || existing.kategori === 'Anggota Jemaat')) existing.kategori = kat;
+                    currentMap.set(nameKey, existing);
+                } else {
+                    currentMap.set(nameKey, {
+                        id: `bday_hadir_${Date.now()}_${idx}_${Math.random().toString(36).slice(2, 5)}`,
+                        nama: j.nama.trim(),
+                        birthDay: day,
+                        birthMonth: month,
+                        kategori: kat,
+                        wa: phone
+                    });
+                    syncedCount++;
+                }
+            });
+
+            const merged = Array.from(currentMap.values()).sort((a, b) => {
+                if (a.birthMonth !== b.birthMonth) return (a.birthMonth || 0) - (b.birthMonth || 0);
+                return (a.birthDay || 0) - (b.birthDay || 0);
+            });
+
+            setBirthdays(merged);
+            saveMemberBirthdays(merged, true);
+            alert(`Sinkronisasi Database Presensi Berhasil!\n\n• ${syncedCount} jemaat baru ditambahkan ke kalender ulang tahun.\n• Total ${merged.length} jemaat tersimpan & tersinkron ke Google Sheets.`);
+        } catch (err) {
+            console.error('Error syncing birthdays from hadir DB:', err);
+            alert('Gagal menyinkronkan data ulang tahun: ' + (err.message || 'Terjadi kesalahan'));
+        } finally {
+            setIsSyncingHadirDB(false);
+        }
+    };
+
     const handleClearAllBirthdays = () => {
         if (!window.confirm('Kosongkan seluruh daftar ulang tahun jemaat?')) return;
         setBirthdays([]);
@@ -10542,7 +10843,17 @@ const AdminPastoralAndCalendarPanel = () => {
                         <span className="text-xs font-bold text-navy-500">
                             Total {birthdays.length} data ulang tahun jemaat
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <button
+                                type="button"
+                                disabled={isSyncingHadirDB}
+                                onClick={handleSyncBirthdaysFromHadirDB}
+                                className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-xs disabled:opacity-50"
+                                title="Sinkronkan data jemaat & tanggal lahir dari sistem kehadiran (hadir.html / Database Presensi)"
+                            >
+                                <Icon name="RefreshCw" className={`w-3.5 h-3.5 ${isSyncingHadirDB ? 'animate-spin' : ''}`} />
+                                <span>{isSyncingHadirDB ? 'Menyinkronkan...' : 'Sinkron dari DB Presensi'}</span>
+                            </button>
                             {birthdays.length > 0 && (
                                 <button
                                     type="button"
@@ -11531,15 +11842,36 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         });
     };
 
-    const handleAddEditWartaImages = (newFiles) => {
-        const newItems = newFiles.map((file, idx) => ({
-            id: `new_${idx}_${Date.now()}_${Math.random()}`,
-            type: 'new',
-            url: URL.createObjectURL(file),
-            file: file,
-            sizeStr: file.size < 1024 * 1024 ? (file.size / 1024).toFixed(0) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB'
-        }));
-        setEditWartaGambarList(prev => [...prev, ...newItems]);
+    const handleAddEditWartaImages = async (newFiles) => {
+        if (!newFiles || newFiles.length === 0) return;
+        for (let idx = 0; idx < newFiles.length; idx++) {
+            const file = newFiles[idx];
+            const originalSizeStr = file.size < 1024 * 1024 ? (file.size / 1024).toFixed(0) + ' KB' : (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+            try {
+                const webpBase64 = await compressImage(file, 1280, 0.75);
+                const approxBytes = Math.round((webpBase64.length * 3) / 4);
+                const compressedSizeStr = approxBytes < 1024 * 1024 ? (approxBytes / 1024).toFixed(0) + ' KB' : (approxBytes / (1024 * 1024)).toFixed(1) + ' MB';
+                const newItem = {
+                    id: `new_${idx}_${Date.now()}_${Math.random()}`,
+                    type: 'new',
+                    url: webpBase64,
+                    file: file,
+                    base64: webpBase64,
+                    sizeStr: `${compressedSizeStr} (WebP)`,
+                    originalSizeStr: originalSizeStr
+                };
+                setEditWartaGambarList(prev => [...prev, newItem]);
+            } catch (err) {
+                const fallbackItem = {
+                    id: `new_${idx}_${Date.now()}_${Math.random()}`,
+                    type: 'new',
+                    url: URL.createObjectURL(file),
+                    file: file,
+                    sizeStr: originalSizeStr
+                };
+                setEditWartaGambarList(prev => [...prev, fallbackItem]);
+            }
+        }
     };
 
     const getActiveAdminPassword = () => {
@@ -11621,8 +11953,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
 
             // 2. Jika input berupa File/Blob atau string Base64
             let base64Str = fileOrBase64;
-            if (isFileOrBlob(fileOrBase64)) {
-                base64Str = await compressImage(fileOrBase64, 1200, 0.75);
+            if (typeof fileOrBase64 === 'object' && fileOrBase64.base64) {
+                base64Str = fileOrBase64.base64;
+            } else if (isFileOrBlob(fileOrBase64)) {
+                base64Str = await compressImage(fileOrBase64, 1280, 0.75);
             }
             if (typeof base64Str === 'string' && (base64Str.startsWith('data:image') || base64Str.length > 500)) {
                 if (!base64Str.startsWith('data:image')) {
@@ -20746,8 +21080,9 @@ const App = () => {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'home': return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
+            case 'home': return <Home setShowManualInstall={setShowManualInstall} setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarWarta={daftarWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
             case 'belajar': return <Belajar setActiveTab={setActiveTab} />;
+            case 'belajar_sekolah_sabat': return <DetailSekolahSabat setActiveTab={setActiveTab} dataPejabat={dataPejabat} setHideGlobalBack={setHideGlobalBack} />;
             case 'belajar_alkitab': return <DetailAlkitab setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_28dasar': return <Detail28Dasar setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'belajar_egw': return <DetailEGW setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
@@ -20762,11 +21097,11 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} /> : <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} /> : <Home setShowManualInstall={setShowManualInstall} setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
             case 'alkitab': return <Alkitab setHideGlobalBack={setHideGlobalBack} />;
             case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} setSelectedWarta={setSelectedWartaDetail} />;
-            default: return <Home setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
+            default: return <Home setShowManualInstall={setShowManualInstall} setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
         }
     };
 
@@ -20964,7 +21299,7 @@ const App = () => {
                                         icon: 'BookOpen',
                                         onClick: () => {
                                             setMobileNavPopup(null);
-                                            window.open('https://sabbath-school.adventech.io/in', '_blank');
+                                            setActiveTab('belajar_sekolah_sabat');
                                         }
                                     },
                                     {
