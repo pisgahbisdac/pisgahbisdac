@@ -825,6 +825,47 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const weekProgressPct = Math.round((completedDaysThisWeek / 7) * 100);
     const isCurrentDayRead = Boolean(readProgress[`${selectedLessonId}_${selectedDayIdx}`]);
 
+    // Parsing blok HTML pelajaran harian (Paragraf, Heading, Blockquote)
+    const parsedBlocks = useMemo(() => {
+        if (!currentDay || !currentDay.content) return [];
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(currentDay.content, "text/html");
+            const nodes = Array.from(doc.body.childNodes).filter(n => {
+                if (n.nodeType === Node.TEXT_NODE) return n.textContent.trim().length > 0;
+                return n.nodeType === Node.ELEMENT_NODE;
+            });
+
+            if (nodes.length === 0) {
+                return [{
+                    id: "b_0",
+                    idx: 0,
+                    html: currentDay.content,
+                    text: ""
+                }];
+            }
+
+            return nodes.map((node, idx) => {
+                const isEl = node.nodeType === Node.ELEMENT_NODE;
+                const html = isEl ? node.outerHTML : `<p>${node.textContent}</p>`;
+                const text = (node.textContent || "").trim();
+                return {
+                    id: `b_${idx}`,
+                    idx,
+                    html,
+                    text
+                };
+            });
+        } catch (e) {
+            return [{
+                id: "b_0",
+                idx: 0,
+                html: currentDay.content || "",
+                text: ""
+            }];
+        }
+    }, [currentDay]);
+
     // --- 2. FITUR AUDIO READ-ALOUD / TTS SUARA BAHASA INDONESIA ---
     const [ttsState, setTtsState] = useState('idle'); // 'idle' | 'playing' | 'paused'
     const [ttsRate, setTtsRate] = useState(1.0);
@@ -1004,47 +1045,6 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             speakPlaylistItem(currentTtsIndexRef.current);
         }
     };
-
-    // Parsing blok HTML pelajaran harian (Paragraf, Heading, Blockquote)
-    const parsedBlocks = useMemo(() => {
-        if (!currentDay || !currentDay.content) return [];
-        try {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(currentDay.content, "text/html");
-            const nodes = Array.from(doc.body.childNodes).filter(n => {
-                if (n.nodeType === Node.TEXT_NODE) return n.textContent.trim().length > 0;
-                return n.nodeType === Node.ELEMENT_NODE;
-            });
-
-            if (nodes.length === 0) {
-                return [{
-                    id: "b_0",
-                    idx: 0,
-                    html: currentDay.content,
-                    text: ""
-                }];
-            }
-
-            return nodes.map((node, idx) => {
-                const isEl = node.nodeType === Node.ELEMENT_NODE;
-                const html = isEl ? node.outerHTML : `<p>${node.textContent}</p>`;
-                const text = (node.textContent || "").trim();
-                return {
-                    id: `b_${idx}`,
-                    idx,
-                    html,
-                    text
-                };
-            });
-        } catch (e) {
-            return [{
-                id: "b_0",
-                idx: 0,
-                html: currentDay.content || "",
-                text: ""
-            }];
-        }
-    }, [currentDay]);
 
     // Mengambil catatan yang tersemat pada blok/paragraf tertentu
     const getNotesForBlock = (bIdx, blockText) => {
@@ -2416,8 +2416,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             Progress Membaca Pekan Ini
                         </span>
                         <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${completedDaysThisWeek === 7
-                                ? 'bg-emerald-500 text-white'
-                                : 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300'
                             }`}>
                             {completedDaysThisWeek} dari 7 Hari ({weekProgressPct}%)
                         </span>
@@ -2515,10 +2515,10 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                             type="button"
                                             onClick={ttsState === 'idle' ? () => handleStartAudio(0) : handlePauseResumeAudio}
                                             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md font-bold text-xs transition cursor-pointer shadow-sm ${ttsState === 'playing'
-                                                    ? 'bg-amber-500 text-navy-950 border border-amber-300 shadow-amber-500/30'
-                                                    : ttsState === 'paused'
-                                                        ? 'bg-amber-600/90 text-white border border-amber-400/60'
-                                                        : 'bg-black/55 hover:bg-black/80 text-white border border-white/20 hover:border-gold-400'
+                                                ? 'bg-amber-500 text-navy-950 border border-amber-300 shadow-amber-500/30'
+                                                : ttsState === 'paused'
+                                                    ? 'bg-amber-600/90 text-white border border-amber-400/60'
+                                                    : 'bg-black/55 hover:bg-black/80 text-white border border-white/20 hover:border-gold-400'
                                                 }`}
                                             title="Dengarkan Suara Pelajaran (Text to Speech Bahasa Indonesia)"
                                         >
@@ -2595,8 +2595,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                         key={block.id}
                                         data-block-idx={block.idx}
                                         className={`relative group/block transition-all duration-300 rounded-2xl ${isCurrentPlaying
-                                                ? "ring-2 ring-amber-400 bg-amber-500/10 dark:bg-gold-500/15 p-3 sm:p-4 shadow-md"
-                                                : ""
+                                            ? "ring-2 ring-amber-400 bg-amber-500/10 dark:bg-gold-500/15 p-3 sm:p-4 shadow-md"
+                                            : ""
                                             }`}
                                     >
                                         {isCurrentPlaying && (
@@ -2749,14 +2749,14 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
                         {/* KARTU CHECKLIST STATUS SELESAI MEMBACA HARI INI */}
                         <div className={`p-4 sm:p-5 rounded-2xl border transition-all ${isCurrentDayRead
-                                ? "bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-400/40 dark:border-emerald-500/30"
-                                : "bg-navy-50/70 dark:bg-navy-900/60 border-navy-200/60 dark:border-navy-800"
+                            ? "bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-400/40 dark:border-emerald-500/30"
+                            : "bg-navy-50/70 dark:bg-navy-900/60 border-navy-200/60 dark:border-navy-800"
                             }`}>
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div className="flex items-start sm:items-center gap-3">
                                     <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${isCurrentDayRead
-                                            ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
-                                            : "bg-navy-200 dark:bg-navy-800 text-navy-600 dark:text-gray-300"
+                                        ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
+                                        : "bg-navy-200 dark:bg-navy-800 text-navy-600 dark:text-gray-300"
                                         }`}>
                                         <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                                     </div>
@@ -2777,8 +2777,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                     type="button"
                                     onClick={() => toggleDayReadStatus(selectedLessonId, selectedDayIdx)}
                                     className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-xs shrink-0 active:scale-95 ${isCurrentDayRead
-                                            ? "bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-gray-300 border border-navy-200 dark:border-navy-700"
-                                            : "bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white shadow-emerald-500/20"
+                                        ? "bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-700 dark:text-gray-300 border border-navy-200 dark:border-navy-700"
+                                        : "bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white shadow-emerald-500/20"
                                         }`}
                                 >
                                     {isCurrentDayRead ? (
