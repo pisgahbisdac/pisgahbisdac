@@ -2820,6 +2820,13 @@ const saveOfficerAttendanceRecord = (recordKey, payload) => {
         }
         localStorage.setItem(OFFICER_ATTENDANCE_STORAGE_KEY, JSON.stringify(current));
         window.dispatchEvent(new CustomEvent('pisgah-attendance-updated'));
+
+        if (GAS_API_URL) {
+            fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'saveOfficerAttendance', recordKey, payload })
+            }).catch(e => console.warn('Gagal sinkron konfirmasi petugas ke Google Sheets:', e));
+        }
     } catch (e) { }
 };
 
@@ -3099,12 +3106,20 @@ const loadPrayerRequests = () => {
     return INITIAL_PRAYER_REQUESTS;
 };
 
-const savePrayerRequests = (list) => {
+const savePrayerRequests = (list, syncToBackend = false, token = '') => {
     try {
         localStorage.setItem(PRAYER_REQUESTS_STORAGE_KEY, JSON.stringify(list));
         setTimeout(() => {
             window.dispatchEvent(new CustomEvent('pisgah-prayer-updated'));
         }, 0);
+
+        if (syncToBackend && GAS_API_URL) {
+            const pwd = token || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('PISGAH_ADMIN_SESSION_TOKEN') : '') || '';
+            fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'savePrayerRequests', password: pwd, prayers: list })
+            }).catch(e => console.warn('Gagal sinkron pokok doa ke Google Sheets:', e));
+        }
     } catch (e) { }
 };
 
@@ -3423,7 +3438,14 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
             };
         });
         setPrayers(nextList);
-        savePrayerRequests(nextList);
+        savePrayerRequests(nextList, false);
+
+        if (!alreadyPrayed && GAS_API_URL) {
+            fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'incrementPrayerCount', id })
+            }).catch(e => console.warn('Gagal increment doa ke Google Sheets:', e));
+        }
     };
 
     const handleSubmitPrayer = (e) => {
@@ -3445,7 +3467,14 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
 
         const nextList = [newPrayer, ...prayers];
         setPrayers(nextList);
-        savePrayerRequests(nextList);
+        savePrayerRequests(nextList, false);
+
+        if (GAS_API_URL) {
+            fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'submitPrayer', prayer: newPrayer })
+            }).catch(e => console.warn('Gagal kirim doa ke Google Sheets:', e));
+        }
 
         setContent('');
         setIsFormOpen(false);
@@ -3785,13 +3814,21 @@ const loadMemberBirthdays = () => {
     return INITIAL_MEMBER_BIRTHDAYS;
 };
 
-const saveMemberBirthdays = (list) => {
+const saveMemberBirthdays = (list, syncToBackend = false, token = '') => {
     try {
         const safeList = Array.isArray(list) ? list : [];
         localStorage.setItem(MEMBER_BIRTHDAYS_STORAGE_KEY, JSON.stringify(safeList));
         setTimeout(() => {
             window.dispatchEvent(new CustomEvent('pisgah-calendar-updated'));
         }, 0);
+
+        if (syncToBackend && GAS_API_URL) {
+            const pwd = token || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('PISGAH_ADMIN_SESSION_TOKEN') : '') || '';
+            fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'saveMemberBirthdays', password: pwd, birthdays: safeList })
+            }).catch(e => console.warn('Gagal sinkron ultah jemaat ke Google Sheets:', e));
+        }
     } catch (e) { }
 };
 
@@ -3806,13 +3843,21 @@ const loadAnnualCalendar = () => {
     return INITIAL_ANNUAL_CALENDAR;
 };
 
-const saveAnnualCalendar = (list) => {
+const saveAnnualCalendar = (list, syncToBackend = false, token = '') => {
     try {
         const safeList = Array.isArray(list) ? list : [];
         localStorage.setItem(ANNUAL_CALENDAR_STORAGE_KEY, JSON.stringify(safeList));
         setTimeout(() => {
             window.dispatchEvent(new CustomEvent('pisgah-calendar-updated'));
         }, 0);
+
+        if (syncToBackend && GAS_API_URL) {
+            const pwd = token || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('PISGAH_ADMIN_SESSION_TOKEN') : '') || '';
+            fetch(GAS_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'saveAnnualCalendar', password: pwd, calendarItems: safeList })
+            }).catch(e => console.warn('Gagal sinkron kalender tahunan ke Google Sheets:', e));
+        }
     } catch (e) { }
 };
 
@@ -10109,6 +10154,40 @@ const AdminPastoralAndCalendarPanel = () => {
     const [newCalLoc, setNewCalLoc] = React.useState('GMAHK Jemaat Pisgah BISDAC - Batam');
     const [newCalDesc, setNewCalDesc] = React.useState('');
 
+    const [isSyncingSheets, setIsSyncingSheets] = React.useState(false);
+
+    const handleRefreshFromSheets = async () => {
+        if (!GAS_API_URL) return;
+        setIsSyncingSheets(true);
+        try {
+            const res = await fetch(`${GAS_API_URL}?action=getData`);
+            const data = await res.json();
+            if (data.daftarDoa && Array.isArray(data.daftarDoa)) {
+                setPrayers(data.daftarDoa);
+                savePrayerRequests(data.daftarDoa, false);
+            }
+            if (data.daftarKalender && Array.isArray(data.daftarKalender)) {
+                setCalendarItems(data.daftarKalender);
+                saveAnnualCalendar(data.daftarKalender, false);
+            }
+            if (data.daftarUltah && Array.isArray(data.daftarUltah)) {
+                setBirthdays(data.daftarUltah);
+                saveMemberBirthdays(data.daftarUltah, false);
+            }
+            if (data.konfirmasiPetugas && typeof data.konfirmasiPetugas === 'object') {
+                try {
+                    localStorage.setItem(OFFICER_ATTENDANCE_STORAGE_KEY, JSON.stringify(data.konfirmasiPetugas));
+                    window.dispatchEvent(new CustomEvent('pisgah-attendance-updated'));
+                } catch (e) { }
+            }
+            alert('✅ Berhasil menyinkronkan data dari Google Spreadsheet!');
+        } catch (e) {
+            alert('Gagal menyinkronkan data: ' + e.message);
+        } finally {
+            setIsSyncingSheets(false);
+        }
+    };
+
     React.useEffect(() => {
         const syncPrayers = () => setPrayers(loadPrayerRequests());
         const syncCal = () => {
@@ -10126,7 +10205,7 @@ const AdminPastoralAndCalendarPanel = () => {
     const handleToggleAnswered = (id) => {
         setPrayers(prev => {
             const next = prev.map(p => String(p.id) === String(id) ? { ...p, isAnswered: !p.isAnswered } : p);
-            savePrayerRequests(next);
+            savePrayerRequests(next, true);
             return next;
         });
     };
@@ -10135,7 +10214,7 @@ const AdminPastoralAndCalendarPanel = () => {
         if (!window.confirm('Hapus pokok doa ini?')) return;
         const next = prayers.filter(p => String(p.id) !== String(id));
         setPrayers(next);
-        savePrayerRequests(next);
+        savePrayerRequests(next, true);
     };
 
     const handleAddBirthday = (e) => {
@@ -10153,7 +10232,7 @@ const AdminPastoralAndCalendarPanel = () => {
             ? birthdays.map(b => String(b.id) === String(editingBdayId) ? itemData : b)
             : [...birthdays, itemData];
         setBirthdays(next);
-        saveMemberBirthdays(next);
+        saveMemberBirthdays(next, true);
         setEditingBdayId(null);
         setNewBdayName('');
         setNewBdayWa('');
@@ -10176,7 +10255,7 @@ const AdminPastoralAndCalendarPanel = () => {
             return i !== idx;
         });
         setBirthdays(next);
-        saveMemberBirthdays(next);
+        saveMemberBirthdays(next, true);
         if (editingBdayId && String(editingBdayId) === String(id)) {
             setEditingBdayId(null);
             setNewBdayName('');
@@ -10187,7 +10266,7 @@ const AdminPastoralAndCalendarPanel = () => {
     const handleClearAllBirthdays = () => {
         if (!window.confirm('Kosongkan seluruh daftar ulang tahun jemaat?')) return;
         setBirthdays([]);
-        saveMemberBirthdays([]);
+        saveMemberBirthdays([], true);
         setEditingBdayId(null);
     };
 
@@ -10207,7 +10286,7 @@ const AdminPastoralAndCalendarPanel = () => {
             ? calendarItems.map(c => String(c.id) === String(editingCalId) ? itemData : c)
             : [...calendarItems, itemData];
         setCalendarItems(next);
-        saveAnnualCalendar(next);
+        saveAnnualCalendar(next, true);
         setEditingCalId(null);
         setNewCalTitle('');
         setNewCalDate('');
@@ -10232,7 +10311,7 @@ const AdminPastoralAndCalendarPanel = () => {
             return i !== idx;
         });
         setCalendarItems(next);
-        saveAnnualCalendar(next);
+        saveAnnualCalendar(next, true);
         if (editingCalId && String(editingCalId) === String(id)) {
             setEditingCalId(null);
             setNewCalTitle('');
@@ -10244,7 +10323,7 @@ const AdminPastoralAndCalendarPanel = () => {
     const handleClearAllCalendarItems = () => {
         if (!window.confirm('Kosongkan seluruh agenda kalender tahunan?')) return;
         setCalendarItems([]);
-        saveAnnualCalendar([]);
+        saveAnnualCalendar([], true);
         setEditingCalId(null);
     };
 
@@ -10258,6 +10337,26 @@ const AdminPastoralAndCalendarPanel = () => {
 
     return (
         <div className="p-4 md:p-6 space-y-6 animate-fade-in">
+            {/* Status Sinkronisasi Google Spreadsheet */}
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-xs font-bold text-emerald-950 shadow-2xs">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                    <span className="truncate">
+                        Tersinkronisasi dengan Google Spreadsheet (Sheet: <code>Pokok_Doa</code>, <code>Agenda_Tahunan</code>, <code>Ulang_Tahun_Jemaat</code>, <code>Konfirmasi_Petugas</code>)
+                    </span>
+                </div>
+                <button
+                    type="button"
+                    onClick={handleRefreshFromSheets}
+                    disabled={isSyncingSheets}
+                    className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
+                    title="Muat ulang seluruh data terbaru langsung dari Google Spreadsheet"
+                >
+                    <Icon name="RefreshCw" className={`w-3.5 h-3.5 ${isSyncingSheets ? 'animate-spin' : ''}`} />
+                    <span>{isSyncingSheets ? 'Menyinkronkan...' : 'Sinkronkan dari Spreadsheet'}</span>
+                </button>
+            </div>
+
             {/* Sub-Navigasi Ruang Pastoral & Kalender */}
             <div className="flex flex-wrap items-center gap-2 bg-navy-50/70 p-2 rounded-2xl border border-navy-100">
                 <button
@@ -20206,6 +20305,21 @@ const App = () => {
                     localStorage.setItem('PISGAH_OFFLINE_WARTA_CACHE', JSON.stringify(data.daftarWarta));
                 } catch (e) { }
             }
+            if (data.daftarDoa && Array.isArray(data.daftarDoa) && data.daftarDoa.length > 0) {
+                savePrayerRequests(data.daftarDoa, false);
+            }
+            if (data.daftarKalender && Array.isArray(data.daftarKalender) && data.daftarKalender.length > 0) {
+                saveAnnualCalendar(data.daftarKalender, false);
+            }
+            if (data.daftarUltah && Array.isArray(data.daftarUltah) && data.daftarUltah.length > 0) {
+                saveMemberBirthdays(data.daftarUltah, false);
+            }
+            if (data.konfirmasiPetugas && typeof data.konfirmasiPetugas === 'object' && Object.keys(data.konfirmasiPetugas).length > 0) {
+                try {
+                    localStorage.setItem(OFFICER_ATTENDANCE_STORAGE_KEY, JSON.stringify(data.konfirmasiPetugas));
+                    window.dispatchEvent(new CustomEvent('pisgah-attendance-updated'));
+                } catch (e) { }
+            }
         } catch (err) {
             console.error("Gagal refresh warta", err);
         }
@@ -20471,6 +20585,22 @@ const App = () => {
                     setDaftarWarta(data.daftarWarta);
                     try {
                         localStorage.setItem('PISGAH_OFFLINE_WARTA_CACHE', JSON.stringify(data.daftarWarta));
+                    } catch (e) { }
+                }
+
+                if (data.daftarDoa && Array.isArray(data.daftarDoa) && data.daftarDoa.length > 0) {
+                    savePrayerRequests(data.daftarDoa, false);
+                }
+                if (data.daftarKalender && Array.isArray(data.daftarKalender) && data.daftarKalender.length > 0) {
+                    saveAnnualCalendar(data.daftarKalender, false);
+                }
+                if (data.daftarUltah && Array.isArray(data.daftarUltah) && data.daftarUltah.length > 0) {
+                    saveMemberBirthdays(data.daftarUltah, false);
+                }
+                if (data.konfirmasiPetugas && typeof data.konfirmasiPetugas === 'object' && Object.keys(data.konfirmasiPetugas).length > 0) {
+                    try {
+                        localStorage.setItem(OFFICER_ATTENDANCE_STORAGE_KEY, JSON.stringify(data.konfirmasiPetugas));
+                        window.dispatchEvent(new CustomEvent('pisgah-attendance-updated'));
                     } catch (e) { }
                 }
 

@@ -11,6 +11,10 @@ const FOLDER_GALERI_ID = PropertiesService.getScriptProperties().getProperty('FO
 const SHEET_PENGATURAN = 'Pengaturan';
 const SHEET_PEJABAT = 'Pejabat';
 const SHEET_WARTA = 'Warta';
+const SHEET_DOA = 'Pokok_Doa';
+const SHEET_KALENDER = 'Agenda_Tahunan';
+const SHEET_ULTAH = 'Ulang_Tahun_Jemaat';
+const SHEET_KONFIRMASI_PETUGAS = 'Konfirmasi_Petugas';
 
 // Kategori Sheet Jadwal
 const CATEGORY_MAP = {
@@ -57,12 +61,15 @@ function doPost(e) {
     if (action === 'getPublicImages') return getPublicImages(payload.folderId);
     if (action === 'verifyPassword') return verifyPassword(payload.password);
     if (action === 'getBooks') return getBooks();
+    if (action === 'submitPrayer') return submitPrayer(payload.prayer);
+    if (action === 'incrementPrayerCount') return incrementPrayerCount(payload.id);
+    if (action === 'saveOfficerAttendance') return saveOfficerAttendance(payload.recordKey, payload.payload);
 
     // B. Verifikasi Keamanan Admin
     const currentPassword = getSetting('PASSWORD') || 'admin123';
 
     // Public actions yang tidak perlu password
-    const publicActions = ['getPublicFolders', 'getPublicImages', 'verifyPassword', 'getBooks'];
+    const publicActions = ['getPublicFolders', 'getPublicImages', 'verifyPassword', 'getBooks', 'submitPrayer', 'incrementPrayerCount', 'saveOfficerAttendance'];
 
     // Check password hanya untuk admin actions
     if (!publicActions.includes(action) && payload.password !== currentPassword && action !== 'changePassword') {
@@ -134,6 +141,11 @@ function doPost(e) {
       case 'saveCarouselVideos':
         saveSettingRecord('CAROUSEL_VIDEOS', typeof payload.carouselVideos === 'string' ? payload.carouselVideos : JSON.stringify(payload.carouselVideos));
         return jsonResponse({ success: true });
+
+      // -- Pastoral, Pokok Doa, Kalender & Ulang Tahun Jemaat --
+      case 'savePrayerRequests': return savePrayerRequests(payload.prayers);
+      case 'saveAnnualCalendar': return saveAnnualCalendar(payload.calendarItems);
+      case 'saveMemberBirthdays': return saveMemberBirthdays(payload.birthdays);
 
       default:
         return jsonResponse({ success: false, message: 'Action doPost tidak dikenali.' });
@@ -262,7 +274,11 @@ function getInitialData() {
     legacyAtasNama: getSetting('ATAS_NAMA') || 'GMAHK PISGAH BISDAC',
     legacyQrisUrl: getSetting('QRIS_URL') || '',
     carouselEvents: getSetting('CAROUSEL_EVENTS') || '',
-    carouselVideos: getSetting('CAROUSEL_VIDEOS') || ''
+    carouselVideos: getSetting('CAROUSEL_VIDEOS') || '',
+    daftarDoa: getDoaDB(),
+    daftarKalender: getKalenderDB(),
+    daftarUltah: getUltahDB(),
+    konfirmasiPetugas: getKonfirmasiPetugasDB()
   });
 }
 
@@ -1024,5 +1040,340 @@ function deleteBook(bookId) {
     return jsonResponse({ success: false, status: 'error', message: 'Buku tidak ditemukan' });
   } catch (e) {
     return jsonResponse({ success: false, status: 'error', message: e.toString() });
+  }
+}
+
+// =========================================================================
+// 8. HANDLER POKOK DOA, KALENDER KEGIATAN, ULANG TAHUN & KONFIRMASI PETUGAS
+// =========================================================================
+
+function getOrCreateDoaSheet() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_DOA);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_DOA);
+    const headers = [['ID', 'Tanggal Dibuat', 'Nama Pengirim', 'Anonim', 'Kategori', 'Isi Pokok Doa', 'Privasi', 'Jumlah Doa', 'Sudah Didoakan']];
+    sheet.getRange(1, 1, 1, 9).setValues(headers).setBackground('#4A7045').setFontColor('#FFFFFF').setFontWeight('bold');
+    const initialSeed = [
+      ['pray_seed_1', '2026-10-21T12:00:00.000Z', 'Majelis & Pelayan Jemaat', false, 'Pelayanan', 'Kiranya Tuhan mencurahkan Roh Kudus bagi seluruh keluarga besar GMAHK Jemaat Pisgah BISDAC - Batam agar semakin bertumbuh dalam iman, kasih persaudaraan, dan semangat penginjilan.', 'public', 18, false],
+      ['pray_seed_2', '2026-10-22T09:30:00.000Z', 'Hamba Tuhan (Anonim)', true, 'Kesehatan', 'Mohon dukungan doa pada Ibadah Rabu Malam untuk kesembuhan dan pemulihan kesehatan orang tua serta anggota jemaat yang sedang dalam masa perawatan.', 'public', 14, false],
+      ['pray_seed_3', '2026-10-22T15:15:00.000Z', 'Keluarga Jemaat Pisgah', false, 'Syukur', 'Mengucap syukur atas pemeliharaan Tuhan sepanjang pekan ini dalam pekerjaan, pendidikan anak-anak, dan berkat kesehatan yang Tuhan nyatakan.', 'public', 21, false]
+    ];
+    sheet.getRange(2, 1, initialSeed.length, 9).setValues(initialSeed);
+  }
+  return sheet;
+}
+
+function getDoaDB() {
+  try {
+    const sheet = getOrCreateDoaSheet();
+    if (sheet.getLastRow() <= 1) return [];
+    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 9).getValues();
+    const list = [];
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      if (row[0]) {
+        list.push({
+          id: String(row[0]),
+          createdAt: row[1] instanceof Date ? row[1].toISOString() : String(row[1] || ''),
+          senderName: String(row[2] || ''),
+          isAnonymous: Boolean(row[3] === true || String(row[3]).toLowerCase() === 'true'),
+          category: String(row[4] || 'Lainnya'),
+          content: String(row[5] || ''),
+          privacy: String(row[6] || 'public'),
+          prayedCount: parseInt(row[7], 10) || 0,
+          isAnswered: Boolean(row[8] === true || String(row[8]).toLowerCase() === 'true')
+        });
+      }
+    }
+    return list;
+  } catch (e) {
+    return [];
+  }
+}
+
+function submitPrayer(prayer) {
+  try {
+    if (!prayer) return jsonResponse({ success: false, message: 'Data doa tidak boleh kosong' });
+    const sheet = getOrCreateDoaSheet();
+    const newId = prayer.id || ('pray_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6));
+    const nowIso = prayer.createdAt || new Date().toISOString();
+    sheet.appendRow([
+      newId,
+      nowIso,
+      prayer.senderName || '',
+      Boolean(prayer.isAnonymous),
+      prayer.category || 'Lainnya',
+      prayer.content || '',
+      prayer.privacy || 'public',
+      parseInt(prayer.prayedCount, 10) || 1,
+      Boolean(prayer.isAnswered)
+    ]);
+    return jsonResponse({ success: true, id: newId, message: 'Pokok doa berhasil dikirim dan dicatat di spreadsheet.' });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function incrementPrayerCount(prayerId) {
+  try {
+    const sheet = getOrCreateDoaSheet();
+    if (sheet.getLastRow() <= 1) return jsonResponse({ success: false, message: 'Doa tidak ditemukan' });
+    const ids = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+    for (let i = 0; i < ids.length; i++) {
+      if (String(ids[i][0]).trim() === String(prayerId).trim()) {
+        const cell = sheet.getRange(i + 2, 8);
+        const currentVal = parseInt(cell.getValue(), 10) || 0;
+        cell.setValue(currentVal + 1);
+        return jsonResponse({ success: true, nextCount: currentVal + 1 });
+      }
+    }
+    return jsonResponse({ success: false, message: 'Doa tidak ditemukan' });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function savePrayerRequests(prayers) {
+  try {
+    const sheet = getOrCreateDoaSheet();
+    sheet.clear();
+    const headers = [['ID', 'Tanggal Dibuat', 'Nama Pengirim', 'Anonim', 'Kategori', 'Isi Pokok Doa', 'Privasi', 'Jumlah Doa', 'Sudah Didoakan']];
+    sheet.getRange(1, 1, 1, 9).setValues(headers).setBackground('#4A7045').setFontColor('#FFFFFF').setFontWeight('bold');
+    if (Array.isArray(prayers) && prayers.length > 0) {
+      const rows = prayers.map(p => [
+        p.id || ('pray_' + Date.now()),
+        p.createdAt || new Date().toISOString(),
+        p.senderName || '',
+        Boolean(p.isAnonymous),
+        p.category || 'Lainnya',
+        p.content || '',
+        p.privacy || 'public',
+        parseInt(p.prayedCount, 10) || 0,
+        Boolean(p.isAnswered)
+      ]);
+      sheet.getRange(2, 1, rows.length, 9).setValues(rows);
+    }
+    return jsonResponse({ success: true, message: 'Daftar pokok doa berhasil diperbarui di spreadsheet.' });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function getOrCreateKalenderSheet() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_KALENDER);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_KALENDER);
+    const headers = [['ID', 'Judul Kegiatan', 'Tanggal (YYYY-MM-DD)', 'Triwulan', 'Kategori', 'Lokasi', 'Keterangan']];
+    sheet.getRange(1, 1, 1, 7).setValues(headers).setBackground('#2C3F21').setFontColor('#FFFFFF').setFontWeight('bold');
+    const initialSeed = [
+      ['cal_1', 'Perjamuan Kudus Triwulan I', "'2026-03-28", 1, 'Ibadah Sakramen', 'GMAHK Jemaat Pisgah BISDAC - Batam', 'Kebaktian Perjamuan Kudus & Basuh Kaki Triwulan I'],
+      ['cal_2', 'Pekan Doa Rumah Tangga & Keluarga', "'2026-05-09", 2, 'Pelayanan Keluarga', 'GMAHK Jemaat Pisgah BISDAC - Batam', 'Kebaktian Kebangunan Rohani Keluarga Advent'],
+      ['cal_3', 'Perjamuan Kudus Triwulan II', "'2026-06-27", 2, 'Ibadah Sakramen', 'GMAHK Jemaat Pisgah BISDAC - Batam', 'Kebaktian Perjamuan Kudus & Basuh Kaki Triwulan II'],
+      ['cal_4', 'Sabat Pathfinder & Adventurer Sedunia', "'2026-09-19", 3, 'Pemuda & Anak', 'GMAHK Jemaat Pisgah BISDAC - Batam', 'Pelayanan Khusus Klub Pathfinder & Adventurer'],
+      ['cal_5', 'Perjamuan Kudus Triwulan III', "'2026-09-26", 3, 'Ibadah Sakramen', 'GMAHK Jemaat Pisgah BISDAC - Batam', 'Kebaktian Perjamuan Kudus & Basuh Kaki Triwulan III'],
+      ['cal_6', 'Pekan Doa Akhir Tahun & Syukur', "'2026-11-07", 4, 'Kerohanian', 'GMAHK Jemaat Pisgah BISDAC - Batam', 'Pekan Doa Sedunia & Kebaktian Ucapan Syukur'],
+      ['cal_7', 'Perjamuan Kudus Triwulan IV & Tutup Tahun', "'2026-12-26", 4, 'Ibadah Sakramen', 'GMAHK Jemaat Pisgah BISDAC - Batam', 'Kebaktian Perjamuan Kudus Penutup Tahun']
+    ];
+    sheet.getRange(2, 1, initialSeed.length, 7).setValues(initialSeed);
+  }
+  return sheet;
+}
+
+function getKalenderDB() {
+  try {
+    const sheet = getOrCreateKalenderSheet();
+    if (sheet.getLastRow() <= 1) return [];
+    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 7).getValues();
+    const list = [];
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      if (row[0]) {
+        let rawDate = row[2];
+        let ymd = '';
+        if (rawDate instanceof Date) {
+          ymd = Utilities.formatDate(rawDate, 'GMT+7', 'yyyy-MM-dd');
+        } else {
+          ymd = String(rawDate || '').replace(/['"]/g, '').trim();
+        }
+        list.push({
+          id: String(row[0]),
+          title: String(row[1] || ''),
+          dateYMD: ymd,
+          quarter: parseInt(row[3], 10) || 1,
+          category: String(row[4] || 'Kegiatan Gereja'),
+          location: String(row[5] || 'GMAHK Jemaat Pisgah BISDAC - Batam'),
+          desc: String(row[6] || '')
+        });
+      }
+    }
+    return list;
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveAnnualCalendar(calendarItems) {
+  try {
+    const sheet = getOrCreateKalenderSheet();
+    sheet.clear();
+    const headers = [['ID', 'Judul Kegiatan', 'Tanggal (YYYY-MM-DD)', 'Triwulan', 'Kategori', 'Lokasi', 'Keterangan']];
+    sheet.getRange(1, 1, 1, 7).setValues(headers).setBackground('#2C3F21').setFontColor('#FFFFFF').setFontWeight('bold');
+    if (Array.isArray(calendarItems) && calendarItems.length > 0) {
+      const rows = calendarItems.map(c => [
+        c.id || ('cal_' + Date.now()),
+        c.title || '',
+        "'" + String(c.dateYMD || '').replace(/['"]/g, '').trim(),
+        parseInt(c.quarter, 10) || 1,
+        c.category || 'Kegiatan Gereja',
+        c.location || 'GMAHK Jemaat Pisgah BISDAC - Batam',
+        c.desc || ''
+      ]);
+      sheet.getRange(2, 1, rows.length, 7).setValues(rows);
+    }
+    return jsonResponse({ success: true, message: 'Agenda kalender tahunan berhasil disimpan di spreadsheet.' });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function getOrCreateUltahSheet() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_ULTAH);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_ULTAH);
+    const headers = [['ID', 'Nama Jemaat', 'Tanggal', 'Bulan', 'Kategori', 'No. WhatsApp']];
+    sheet.getRange(1, 1, 1, 6).setValues(headers).setBackground('#D19B45').setFontColor('#FFFFFF').setFontWeight('bold');
+  }
+  return sheet;
+}
+
+function getUltahDB() {
+  try {
+    const sheet = getOrCreateUltahSheet();
+    if (sheet.getLastRow() <= 1) return [];
+    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 6).getValues();
+    const list = [];
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      if (row[0] || row[1]) {
+        list.push({
+          id: String(row[0] || ('bday_' + (i + 1))),
+          nama: String(row[1] || ''),
+          birthDay: parseInt(row[2], 10) || 1,
+          birthMonth: parseInt(row[3], 10) || 1,
+          kategori: String(row[4] || 'Anggota Jemaat'),
+          wa: String(row[5] || '').replace(/['"]/g, '').trim()
+        });
+      }
+    }
+    return list;
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveMemberBirthdays(birthdays) {
+  try {
+    const sheet = getOrCreateUltahSheet();
+    sheet.clear();
+    const headers = [['ID', 'Nama Jemaat', 'Tanggal', 'Bulan', 'Kategori', 'No. WhatsApp']];
+    sheet.getRange(1, 1, 1, 6).setValues(headers).setBackground('#D19B45').setFontColor('#FFFFFF').setFontWeight('bold');
+    if (Array.isArray(birthdays) && birthdays.length > 0) {
+      const rows = birthdays.map(b => [
+        b.id || ('bday_' + Date.now()),
+        b.nama || '',
+        parseInt(b.birthDay, 10) || 1,
+        parseInt(b.birthMonth, 10) || 1,
+        b.kategori || 'Anggota Jemaat',
+        "'" + String(b.wa || '').replace(/['"]/g, '').trim()
+      ]);
+      sheet.getRange(2, 1, rows.length, 6).setValues(rows);
+    }
+    return jsonResponse({ success: true, message: 'Daftar ulang tahun jemaat berhasil disimpan di spreadsheet.' });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
+  }
+}
+
+function getOrCreateKonfirmasiPetugasSheet() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_KONFIRMASI_PETUGAS);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_KONFIRMASI_PETUGAS);
+    const headers = [['Record Key', 'Tanggal Ibadah', 'Tugas', 'Nama Petugas', 'Status', 'Catatan', 'Waktu Update']];
+    sheet.getRange(1, 1, 1, 7).setValues(headers).setBackground('#1C3318').setFontColor('#FFFFFF').setFontWeight('bold');
+  }
+  return sheet;
+}
+
+function getKonfirmasiPetugasDB() {
+  try {
+    const sheet = getOrCreateKonfirmasiPetugasSheet();
+    if (sheet.getLastRow() <= 1) return {};
+    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 7).getValues();
+    const map = {};
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      if (row[0]) {
+        map[String(row[0])] = {
+          tanggal: String(row[1] || ''),
+          tugas: String(row[2] || ''),
+          nama: String(row[3] || ''),
+          status: String(row[4] || 'hadir'),
+          note: String(row[5] || ''),
+          updatedAt: row[6] || Date.now()
+        };
+      }
+    }
+    return map;
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveOfficerAttendance(recordKey, payload) {
+  try {
+    const sheet = getOrCreateKonfirmasiPetugasSheet();
+    const key = String(recordKey || '').trim();
+    if (!key) return jsonResponse({ success: false, message: 'Record key kosong' });
+
+    if (sheet.getLastRow() > 1) {
+      const keys = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+      for (let i = 0; i < keys.length; i++) {
+        if (String(keys[i][0]).trim() === key) {
+          if (payload === null) {
+            sheet.deleteRow(i + 2);
+            return jsonResponse({ success: true, message: 'Konfirmasi berhasil dihapus' });
+          } else {
+            sheet.getRange(i + 2, 2, 1, 6).setValues([[
+              payload.tanggal || '',
+              payload.tugas || '',
+              payload.nama || '',
+              payload.status || 'hadir',
+              payload.note || '',
+              new Date().toISOString()
+            ]]);
+            return jsonResponse({ success: true, message: 'Konfirmasi petugas diperbarui' });
+          }
+        }
+      }
+    }
+
+    if (payload !== null) {
+      sheet.appendRow([
+        key,
+        payload.tanggal || '',
+        payload.tugas || '',
+        payload.nama || '',
+        payload.status || 'hadir',
+        payload.note || '',
+        new Date().toISOString()
+      ]);
+    }
+    return jsonResponse({ success: true, message: 'Konfirmasi petugas disimpan di spreadsheet' });
+  } catch (e) {
+    return jsonResponse({ success: false, message: e.toString() });
   }
 }
