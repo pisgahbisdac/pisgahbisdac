@@ -981,6 +981,7 @@ const Icon = ({ name, className }) => {
         RefreshCw: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 16h5v5" /></svg>,
         ExternalLink: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>,
         Bookmark: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" /></svg>,
+        Star: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>,
         Volume2: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></svg>,
         Volume1: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /></svg>,
         SkipBack: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="19 20 9 12 19 4 19 20" /><line x1="5" y1="19" x2="5" y2="5" /></svg>,
@@ -5514,18 +5515,75 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     );
 };
 
-const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
+const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], setLaguSionInitialSong = () => {}, setLaguSionSubTab = () => {} }) => {
     const [openSection, setOpenSection] = React.useState('khotbah');
 
     const getOfficer = (arr, role) => arr?.find(p => p.tugas === role)?.nama || "-";
     const susunan = activeSabat.susunan || defaultSusunan;
 
-    const renderItem = (title, desc, isHighlight = false) => (
-        <div className={`flex justify-between items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 transition-colors rounded-xl mx-2 my-1.5 ${isHighlight ? 'bg-gold-500/10 shadow-sm border-gold-500/50' : 'hover:bg-navy-50 dark:hover:bg-navy-700/50'}`}>
-            <span className="text-sm font-medium w-1/2 shrink-0 text-navy-600 dark:text-navy-300">{title}</span>
-            <span className={`text-sm text-right w-1/2 break-words font-bold ${isHighlight ? 'text-gold-500' : 'text-navy-900 dark:text-white'}`}>{desc}</span>
-        </div>
-    );
+    const handleOpenSong = (text) => {
+        if (!text) return;
+        const match = text.match(/(?:LS|Lagu Sion)\s*(\d+)/i) || text.match(/\b(\d{1,3})\b/);
+        const num = match ? parseInt(match[1], 10) : null;
+        if (num && laguSionDb && laguSionDb.length > 0) {
+            const found = laguSionDb.find(s => s.number === num);
+            if (found) {
+                setLaguSionInitialSong(found);
+            }
+        }
+        setLaguSionSubTab('lyrics');
+        setActiveTab('lagu_sion');
+    };
+
+    const handleOpenVerse = (ref) => {
+        if (!ref || ref === '-' || ref === 'Sesuai Khotbah') return;
+        try {
+            localStorage.setItem('alkitabInitialSearch', ref);
+            localStorage.setItem('alkitabReturnTab', 'susunan_ibadah');
+            window.__alkitabReturnTab = 'susunan_ibadah';
+        } catch (e) { }
+        setActiveTab('alkitab');
+    };
+
+    const renderItem = (title, desc, isHighlight = false) => {
+        const isSong = Boolean(desc && (title.toLowerCase().includes('lagu') || /(?:LS|Lagu Sion)\s*\d+/i.test(desc)));
+        const isVerse = Boolean(desc && title.toLowerCase().includes('ayat') && desc !== '-' && desc !== 'Sesuai Khotbah');
+
+        return (
+            <div className={`flex justify-between items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 transition-colors rounded-xl mx-2 my-1.5 ${isHighlight ? 'bg-gold-500/10 shadow-sm border-gold-500/50' : 'hover:bg-navy-50 dark:hover:bg-navy-700/50'}`}>
+                <span className="text-sm font-medium w-1/2 shrink-0 text-navy-600 dark:text-navy-300">{title}</span>
+                <div className="w-1/2 text-right">
+                    {isSong ? (
+                        <button
+                            type="button"
+                            onClick={() => handleOpenSong(desc)}
+                            className="inline-flex items-center gap-1 text-sm font-bold text-amber-600 dark:text-gold-400 hover:underline cursor-pointer group text-right justify-end ml-auto"
+                            title={`Buka ${desc} di Lagu Sion`}
+                        >
+                            <span>{desc}</span>
+                            <span className="text-[9.5px] px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-800 dark:text-gold-300 font-black border border-amber-400/40 shrink-0">
+                                🎵 Buka
+                            </span>
+                        </button>
+                    ) : isVerse ? (
+                        <button
+                            type="button"
+                            onClick={() => handleOpenVerse(desc)}
+                            className="inline-flex items-center gap-1 text-sm font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer group text-right justify-end ml-auto"
+                            title={`Buka ${desc} di Alkitab Digital`}
+                        >
+                            <span>{desc}</span>
+                            <span className="text-[9.5px] px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-black border border-emerald-400/40 shrink-0">
+                                📖 Baca
+                            </span>
+                        </button>
+                    ) : (
+                        <span className={`text-sm break-words font-bold ${isHighlight ? 'text-gold-500' : 'text-navy-900 dark:text-white'}`}>{desc}</span>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     const susunanTabs = [
         { id: 'khotbah', label: 'Khotbah / Umum', icon: 'List', activeColor: 'text-navy-900' },
@@ -5576,7 +5634,15 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
                             {renderItem("Lagu Buka", susunan.kLaguBuka)}
                             {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
                             <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
-                                <p>"LS 516 - Dengar Ya Tuhan"</p>
+                                <button
+                                    type="button"
+                                    onClick={() => handleOpenSong("LS 516")}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-navy-800 text-amber-700 dark:text-gold-400 hover:bg-amber-100 dark:hover:bg-navy-700 border border-amber-300/60 dark:border-navy-600 transition cursor-pointer font-bold text-xs shadow-2xs"
+                                    title="Buka LS 516 di Lagu Sion"
+                                >
+                                    <span>🎵 "LS 516 - Dengar Ya Tuhan"</span>
+                                    <span className="text-[10px] font-black text-amber-600 dark:text-gold-300">Buka &rarr;</span>
+                                </button>
                             </div>
                             {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
                             {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul)}
@@ -5604,7 +5670,15 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD }) => {
                                 {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
                                 {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
                                 <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
-                                    <p>"LS 168 Kita Memiliki Pengharapan"</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleOpenSong("LS 168")}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-navy-800 text-amber-700 dark:text-gold-400 hover:bg-amber-100 dark:hover:bg-navy-700 border border-amber-300/60 dark:border-navy-600 transition cursor-pointer font-bold text-xs shadow-2xs"
+                                        title="Buka LS 168 di Lagu Sion"
+                                    >
+                                        <span>🎵 "LS 168 Kita Memiliki Pengharapan"</span>
+                                        <span className="text-[10px] font-black text-amber-600 dark:text-gold-300">Buka &rarr;</span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -6266,6 +6340,41 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
         return dates;
     }, [jadwalDB, today, jadwalSelectedDate]);
 
+    // Pencarian cepat jadwal pelayanan berdasarkan nama petugas
+    const [searchOfficerName, setSearchOfficerName] = React.useState('');
+
+    const officerScheduleMatches = React.useMemo(() => {
+        const q = searchOfficerName.trim().toLowerCase();
+        if (!q) return [];
+        const matches = [];
+        allDates.forEach(dateStr => {
+            const isDateRabu = new Date(dateStr + 'T00:00:00').getDay() === 3;
+            const merged = mergeJadwalDataLocal(jadwalDB?.[dateStr], isDateRabu ? initialJadwalRabu : initialJadwalSabat);
+            const duties = [];
+            const checkList = isDateRabu ? (merged.petugas || []) : [
+                ...(merged.khotbah || []),
+                ...(merged.sekolahSabat || []),
+                ...(merged.diakon || []),
+                ...(merged.musik || [])
+            ];
+            checkList.forEach(item => {
+                if (item.nama && item.nama.toLowerCase().includes(q)) {
+                    duties.push({ tugas: item.tugas, nama: item.nama });
+                }
+            });
+            if (duties.length > 0) {
+                matches.push({
+                    dateStr,
+                    isRabu: isDateRabu,
+                    title: merged.title || (isDateRabu ? 'Ibadah Permintaan Doa' : 'Ibadah Sabat'),
+                    time: merged.time || (isDateRabu ? '19:30 WIB' : '09:00 WIB'),
+                    duties
+                });
+            }
+        });
+        return matches;
+    }, [searchOfficerName, allDates, jadwalDB]);
+
     const selectedDate = (jadwalSelectedDate && allDates.includes(jadwalSelectedDate)) ? jadwalSelectedDate : allDates[0] || null;
     const currentIndex = selectedDate ? allDates.indexOf(selectedDate) : 0;
     const canGoPrev = currentIndex > 0;
@@ -6422,6 +6531,101 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
     return (
         <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
             <OfficerAttendanceModal modalData={attendanceModal} onClose={() => setAttendanceModal(null)} dataPejabat={dataPejabat} />
+
+            {/* KOTAK PENCARIAN JADWAL PETUGAS SAYA */}
+            <div className="bg-white dark:bg-navy-800/80 p-4 sm:p-5 rounded-[1.25rem] shadow-sm border border-navy-100/60 dark:border-navy-700 space-y-3">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div>
+                        <h3 className="font-black text-sm sm:text-base text-navy-900 dark:text-white flex items-center gap-1.5">
+                            <Icon name="Search" className="w-4 h-4 text-gold-500" />
+                            <span>Cari Jadwal Pelayanan Saya / Petugas</span>
+                        </h3>
+                        <p className="text-xs text-navy-500 dark:text-gray-400 mt-0.5">
+                            Ketik nama Anda untuk melihat ringkasan seluruh tanggal tugas Anda bulan ini
+                        </p>
+                    </div>
+                    {searchOfficerName && (
+                        <button
+                            type="button"
+                            onClick={() => setSearchOfficerName('')}
+                            className="text-xs text-navy-400 hover:text-navy-600 dark:hover:text-white font-bold transition cursor-pointer"
+                        >
+                            Reset Pencarian ✕
+                        </button>
+                    )}
+                </div>
+
+                <div className="relative">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-navy-400">
+                        <Icon name="User" className="w-4 h-4" />
+                    </div>
+                    <input
+                        type="text"
+                        value={searchOfficerName}
+                        onChange={(e) => setSearchOfficerName(e.target.value)}
+                        placeholder="Ketik nama petugas (misal: Samuel, Sagala, Sinaga)..."
+                        className="w-full bg-navy-50 dark:bg-navy-900 border border-navy-200 dark:border-navy-700 rounded-xl py-2.5 pl-10 pr-4 text-sm font-bold text-navy-900 dark:text-white placeholder-navy-400 focus:outline-none focus:ring-2 focus:ring-gold-400"
+                    />
+                </div>
+
+                {searchOfficerName.trim() && (
+                    <div className="space-y-2.5 pt-2 border-t border-navy-100 dark:border-navy-700">
+                        <div className="flex items-center justify-between text-xs font-bold text-navy-600 dark:text-gray-300">
+                            <span>Ditemukan <strong>{officerScheduleMatches.length}</strong> tanggal tugas untuk "{searchOfficerName}":</span>
+                        </div>
+
+                        {officerScheduleMatches.length === 0 ? (
+                            <div className="p-4 rounded-xl bg-navy-50 dark:bg-navy-900/60 text-center text-xs text-navy-500 dark:text-gray-400">
+                                Tidak ditemukan jadwal tugas atas nama "{searchOfficerName}" pada jadwal pekan-pekan mendatang.
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                {officerScheduleMatches.map((m, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="p-3.5 rounded-xl bg-gold-50/50 dark:bg-navy-900 border border-gold-200 dark:border-navy-700 space-y-2 flex flex-col justify-between shadow-2xs"
+                                    >
+                                        <div>
+                                            <div className="flex items-center justify-between gap-1 text-xs">
+                                                <span className="font-black text-navy-900 dark:text-white">
+                                                    📅 {formatIndoDate(m.dateStr)}
+                                                </span>
+                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                                                    m.isRabu
+                                                        ? 'bg-blue-500/20 text-blue-700 dark:text-blue-300'
+                                                        : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
+                                                }`}>
+                                                    {m.isRabu ? 'Rabu' : 'Sabat'}
+                                                </span>
+                                            </div>
+                                            <div className="mt-2 space-y-1">
+                                                {m.duties.map((d, dIdx) => (
+                                                    <div key={dIdx} className="text-xs text-navy-700 dark:text-gray-300 flex items-center justify-between">
+                                                        <span className="font-semibold text-navy-500 dark:text-gray-400">{d.tugas}:</span>
+                                                        <span className="font-bold text-gold-600 dark:text-gold-400">{d.nama}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setJadwalSelectedDate(m.dateStr);
+                                                setSearchOfficerName('');
+                                            }}
+                                            className="w-full mt-2 py-1.5 rounded-lg bg-navy-900 hover:bg-navy-800 dark:bg-gold-500 dark:hover:bg-gold-400 text-white dark:text-navy-950 font-bold text-xs transition cursor-pointer shadow-2xs text-center"
+                                        >
+                                            Buka Jadwal Lengkap Tanggal Ini &rarr;
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
             <AcaraTerdekat allDates={allDates} selectedDate={selectedDate} handlePrev={handlePrev} handleNext={handleNext} canGoPrev={canGoPrev} canGoNext={canGoNext} title={title} setActiveTab={setActiveTab} carouselEvents={carouselEvents} handleDateSelect={(d) => setJadwalSelectedDate(d)} />
 
             {/* Widget Waktu Buka & Tutup Sabat Otomatis (Astronomis Sunset Timer) */}
@@ -17040,6 +17244,24 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
     const [planFilterMode, setPlanFilterMode] = React.useState('month'); // 'month' | 'unread' | 'completed'
     const planMonthScrollRef = React.useRef(null);
     const savedFilterScrollRef = React.useRef(null);
+    const [isTargetCollapsed, setIsTargetCollapsed] = React.useState(() => {
+        try {
+            const saved = localStorage.getItem('PISGAH_TARGET_COLLAPSED');
+            if (saved !== null) return saved === 'true';
+            return typeof window !== 'undefined' ? window.innerWidth < 768 : true;
+        } catch (e) {
+            return true;
+        }
+    });
+    const toggleTargetCollapse = () => {
+        setIsTargetCollapsed(prev => {
+            const next = !prev;
+            try {
+                localStorage.setItem('PISGAH_TARGET_COLLAPSED', String(next));
+            } catch (e) { }
+            return next;
+        });
+    };
 
     const [currentBookChapter, setCurrentBookChapter] = React.useState(() => {
         try {
@@ -17915,10 +18137,10 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
         const activeBookObj = selectedBook || ALKITAB_BOOKS.find(b => b.id === currentBookChapter?.bookId) || null;
         const activeChapterVal = selectedBook ? (selectedChapter || '') : (currentBookChapter?.chapter || '');
         return (
-            <div className="flex-1 min-w-0 w-full flex flex-row items-center gap-1 sm:gap-2 bg-white dark:bg-navy-900 px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-2xl shadow-sm border border-navy-100 dark:border-navy-800">
+            <div className="flex-1 min-w-0 w-full flex flex-row items-center gap-1 sm:gap-2 bg-white dark:bg-navy-900 px-1 sm:px-2.5 py-1 sm:py-1.5 rounded-2xl shadow-sm border border-navy-100 dark:border-navy-800 overflow-hidden">
                 {/* KITAB */}
-                <div className="flex-1 min-w-[65px] sm:min-w-[100px]">
-                    <label className="text-[8px] sm:text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-0.5 sm:px-1 truncate">Kitab</label>
+                <div className="flex-1 min-w-[60px] sm:min-w-[100px] overflow-hidden">
+                    <label className="text-[7.5px] sm:text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-0.5 sm:px-1 truncate">Kitab</label>
                     <select
                         value={activeBookObj?.id || ''}
                         onChange={(e) => {
@@ -17929,7 +18151,7 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                                 setSelectedAyat('');
                             }
                         }}
-                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer truncate"
+                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1 sm:px-2 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer truncate"
                     >
                         <option value="" disabled>Pilih Kitab...</option>
                         {ALKITAB_BOOKS.map(b => (
@@ -17939,8 +18161,8 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                 </div>
 
                 {/* PASAL */}
-                <div className="w-12 sm:w-16 shrink-0">
-                    <label className="text-[8px] sm:text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-0.5 sm:px-1 truncate text-center sm:text-left">Pasal</label>
+                <div className="w-10 sm:w-16 shrink-0">
+                    <label className="text-[7.5px] sm:text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-0.5 sm:px-1 truncate text-center sm:text-left">Pasal</label>
                     <select
                         value={activeChapterVal}
                         onChange={(e) => {
@@ -17952,7 +18174,7 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                             setSelectedAyat('');
                         }}
                         disabled={!activeBookObj}
-                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1 sm:px-2 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-center"
+                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-0.5 sm:px-2 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-center"
                     >
                         <option value="" disabled>--</option>
                         {activeBookObj && Array.from({ length: activeBookObj.pasal }, (_, i) => i + 1).map(ch => (
@@ -17962,8 +18184,8 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                 </div>
 
                 {/* AYAT */}
-                <div className="w-12 sm:w-16 shrink-0">
-                    <label className="text-[8px] sm:text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-0.5 sm:px-1 truncate text-center sm:text-left">Ayat</label>
+                <div className="w-10 sm:w-16 shrink-0">
+                    <label className="text-[7.5px] sm:text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-0.5 sm:px-1 truncate text-center sm:text-left">Ayat</label>
                     <select
                         value={selectedAyat || ''}
                         onChange={(e) => {
@@ -17971,7 +18193,7 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                             if (val) scrollToVerse(val);
                         }}
                         disabled={!selectedChapter || verses.length === 0}
-                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1 sm:px-2 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-center"
+                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-0.5 sm:px-2 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-center"
                     >
                         <option value="">--</option>
                         {verses.filter(v => v.type === 'content').map(v => (
@@ -18141,63 +18363,98 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                 </div>
 
                 <div className="mt-4 sm:mt-5 space-y-4">
-                    {/* Quick Access Banner Target Bacaan Hari Ini (Ditaruh dalam konten agar tidak menutupi daftar buku saat digulir) */}
+                    {/* Quick Access Banner Target Bacaan Hari Ini (Collapsible agar tidak menutupi daftar buku pada mobile) */}
                     {alkitabHomeTab !== 'bible_year' && !searchResults && (
-                        <div className="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#1C3318]/95 via-navy-900 to-[#1C3318]/95 border border-emerald-500/40 shadow-md flex flex-wrap items-center justify-between gap-2.5">
-                            <div
-                                onClick={() => {
-                                    setAlkitabHomeTab('bible_year');
-                                    setSearchResults(null);
-                                    setPlanFilterMode('month');
-                                    setSelectedPlanMonth(todayPlanItem.month);
-                                }}
-                                className="flex items-center gap-2.5 min-w-0 cursor-pointer group flex-1"
-                                title="Buka Target Rencana Baca Hari Ini"
-                            >
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0 shadow-xs shadow-emerald-400/50"></span>
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-1.5 flex-wrap">
-                                        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400">
-                                            📅 Target Hari Ini ({todayPlanItem.dateLabel} • Hari ke-{todayPlanItem.day})
-                                        </span>
-                                        <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-gold-500/20 text-gold-300 border border-gold-400/30">
-                                            Bible Year
-                                        </span>
-                                    </div>
-                                    <div className="text-xs sm:text-sm font-black text-white truncate group-hover:text-gold-300 transition-colors">
-                                        📖 {todayPlanItem.label}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
-                                {todayPlanItem.chapters.map((ch, idx) => (
-                                    <button
-                                        key={idx}
-                                        type="button"
-                                        onClick={() => processDirectTarget({ bookName: ch.bookName, bookId: ch.bookId, chapter: ch.chapter, verse: 1 })}
-                                        className="px-2 py-1 rounded-lg text-[11px] font-black bg-white/10 hover:bg-gold-500 hover:text-navy-950 text-emerald-200 hover:border-gold-400 border border-white/20 transition cursor-pointer flex items-center gap-1 active:scale-95"
-                                        title={`Buka langsung ${ch.bookName} ${ch.chapter}`}
-                                    >
-                                        <Icon name="BookOpen" className="w-3 h-3" />
-                                        <span>{ch.singkat} {ch.chapter}</span>
-                                    </button>
-                                ))}
-                                <button
-                                    type="button"
+                        isTargetCollapsed ? (
+                            <div className="px-3 py-2 rounded-xl bg-gradient-to-r from-[#1C3318]/90 via-navy-900 to-[#1C3318]/90 border border-emerald-500/30 shadow-xs flex items-center justify-between gap-2 text-xs">
+                                <div
                                     onClick={() => {
                                         setAlkitabHomeTab('bible_year');
                                         setSearchResults(null);
                                         setPlanFilterMode('month');
                                         setSelectedPlanMonth(todayPlanItem.month);
                                     }}
-                                    className="p-1 sm:px-2 sm:py-1 rounded-lg text-gold-400 hover:text-white text-xs font-black transition cursor-pointer flex items-center gap-0.5"
-                                    title="Lihat Kalender Rencana Baca 1 Tahun"
+                                    className="flex items-center gap-2 min-w-0 cursor-pointer"
                                 >
-                                    <span className="hidden sm:inline text-[11px]">Rencana</span>
-                                    <Icon name="ArrowRight" className="w-3.5 h-3.5" />
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                                    <span className="text-[11px] font-black text-emerald-300 truncate">
+                                        📅 Target Hari Ini: {todayPlanItem.label}
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={toggleTargetCollapse}
+                                    className="px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px] font-bold text-emerald-200 transition cursor-pointer shrink-0"
+                                    title="Tampilkan Target Lengkap"
+                                >
+                                    Buka ▾
                                 </button>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#1C3318]/95 via-navy-900 to-[#1C3318]/95 border border-emerald-500/40 shadow-md flex flex-wrap items-center justify-between gap-2.5 relative">
+                                <button
+                                    type="button"
+                                    onClick={toggleTargetCollapse}
+                                    className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px] font-bold text-white/70 hover:text-white transition cursor-pointer"
+                                    title="Kecilkan Banner Target Hari Ini"
+                                >
+                                    Kecilkan ▴
+                                </button>
+                                <div
+                                    onClick={() => {
+                                        setAlkitabHomeTab('bible_year');
+                                        setSearchResults(null);
+                                        setPlanFilterMode('month');
+                                        setSelectedPlanMonth(todayPlanItem.month);
+                                    }}
+                                    className="flex items-center gap-2.5 min-w-0 cursor-pointer group flex-1 pr-14"
+                                    title="Buka Target Rencana Baca Hari Ini"
+                                >
+                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0 shadow-xs shadow-emerald-400/50"></span>
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400">
+                                                📅 Target Hari Ini ({todayPlanItem.dateLabel} • Hari ke-{todayPlanItem.day})
+                                            </span>
+                                            <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-gold-500/20 text-gold-300 border border-gold-400/30">
+                                                Bible Year
+                                            </span>
+                                        </div>
+                                        <div className="text-xs sm:text-sm font-black text-white truncate group-hover:text-gold-300 transition-colors">
+                                            📖 {todayPlanItem.label}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+                                    {todayPlanItem.chapters.map((ch, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => processDirectTarget({ bookName: ch.bookName, bookId: ch.bookId, chapter: ch.chapter, verse: 1 })}
+                                            className="px-2 py-1 rounded-lg text-[11px] font-black bg-white/10 hover:bg-gold-500 hover:text-navy-950 text-emerald-200 hover:border-gold-400 border border-white/20 transition cursor-pointer flex items-center gap-1 active:scale-95"
+                                            title={`Buka langsung ${ch.bookName} ${ch.chapter}`}
+                                        >
+                                            <Icon name="BookOpen" className="w-3 h-3" />
+                                            <span>{ch.singkat} {ch.chapter}</span>
+                                        </button>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setAlkitabHomeTab('bible_year');
+                                            setSearchResults(null);
+                                            setPlanFilterMode('month');
+                                            setSelectedPlanMonth(todayPlanItem.month);
+                                        }}
+                                        className="p-1 sm:px-2 sm:py-1 rounded-lg text-gold-400 hover:text-white text-xs font-black transition cursor-pointer flex items-center gap-0.5"
+                                        title="Lihat Kalender Rencana Baca 1 Tahun"
+                                    >
+                                        <span className="hidden sm:inline text-[11px]">Rencana</span>
+                                        <Icon name="ArrowRight" className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            </div>
+                        )
                     )}
                     {searchResults ? (
                         <div>
@@ -18585,26 +18842,26 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
         const chapters = Array.from({ length: selectedBook.pasal }, (_, i) => i + 1);
         return (
             <div className="animate-fade-in pb-10">
-                <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 transition-all">
-                    <div className="flex items-center gap-1.5 sm:gap-3 w-full max-w-4xl mx-auto">
+                <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-2 sm:px-4 md:-mx-8 md:px-8 transition-all">
+                    <div className="flex items-center gap-1 sm:gap-2 w-full max-w-4xl mx-auto">
                         <button
                             onClick={handleBackNavigation}
-                            className="h-9 sm:h-11 px-2.5 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
+                            className="h-9 sm:h-11 px-2 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1"
                             title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali ke Daftar Kitab'}
                         >
-                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                            <Icon name="ArrowLeft" className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-0.5 transition-transform" />
                             {returnTab === 'belajar_sekolah_sabat' && (
                                 <span className="hidden sm:inline text-xs font-black text-[#4A7045] dark:text-gold-400">
                                     Sekolah Sabat
                                 </span>
                             )}
                         </button>
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 overflow-hidden">
                             {renderDropdowns()}
                         </div>
                         <button
                             onClick={() => { setReturnTab(null); window.__alkitabReturnTab = null; try { localStorage.removeItem('alkitabReturnTab'); } catch (e) { } setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
+                            className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group z-10"
                             title="Daftar Kitab (Home)"
                         >
                             <Icon name="Home" className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-105 transition-transform" />
@@ -18631,15 +18888,15 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
             <div className="animate-fade-in pb-44 sm:pb-48 md:pb-32">
                 {renderAlkitabModals()}
                 {/* Sticky Header: Tombol Panah (Kiri), Kotak Kitab (Tengah), Tombol Home (Kanan) */}
-                <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 transition-all">
-                    <div className="flex items-center gap-1.5 sm:gap-3 w-full max-w-4xl mx-auto">
+                <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-2 sm:px-4 md:-mx-8 md:px-8 transition-all">
+                    <div className="flex items-center gap-1 sm:gap-2 w-full max-w-4xl mx-auto">
                         {/* Tombol Panah (Kembali) di sebelah kiri */}
                         <button
                             onClick={handleBackNavigation}
-                            className="h-9 sm:h-11 px-2.5 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
+                            className="h-9 sm:h-11 px-2 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1"
                             title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali ke Pilih Pasal'}
                         >
-                            <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                            <Icon name="ArrowLeft" className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-0.5 transition-transform" />
                             {returnTab === 'belajar_sekolah_sabat' && (
                                 <span className="hidden sm:inline text-xs font-black text-[#4A7045] dark:text-gold-400">
                                     Sekolah Sabat
@@ -18648,14 +18905,14 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                         </button>
 
                         {/* Kotak Kitab (Dropdowns: Kitab, Pasal, Ayat) di tengah */}
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 overflow-hidden">
                             {renderDropdowns()}
                         </div>
 
                         {/* Tombol Home di sebelah kanan */}
                         <button
                             onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
+                            className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group z-10"
                             title="Daftar Kitab (Home)"
                         >
                             <Icon name="Home" className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-105 transition-transform" />
@@ -19120,6 +19377,69 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
         } catch (e) { }
     };
 
+    // Koleksi Lagu Favorit Pribadi (localStorage)
+    const [favoriteSongNos, setFavoriteSongNos] = React.useState(() => {
+        try {
+            const raw = localStorage.getItem('PISGAH_LAGUSION_FAVORITES');
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    });
+
+    const toggleFavoriteSong = (num) => {
+        if (!num) return;
+        setFavoriteSongNos(prev => {
+            const exists = prev.includes(num);
+            const next = exists ? prev.filter(n => n !== num) : [...prev, num];
+            try {
+                localStorage.setItem('PISGAH_LAGUSION_FAVORITES', JSON.stringify(next));
+            } catch (e) { }
+            return next;
+        });
+    };
+
+    // Pembidik Nada Dasar (Pitch Pipe Synth via Web Audio API)
+    const [pitchPipeOpen, setPitchPipeOpen] = React.useState(false);
+    const [activePlayingNote, setActivePlayingNote] = React.useState(null);
+
+    const PITCH_NOTES = [
+        { note: 'C', label: 'C (Do)', freq: 261.63 },
+        { note: 'D', label: 'D (Re)', freq: 293.66 },
+        { note: 'Eb', label: 'Eb/D#', freq: 311.13 },
+        { note: 'E', label: 'E (Mi)', freq: 329.63 },
+        { note: 'F', label: 'F (Fa)', freq: 349.23 },
+        { note: 'G', label: 'G (Sol)', freq: 392.00 },
+        { note: 'Ab', label: 'Ab/G#', freq: 415.30 },
+        { note: 'A', label: 'A (La)', freq: 440.00 },
+        { note: 'Bb', label: 'Bb/A#', freq: 466.16 },
+        { note: 'B', label: 'B (Si)', freq: 493.88 }
+    ];
+
+    const playPitch = (freq, noteName) => {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            gain.gain.setValueAtTime(0.35, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 2.5);
+            setActivePlayingNote(noteName);
+            setTimeout(() => {
+                setActivePlayingNote(null);
+            }, 2500);
+        } catch (e) {
+            console.warn('Audio tone error:', e);
+        }
+    };
+
     // Load lyrics from public/lagu_sion.json if not passed from parent
     React.useEffect(() => {
         if (laguSionDb && laguSionDb.length > 0) {
@@ -19274,6 +19594,10 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
         return list;
     }, [db, indexTab, searchQuery]);
 
+    const favoriteSongs = React.useMemo(() => {
+        return db.filter(song => favoriteSongNos.includes(song.number)).sort((a, b) => a.number - b.number);
+    }, [db, favoriteSongNos]);
+
     return (
         <div className={`animate-fade-in relative z-10 ${subTab === 'numpad' ? 'pb-2' : 'pb-32'}`}>
             {isLoading && (
@@ -19311,6 +19635,16 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                     >
                         <Icon name="BookOpen" className="w-4 h-4" />
                         <span>Lirik Lagu</span>
+                    </button>
+                    <button
+                        onClick={() => setSubTab('favorites')}
+                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${subTab === 'favorites'
+                            ? 'bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white shadow-md'
+                            : 'text-navy-600 dark:text-navy-300 hover:text-navy-950 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-700/50'
+                            }`}
+                    >
+                        <Icon name="Star" className={`w-4 h-4 ${subTab === 'favorites' ? 'fill-current' : ''}`} />
+                        <span>Favorit ({favoriteSongs.length})</span>
                     </button>
                     <button
                         onClick={() => setSubTab('index')}
@@ -19440,38 +19774,67 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                             </div>
 
                             {/* Gold Song Title block */}
-                            <div className="bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white px-5 py-4 rounded-2xl flex items-center justify-between gap-3 shadow-md">
-                                <div className="flex-1 min-w-0 pr-2">
-                                    <h2 className="font-black text-xl leading-tight truncate">{selectedSong.title}</h2>
+                            <div className="bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl flex items-center justify-between gap-2 sm:gap-3 shadow-md">
+                                <div className="flex-1 min-w-0 pr-1">
+                                    <h2 className="font-black text-lg sm:text-xl leading-tight truncate">{selectedSong.title}</h2>
                                     <p className="text-xs text-amber-100/90 font-medium mt-0.5 truncate">
                                         {selectedSong.keyTime} {selectedSong.artist ? `| ${selectedSong.artist}` : ''}
                                     </p>
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0">
+                                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                                     {/* Pengatur Ukuran Huruf Lirik (A- / A+) */}
-                                    <div className="flex items-center bg-black/20 backdrop-blur-sm rounded-xl p-1 border border-white/20" title="Ukuran Huruf Lirik Lagu">
+                                    <div className="flex items-center bg-black/20 backdrop-blur-sm rounded-xl p-0.5 sm:p-1 border border-white/20" title="Ukuran Huruf Lirik Lagu">
                                         <button
                                             type="button"
                                             onClick={() => updateLyricFontSize(lyricFontSize - 2)}
                                             disabled={lyricFontSize <= 14}
-                                            className="px-2 py-1 rounded-lg font-black text-xs text-white hover:bg-white/20 disabled:opacity-35 transition cursor-pointer"
+                                            className="px-1.5 sm:px-2 py-1 rounded-lg font-black text-xs text-white hover:bg-white/20 disabled:opacity-35 transition cursor-pointer"
                                             title="Perkecil Lirik (A-)"
                                         >
                                             A-
                                         </button>
-                                        <span className="px-1.5 text-[10px] font-bold text-amber-100 select-none">{lyricFontSize}px</span>
+                                        <span className="px-1 text-[10px] font-bold text-amber-100 select-none">{lyricFontSize}px</span>
                                         <button
                                             type="button"
                                             onClick={() => updateLyricFontSize(lyricFontSize + 2)}
                                             disabled={lyricFontSize >= 30}
-                                            className="px-2 py-1 rounded-lg font-black text-xs text-white hover:bg-white/20 disabled:opacity-35 transition cursor-pointer"
+                                            className="px-1.5 sm:px-2 py-1 rounded-lg font-black text-xs text-white hover:bg-white/20 disabled:opacity-35 transition cursor-pointer"
                                             title="Perbesar Lirik (A+)"
                                         >
                                             A+
                                         </button>
                                     </div>
-                                    <button onClick={handleShare} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 active:bg-white/35 transition-colors relative shrink-0" title="Bagikan Lirik Lagu">
-                                        <Icon name="Share" className="w-5 h-5" />
+
+                                    {/* Tombol Simpan ke Favorit */}
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleFavoriteSong(selectedSong.number)}
+                                        className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition-colors relative shrink-0 cursor-pointer ${
+                                            favoriteSongNos.includes(selectedSong.number)
+                                                ? 'bg-amber-300 text-navy-950 shadow-md ring-2 ring-white/50'
+                                                : 'bg-white/15 hover:bg-white/25 active:bg-white/35 text-white'
+                                        }`}
+                                        title={favoriteSongNos.includes(selectedSong.number) ? "Hapus dari Favorit" : "Simpan ke Lagu Favorit"}
+                                    >
+                                        <Icon name="Star" className={`w-4 h-4 sm:w-5 sm:h-5 ${favoriteSongNos.includes(selectedSong.number) ? 'fill-current' : ''}`} />
+                                    </button>
+
+                                    {/* Tombol Pitch Pipe (Pembidik Nada Dasar) */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setPitchPipeOpen(prev => !prev)}
+                                        className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition-colors relative shrink-0 cursor-pointer ${
+                                            pitchPipeOpen
+                                                ? 'bg-white text-navy-950 shadow-md ring-2 ring-gold-300'
+                                                : 'bg-white/15 hover:bg-white/25 active:bg-white/35 text-white'
+                                        }`}
+                                        title="Buka Pembidik Nada Dasar (Pitch Pipe)"
+                                    >
+                                        <span className="text-sm sm:text-base select-none">🎵</span>
+                                    </button>
+
+                                    <button onClick={handleShare} className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 active:bg-white/35 transition-colors relative shrink-0 cursor-pointer" title="Bagikan Lirik Lagu">
+                                        <Icon name="Share" className="w-4 h-4 sm:w-5 sm:h-5" />
                                         {copied && (
                                             <span className="absolute -top-9 right-0 bg-navy-900 text-white text-[10px] px-2 py-1 rounded shadow-md whitespace-nowrap animate-fade-in">
                                                 Disalin!
@@ -19480,6 +19843,50 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                     </button>
                                 </div>
                             </div>
+
+                            {/* Panel Pembidik Nada Dasar (Pitch Pipe) */}
+                            {pitchPipeOpen && (
+                                <div className="bg-navy-950/95 dark:bg-navy-900 border-2 border-gold-400/80 rounded-2xl p-3.5 shadow-xl animate-scale-up space-y-2.5">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-base">🎵</span>
+                                            <div>
+                                                <h4 className="text-xs font-black text-gold-400 uppercase tracking-wider">Pembidik Nada Dasar (Pitch Pipe)</h4>
+                                                <p className="text-[10px] text-gray-300">Klik nada untuk membunyikan Do / Acuan Nada</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPitchPipeOpen(false)}
+                                            className="text-gray-400 hover:text-white p-1 rounded-lg text-xs"
+                                            title="Tutup Pitch Pipe"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+                                        {PITCH_NOTES.map(p => {
+                                            const isPlaying = activePlayingNote === p.note;
+                                            return (
+                                                <button
+                                                    key={p.note}
+                                                    type="button"
+                                                    onClick={() => playPitch(p.freq, p.note)}
+                                                    className={`py-2 px-1 rounded-xl text-xs font-black transition-all cursor-pointer flex flex-col items-center justify-center active:scale-95 ${
+                                                        isPlaying
+                                                            ? 'bg-gold-500 text-navy-950 shadow-lg scale-105 ring-2 ring-white'
+                                                            : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
+                                                    }`}
+                                                    title={`Bunyikan nada ${p.label} (${p.freq} Hz)`}
+                                                >
+                                                    <span className="text-sm font-black">{p.note}</span>
+                                                    <span className="text-[9px] opacity-75 font-medium">{p.label.split(' ')[1] || ''}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Lyrics sheet card */}
                             <div className="bg-white dark:bg-navy-900 rounded-3xl border border-navy-100/50 dark:border-navy-800 p-6 md:p-8 shadow-sm space-y-6 select-text">
@@ -19553,10 +19960,101 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                 </div>
             )}
 
+            {/* Subtab: Favorites (Lagu Favorit) */}
+            {subTab === 'favorites' && (
+                <div className="max-w-xl mx-auto space-y-4 px-4">
+                    <div className="bg-white dark:bg-navy-850 rounded-2xl border border-navy-100/50 dark:border-navy-700 px-4 py-3 flex items-center justify-between shadow-sm">
+                        <button
+                            onClick={() => setSubTab('numpad')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-navy-50 hover:bg-gold-500 hover:text-navy-950 text-navy-700 dark:text-navy-200 dark:bg-navy-800 font-bold text-xs transition-all cursor-pointer group"
+                            title="Kembali ke Numpad"
+                        >
+                            <Icon name="ArrowLeft" className="w-4 h-4 stroke-[2.5] group-hover:-translate-x-0.5 transition-transform" />
+                            <span>Numpad</span>
+                        </button>
+                        <div className="flex items-center gap-1.5 text-xs font-black text-navy-800 dark:text-gold-400">
+                            <Icon name="Star" className="w-4 h-4 fill-current text-gold-500" />
+                            <span>Koleksi Favorit ({favoriteSongs.length} Lagu)</span>
+                        </div>
+                    </div>
+
+                    {favoriteSongs.length === 0 ? (
+                        <div className="bg-white dark:bg-navy-850 rounded-3xl border border-navy-100/50 dark:border-navy-700 p-8 sm:p-10 shadow-sm flex flex-col items-center justify-center text-center">
+                            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center text-gold-500 mb-3">
+                                <Icon name="Star" className="w-8 h-8" />
+                            </div>
+                            <h3 className="font-black text-navy-900 dark:text-white uppercase tracking-wider text-sm mb-1">
+                                Belum Ada Lagu Favorit
+                            </h3>
+                            <p className="text-xs text-navy-500 dark:text-gray-400 max-w-xs leading-relaxed mb-5">
+                                Tandai lagu favorit Anda dengan menekan ikon bintang ⭐ pada daftar lagu atau halaman lirik untuk akses cepat sewaktu-waktu.
+                            </p>
+                            <button
+                                onClick={() => setSubTab('index')}
+                                className="px-5 py-2.5 bg-gradient-to-r from-[#D19B45] to-[#B8863B] hover:from-[#c58f3c] hover:to-[#a97831] text-white text-xs font-black rounded-xl uppercase tracking-wider shadow-md transition active:scale-95 cursor-pointer"
+                            >
+                                Jelajahi Daftar Lagu
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="bg-white dark:bg-navy-850 rounded-3xl border border-navy-100/50 dark:border-navy-700 overflow-hidden shadow-sm divide-y divide-navy-50 dark:divide-navy-800">
+                            {favoriteSongs.map((song) => (
+                                <div
+                                    key={song.number}
+                                    className="flex items-center justify-between p-3.5 sm:p-4 hover:bg-gold-50/40 dark:hover:bg-navy-800/60 transition-colors group"
+                                >
+                                    <div
+                                        onClick={() => {
+                                            setSelectedSong(song);
+                                            setSubTab('lyrics');
+                                        }}
+                                        className="flex items-center min-w-0 flex-1 cursor-pointer pr-2"
+                                    >
+                                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-500/20 to-amber-500/10 border border-gold-500/30 flex items-center justify-center text-gold-700 dark:text-gold-400 mr-3 shrink-0 font-black text-sm">
+                                            {song.number}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="font-bold text-navy-900 dark:text-white truncate group-hover:text-gold-500 transition-colors">
+                                                {song.title}
+                                            </div>
+                                            <div className="text-xs text-navy-500 dark:text-gray-400 truncate">
+                                                {song.keyTime} {song.artist ? `| ${song.artist}` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedSong(song);
+                                                setSubTab('lyrics');
+                                            }}
+                                            className="px-2.5 py-1.5 rounded-lg bg-gold-500/10 hover:bg-gold-500 text-gold-700 hover:text-navy-950 dark:text-gold-300 font-bold text-xs transition cursor-pointer"
+                                            title="Buka Lirik"
+                                        >
+                                            Lirik &rarr;
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleFavoriteSong(song.number)}
+                                            className="p-2 rounded-lg text-amber-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-navy-800 transition cursor-pointer"
+                                            title="Hapus dari Favorit"
+                                        >
+                                            <Icon name="Star" className="w-4 h-4 fill-current" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* Subtab: Index (Daftar) */}
             {subTab === 'index' && (
                 <div className="max-w-xl mx-auto space-y-4 px-4">
-                    <div className="bg-white rounded-2xl border border-navy-100/50 px-4 py-3 flex items-center justify-between shadow-sm">
+                    <div className="bg-white dark:bg-navy-850 rounded-2xl border border-navy-100/50 dark:border-navy-700 px-4 py-3 flex items-center justify-between shadow-sm">
                         <button
                             onClick={() => setSubTab('numpad')}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-navy-50 hover:bg-gold-500 hover:text-navy-950 text-navy-700 dark:text-navy-200 dark:bg-navy-800 font-bold text-xs transition-all cursor-pointer group"
@@ -19567,32 +20065,61 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                         </button>
                         <div className="flex items-center gap-2">
                             <span className="text-xs font-black text-navy-400 uppercase tracking-wide hidden sm:inline">Urutkan:</span>
-                            <div className="flex bg-navy-100/60 p-0.5 rounded-lg">
-                                <button onClick={() => setIndexTab('number')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${indexTab === 'number' ? 'bg-white text-navy-900 shadow-sm' : 'text-navy-500 hover:text-navy-700'}`}>
+                            <div className="flex bg-navy-100/60 dark:bg-navy-800 p-0.5 rounded-lg">
+                                <button onClick={() => setIndexTab('number')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${indexTab === 'number' ? 'bg-white dark:bg-navy-900 text-navy-900 dark:text-white shadow-sm' : 'text-navy-500 hover:text-navy-700'}`}>
                                     Nomor
                                 </button>
-                                <button onClick={() => setIndexTab('alphabet')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${indexTab === 'alphabet' ? 'bg-white text-navy-900 shadow-sm' : 'text-navy-500 hover:text-navy-700'}`}>
+                                <button onClick={() => setIndexTab('alphabet')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${indexTab === 'alphabet' ? 'bg-white dark:bg-navy-900 text-navy-900 dark:text-white shadow-sm' : 'text-navy-500 hover:text-navy-700'}`}>
                                     Abjad
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-3xl border border-navy-100/50 overflow-hidden shadow-sm">
-                        {indexedSongs.map((song, idx) => (
-                            <button key={song.number} onClick={() => {
-                                setSelectedSong(song);
-                                setSubTab('lyrics');
-                            }} className={`w-full flex items-center p-4 text-left hover:bg-gold-50/50 transition-colors ${idx !== indexedSongs.length - 1 ? 'border-b border-navy-50' : ''}`}>
-                                <div className="w-10 h-10 rounded-xl bg-navy-50 flex items-center justify-center text-navy-600 mr-4 shrink-0 font-black text-sm">
-                                    {song.number}
+                    <div className="bg-white dark:bg-navy-850 rounded-3xl border border-navy-100/50 dark:border-navy-700 overflow-hidden shadow-sm divide-y divide-navy-50 dark:divide-navy-800">
+                        {indexedSongs.map((song) => (
+                            <div
+                                key={song.number}
+                                className="w-full flex items-center p-3.5 sm:p-4 text-left hover:bg-gold-50/50 dark:hover:bg-navy-800/60 transition-colors"
+                            >
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setSelectedSong(song);
+                                        setSubTab('lyrics');
+                                    }}
+                                    className="flex items-center min-w-0 flex-1 text-left cursor-pointer"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-navy-50 dark:bg-navy-800 flex items-center justify-center text-navy-600 dark:text-navy-300 mr-3 sm:mr-4 shrink-0 font-black text-sm">
+                                        {song.number}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-bold text-navy-800 dark:text-white truncate">{song.title}</div>
+                                        <div className="text-xs text-navy-500 dark:text-gray-400 truncate">{song.keyTime} {song.artist ? `| ${song.artist}` : ''}</div>
+                                    </div>
+                                </button>
+
+                                <div className="flex items-center gap-1 shrink-0 ml-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleFavoriteSong(song.number)}
+                                        className="p-2 rounded-lg text-amber-500 hover:bg-gold-100/50 dark:hover:bg-navy-800 transition cursor-pointer"
+                                        title={favoriteSongNos.includes(song.number) ? "Hapus dari Favorit" : "Simpan ke Favorit"}
+                                    >
+                                        <Icon name="Star" className={`w-4 h-4 ${favoriteSongNos.includes(song.number) ? 'fill-current' : 'opacity-35 hover:opacity-100'}`} />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedSong(song);
+                                            setSubTab('lyrics');
+                                        }}
+                                        className="p-1 text-navy-300 hover:text-navy-600 dark:text-gray-400 dark:hover:text-white cursor-pointer"
+                                    >
+                                        <Icon name="ChevronRight" className="w-4 h-4" />
+                                    </button>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-bold text-navy-800 truncate">{song.title}</div>
-                                    <div className="text-xs text-navy-500 truncate">{song.keyTime} {song.artist ? `| ${song.artist}` : ''}</div>
-                                </div>
-                                <Icon name="ChevronRight" className="w-4 h-4 text-navy-300 ml-2" />
-                            </button>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -21224,7 +21751,7 @@ const App = () => {
             case 'pindah_masuk': return <PindahMasuk setActiveTab={setActiveTab} dataPejabat={dataPejabat} />;
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
-            case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
+            case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} setLaguSionSubTab={setLaguSionSubTab} />;
             case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} /> : <Home setShowManualInstall={setShowManualInstall} setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
             case 'alkitab': return <Alkitab setActiveTab={setActiveTab} setHideGlobalBack={setHideGlobalBack} />;
             case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
@@ -21359,6 +21886,7 @@ const App = () => {
                                 { id: 'home', label: 'Home', icon: 'Home' },
                                 { id: 'numpad', label: 'Numpad', icon: 'Grid' },
                                 { id: 'lyrics', label: 'Lirik', icon: 'BookOpen' },
+                                { id: 'favorites', label: 'Favorit', icon: 'Star' },
                                 { id: 'index', label: 'Daftar', icon: 'List' }
                             ];
                             const activeIndex = lsTabs.findIndex(tab => tab.id === (laguSionSubTab || 'numpad'));
