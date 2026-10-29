@@ -1097,6 +1097,28 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     };
 
     // Listener seleksi teks pembaca untuk floating toolbar (Hanya muncul saat teks diblok)
+    // Hitung posisi floating toolbar melayang yang presisi & tidak pernah menutupi bottom bar menu (mobile/desktop)
+    const calculateToolbarPosition = (rect) => {
+        const vpW = (typeof window !== 'undefined' ? window.innerWidth : 360) || 360;
+        const vpH = (typeof window !== 'undefined' ? window.innerHeight : 640) || 640;
+        // Bottom bar menu berada di bawah (tinggi ~75px + safe-area). Jaga batas aman minimum 130px dari bawah layar
+        const maxTop = Math.max(70, vpH - 130);
+        const minTop = 64; // Batas atas agar tidak tertutup header / URL bar
+
+        let top = rect.top - 54;
+        if (top < minTop) {
+            top = rect.bottom + 10;
+        }
+        if (top > maxTop) {
+            top = Math.max(minTop, Math.min(rect.top - 54, maxTop));
+        }
+
+        const center = rect.left + rect.width / 2;
+        const left = Math.max(120, Math.min(vpW - 120, center));
+
+        return { top: Math.round(top), left: Math.round(left) };
+    };
+
     const handleCheckSelection = () => {
         setTimeout(() => {
             const sel = window.getSelection();
@@ -1124,15 +1146,14 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                         node = node.parentNode;
                     }
 
-                    const desktopTop = Math.max(80, rect.top - 56);
-                    const desktopLeft = Math.max(120, Math.min(window.innerWidth - 120, rect.left + rect.width / 2));
+                    const { top, left } = calculateToolbarPosition(rect);
                     lastSelectionTimeRef.current = Date.now();
 
                     setSelectionToolbar({
                         text,
                         blockIdx: foundBlockIdx,
-                        desktopTop,
-                        desktopLeft
+                        top,
+                        left
                     });
                 }
             } else {
@@ -1188,15 +1209,14 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             node = node.parentNode;
                         }
 
-                        const desktopTop = Math.max(80, rect.top - 56);
-                        const desktopLeft = Math.max(120, Math.min(window.innerWidth - 120, rect.left + rect.width / 2));
+                        const { top, left } = calculateToolbarPosition(rect);
                         lastSelectionTimeRef.current = Date.now();
 
                         setSelectionToolbar({
                             text: currentText,
                             blockIdx: foundBlockIdx,
-                            desktopTop,
-                            desktopLeft
+                            top,
+                            left
                         });
                     }
                 } else {
@@ -1211,6 +1231,16 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             document.removeEventListener("selectionchange", handleSelectionChange);
         };
     }, []);
+
+    // Auto-dismiss floating toolbar saat halaman digulir (scroll) agar tidak menutupi menu atau bacaan
+    useEffect(() => {
+        if (!selectionToolbar) return;
+        const handleScroll = () => {
+            setSelectionToolbar(null);
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [selectionToolbar]);
 
     // Auto-dismiss floating toolbar saat klik di luar area seleksi
     useEffect(() => {
@@ -2921,14 +2951,15 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 </div>
             )}
 
-            {/* FLOATING ACTION TOOLBAR SAAT TEKS/KALIMAT DIBLOK (MUNCUL DI ATAS BOTTOM MENU AGAR TIDAK MENUTUPI NAVIGASI) */}
+            {/* FLOATING ACTION TOOLBAR SAAT TEKS/KALIMAT DIBLOK (MUNCUL TEPAT DI DEKAT SELEKSI & TIDAK PERNAH MENUTUPI MENU) */}
             {selectionToolbar && (
                 <div
                     ref={selectionToolbarRef}
-                    className="fixed z-[120] bottom-[calc(env(safe-area-inset-bottom,0px)+96px)] sm:bottom-auto left-1/2 -translate-x-1/2 sm:left-[var(--desk-left)] sm:top-[var(--desk-top)] flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-1.5 rounded-2xl bg-navy-950/95 dark:bg-navy-900/98 backdrop-blur-2xl border-2 border-gold-400 shadow-2xl animate-scale-up max-w-[92vw] sm:max-w-md w-max"
+                    className="fixed z-[120] flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-1.5 rounded-2xl bg-navy-950/95 dark:bg-navy-900/98 backdrop-blur-2xl border-2 border-gold-400 shadow-2xl animate-scale-up max-w-[92vw] sm:max-w-md w-max"
                     style={{
-                        '--desk-left': `${selectionToolbar.desktopLeft || (typeof window !== 'undefined' ? window.innerWidth / 2 : 300)}px`,
-                        '--desk-top': `${selectionToolbar.desktopTop || 80}px`
+                        top: `${selectionToolbar.top || 100}px`,
+                        left: `${selectionToolbar.left || 180}px`,
+                        transform: 'translateX(-50%)'
                     }}
                 >
                     <button

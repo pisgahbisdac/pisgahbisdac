@@ -5601,6 +5601,10 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
                 setLaguSionInitialSong(found);
             }
         }
+        try {
+            localStorage.setItem('laguSionReturnTab', 'susunan_ibadah');
+            window.__laguSionReturnTab = 'susunan_ibadah';
+        } catch (e) { }
         setLaguSionSubTab('lyrics');
         setActiveTab('lagu_sion');
     };
@@ -5608,10 +5612,34 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
     const handleOpenVerse = (ref) => {
         if (!ref || ref === '-' || ref === 'Sesuai Khotbah') return;
         try {
-            localStorage.setItem('alkitabInitialSearch', ref);
             localStorage.setItem('alkitabReturnTab', 'susunan_ibadah');
             window.__alkitabReturnTab = 'susunan_ibadah';
         } catch (e) { }
+
+        const cleanRef = ref.replace(/[()]/g, '').trim();
+        const verseMatch = cleanRef.match(/^([1-3]?\s*[A-Za-z]+)\.?\s*(\d+)[\s:]*([0-9\-–]+)?/);
+        if (verseMatch) {
+            const bookStr = verseMatch[1].trim();
+            const chNum = parseInt(verseMatch[2], 10);
+            const verseStr = verseMatch[3] ? verseMatch[3].trim() : '1';
+
+            const directTarget = {
+                bookName: bookStr,
+                chapter: chNum,
+                verse: verseStr,
+                returnTab: 'susunan_ibadah'
+            };
+
+            window.__alkitabDirectTarget = directTarget;
+            try {
+                localStorage.setItem('alkitabDirectTarget', JSON.stringify(directTarget));
+            } catch (e) { }
+        } else {
+            try {
+                localStorage.setItem('alkitabInitialSearch', ref);
+            } catch (e) { }
+        }
+
         setActiveTab('alkitab');
     };
 
@@ -18981,13 +19009,22 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                     <div className="flex items-center gap-1.5 sm:gap-3 w-full max-w-4xl mx-auto">
                         <button
                             onClick={handleBackNavigation}
-                            className="h-9 sm:h-11 px-2.5 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
-                            title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali'}
+                            className={`h-9 sm:h-11 px-2.5 sm:px-3.5 flex items-center justify-center shadow-sm hover:shadow border rounded-2xl font-bold transition-all shrink-0 active:scale-95 group gap-1.5 ${
+                                returnTab === 'susunan_ibadah'
+                                    ? 'bg-gradient-to-r from-amber-400 to-gold-400 text-navy-950 border-amber-500/40 shadow-md font-black'
+                                    : 'bg-white dark:bg-navy-800 border-navy-100/80 dark:border-navy-700 text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white'
+                            }`}
+                            title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : returnTab === 'susunan_ibadah' ? 'Kembali ke Susunan Ibadah' : 'Kembali'}
                         >
                             <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
                             {returnTab === 'belajar_sekolah_sabat' && (
                                 <span className="hidden sm:inline text-xs font-black text-[#4A7045] dark:text-gold-400">
                                     Sekolah Sabat
+                                </span>
+                            )}
+                            {returnTab === 'susunan_ibadah' && (
+                                <span className="text-xs font-black">
+                                    Susunan Ibadah
                                 </span>
                             )}
                         </button>
@@ -19532,13 +19569,22 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                     <div className="flex items-center gap-1 sm:gap-2 w-full max-w-4xl mx-auto">
                         <button
                             onClick={handleBackNavigation}
-                            className="h-9 sm:h-11 px-2 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1"
-                            title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali ke Daftar Kitab'}
+                            className={`h-9 sm:h-11 px-2 sm:px-3.5 flex items-center justify-center shadow-sm hover:shadow border rounded-2xl font-bold transition-all shrink-0 active:scale-95 group gap-1 ${
+                                returnTab === 'susunan_ibadah'
+                                    ? 'bg-gradient-to-r from-amber-400 to-gold-400 text-navy-950 border-amber-500/40 shadow-md font-black'
+                                    : 'bg-white dark:bg-navy-800 border-navy-100/80 dark:border-navy-700 text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white'
+                            }`}
+                            title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : returnTab === 'susunan_ibadah' ? 'Kembali ke Susunan Ibadah' : 'Kembali ke Daftar Kitab'}
                         >
                             <Icon name="ArrowLeft" className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-0.5 transition-transform" />
                             {returnTab === 'belajar_sekolah_sabat' && (
                                 <span className="hidden sm:inline text-xs font-black text-[#4A7045] dark:text-gold-400">
                                     Sekolah Sabat
+                                </span>
+                            )}
+                            {returnTab === 'susunan_ibadah' && (
+                                <span className="text-xs font-black">
+                                    Susunan Ibadah
                                 </span>
                             )}
                         </button>
@@ -19579,13 +19625,22 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                         {/* Tombol Panah (Kembali) di sebelah kiri */}
                         <button
                             onClick={handleBackNavigation}
-                            className="h-9 sm:h-11 px-2 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1"
-                            title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali ke Pilih Pasal'}
+                            className={`h-9 sm:h-11 px-2 sm:px-3.5 flex items-center justify-center shadow-sm hover:shadow border rounded-2xl font-bold transition-all shrink-0 active:scale-95 group gap-1 ${
+                                returnTab === 'susunan_ibadah'
+                                    ? 'bg-gradient-to-r from-amber-400 to-gold-400 text-navy-950 border-amber-500/40 shadow-md font-black'
+                                    : 'bg-white dark:bg-navy-800 border-navy-100/80 dark:border-navy-700 text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white'
+                            }`}
+                            title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : returnTab === 'susunan_ibadah' ? 'Kembali ke Susunan Ibadah' : 'Kembali ke Pilih Pasal'}
                         >
                             <Icon name="ArrowLeft" className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-0.5 transition-transform" />
                             {returnTab === 'belajar_sekolah_sabat' && (
                                 <span className="hidden sm:inline text-xs font-black text-[#4A7045] dark:text-gold-400">
                                     Sekolah Sabat
+                                </span>
+                            )}
+                            {returnTab === 'susunan_ibadah' && (
+                                <span className="text-xs font-black">
+                                    Susunan Ibadah
                                 </span>
                             )}
                         </button>
@@ -20048,6 +20103,35 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
     const [db, setDb] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(false);
     const [copied, setCopied] = React.useState(false);
+
+    // Navigasi Kembali ke Tab Sebelumnya (misal Susunan Ibadah)
+    const [returnTab, setReturnTab] = React.useState(() => {
+        try {
+            return window.__laguSionReturnTab || localStorage.getItem('laguSionReturnTab') || null;
+        } catch (e) {
+            return null;
+        }
+    });
+
+    React.useEffect(() => {
+        const rt = window.__laguSionReturnTab || localStorage.getItem('laguSionReturnTab');
+        if (rt) setReturnTab(rt);
+    }, [initialSong, subTab]);
+
+    const handleReturnNavigation = () => {
+        const dest = returnTab || window.__laguSionReturnTab || localStorage.getItem('laguSionReturnTab');
+        try {
+            localStorage.removeItem('laguSionReturnTab');
+            window.__laguSionReturnTab = null;
+        } catch (e) { }
+        setReturnTab(null);
+        if (dest) {
+            setActiveTab(dest);
+        } else {
+            setActiveTab('susunan_ibadah');
+        }
+    };
+
     const [lyricFontSize, setLyricFontSize] = React.useState(() => {
         try {
             const saved = parseInt(localStorage.getItem('PISGAH_LAGUSION_FONT_SIZE'), 10);
@@ -20296,6 +20380,16 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
             {/* Desktop SubTab Navigation Bar */}
             <div className="hidden md:flex items-center justify-center mt-1 mb-6">
                 <div className="bg-white dark:bg-navy-800/90 backdrop-blur-md p-1.5 rounded-2xl border border-navy-100 dark:border-navy-700 shadow-sm flex items-center gap-2">
+                    {returnTab === 'susunan_ibadah' && (
+                        <button
+                            onClick={handleReturnNavigation}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-amber-400 to-gold-400 hover:from-amber-300 hover:to-gold-300 text-navy-950 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
+                            title="Kembali ke Susunan Ibadah"
+                        >
+                            <Icon name="ArrowLeft" className="w-4 h-4 stroke-[3]" />
+                            <span>Susunan Ibadah</span>
+                        </button>
+                    )}
                     <button
                         onClick={() => setSubTab('numpad')}
                         className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${subTab === 'numpad'
@@ -20429,14 +20523,25 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                             {/* Navy Song navigation header */}
                             <div className="bg-navy-900 text-white px-4 sm:px-5 py-3 rounded-2xl flex items-center justify-between shadow-md">
                                 <div className="flex items-center gap-2 sm:gap-3">
-                                    <button
-                                        onClick={() => setSubTab('numpad')}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-gold-500 hover:text-navy-950 text-gold-400 active:scale-95 transition-all text-xs font-bold cursor-pointer group"
-                                        title="Kembali ke Numpad (Pilih Lagu)"
-                                    >
-                                        <Icon name="ArrowLeft" className="w-4 h-4 stroke-[2.5] group-hover:-translate-x-0.5 transition-transform" />
-                                        <span>Numpad</span>
-                                    </button>
+                                    {returnTab === 'susunan_ibadah' ? (
+                                        <button
+                                            onClick={handleReturnNavigation}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-gold-400 hover:from-amber-300 hover:to-gold-300 text-navy-950 font-black active:scale-95 transition-all text-xs cursor-pointer shadow-sm group"
+                                            title="Kembali ke Susunan Ibadah"
+                                        >
+                                            <Icon name="ArrowLeft" className="w-4 h-4 stroke-[3] group-hover:-translate-x-0.5 transition-transform" />
+                                            <span>Susunan Ibadah</span>
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => setSubTab('numpad')}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-gold-500 hover:text-navy-950 text-gold-400 active:scale-95 transition-all text-xs font-bold cursor-pointer group"
+                                            title="Kembali ke Numpad (Pilih Lagu)"
+                                        >
+                                            <Icon name="ArrowLeft" className="w-4 h-4 stroke-[2.5] group-hover:-translate-x-0.5 transition-transform" />
+                                            <span>Numpad</span>
+                                        </button>
+                                    )}
                                     <span className="font-black text-base sm:text-lg text-gold-400 truncate">
                                         Lagu Sion No. {selectedSong.number}
                                     </span>
@@ -20613,7 +20718,17 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                             </div>
 
                             {/* Action Buttons below lyrics */}
-                            <div className="flex items-center justify-center gap-3 pt-2">
+                            <div className="flex items-center justify-center gap-3 pt-2 flex-wrap">
+                                {returnTab === 'susunan_ibadah' && (
+                                    <button
+                                        onClick={handleReturnNavigation}
+                                        className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-gold-400 hover:from-amber-300 hover:to-gold-300 text-navy-950 font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95"
+                                        title="Kembali ke Susunan Ibadah"
+                                    >
+                                        <Icon name="ArrowLeft" className="w-4 h-4 stroke-[3]" />
+                                        <span>Kembali ke Susunan Ibadah</span>
+                                    </button>
+                                )}
                                 <button
                                     onClick={() => setSubTab('numpad')}
                                     className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white dark:bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-navy-800 dark:text-navy-100 font-bold text-xs uppercase tracking-wider transition-all border border-navy-100 dark:border-navy-700 shadow-sm cursor-pointer active:scale-95 group"
@@ -22565,8 +22680,14 @@ const App = () => {
                 <nav className="bottom-bar mx-auto max-w-lg transition-all duration-300 print:hidden no-print" style={{ zIndex: 50 }}>
                     <div className="relative flex justify-around items-center w-full">
                         {(() => {
+                            const hasSusunanReturn = Boolean(
+                                window.__laguSionReturnTab === 'susunan_ibadah' ||
+                                (typeof localStorage !== 'undefined' && localStorage.getItem('laguSionReturnTab') === 'susunan_ibadah')
+                            );
                             const lsTabs = [
-                                { id: 'home', label: 'Home', icon: 'Home' },
+                                hasSusunanReturn
+                                    ? { id: 'susunan_ibadah', label: 'Acara', icon: 'ListOrdered' }
+                                    : { id: 'home', label: 'Home', icon: 'Home' },
                                 { id: 'numpad', label: 'Numpad', icon: 'Grid' },
                                 { id: 'lyrics', label: 'Lirik', icon: 'BookOpen' },
                                 { id: 'favorites', label: 'Favorit', icon: 'Star' },
@@ -22590,13 +22711,22 @@ const App = () => {
                                             <button
                                                 key={tab.id}
                                                 onClick={() => {
-                                                    if (tab.id === 'home') setActiveTab('home');
-                                                    else setLaguSionSubTab(tab.id);
+                                                    if (tab.id === 'home') {
+                                                        setActiveTab('home');
+                                                    } else if (tab.id === 'susunan_ibadah') {
+                                                        try {
+                                                            localStorage.removeItem('laguSionReturnTab');
+                                                            window.__laguSionReturnTab = null;
+                                                        } catch (e) { }
+                                                        setActiveTab('susunan_ibadah');
+                                                    } else {
+                                                        setLaguSionSubTab(tab.id);
+                                                    }
                                                 }}
-                                                className={`relative z-10 flex flex-col items-center justify-center w-full py-3.5 transition-all duration-300 ${isActive ? 'text-gold-400 scale-105' : 'text-navy-400 hover:text-navy-300'}`}
+                                                className={`relative z-10 flex flex-col items-center justify-center w-full py-3.5 transition-all duration-300 ${isActive ? 'text-gold-400 scale-105' : tab.id === 'susunan_ibadah' ? 'text-amber-400 font-extrabold hover:text-amber-300' : 'text-navy-400 hover:text-navy-300'}`}
                                             >
                                                 <Icon name={tab.icon} className={`w-5 h-5 mb-1 transition-all duration-300 ${isActive ? 'drop-shadow-[0_0_8px_rgba(232,177,53,0.5)]' : ''}`} />
-                                                <span className={`text-[9px] uppercase tracking-widest transition-all duration-300 ${isActive ? 'font-black opacity-100 drop-shadow-md' : 'font-bold opacity-70'}`}>
+                                                <span className={`text-[9px] uppercase tracking-widest transition-all duration-300 ${isActive || tab.id === 'susunan_ibadah' ? 'font-black opacity-100 drop-shadow-md' : 'font-bold opacity-70'}`}>
                                                     {tab.label}
                                                 </span>
                                             </button>
