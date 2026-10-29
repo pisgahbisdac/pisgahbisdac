@@ -651,15 +651,18 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 bookId: spec.bookId,
                 bookName: bookName,
                 chapter: spec.chapter,
-                verse: verseRange
+                verse: verseRange,
+                returnTab: 'belajar_sekolah_sabat'
             };
         } else {
-            target = { bookName: "Wahyu", bookId: 66, chapter: 1, verse: "1" };
+            target = { bookName: "Wahyu", bookId: 66, chapter: 1, verse: "1", returnTab: 'belajar_sekolah_sabat' };
         }
 
         window.__alkitabDirectTarget = target;
+        window.__alkitabReturnTab = 'belajar_sekolah_sabat';
         try {
             localStorage.setItem('alkitabDirectTarget', JSON.stringify(target));
+            localStorage.setItem('alkitabReturnTab', 'belajar_sekolah_sabat');
         } catch (e) { }
         window.dispatchEvent(new CustomEvent('alkitab-direct-target', { detail: target }));
 
@@ -671,19 +674,22 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const handleOpenMemoryVerseInAlkitab = () => {
         const memoryRef = selectedLessonId === "05" ? "Wahyu 1: 1" : (currentCatalogItem?.memoryVerseRef || "Wahyu 1: 1");
         const specs = parseCompoundRef(memoryRef);
-        let target = { bookName: "Wahyu", bookId: 66, chapter: 1, verse: "1" };
+        let target = { bookName: "Wahyu", bookId: 66, chapter: 1, verse: "1", returnTab: 'belajar_sekolah_sabat' };
         if (specs && specs.length > 0) {
             const spec = specs[0];
             target = {
                 bookId: spec.bookId,
                 bookName: SS_ALKITAB_BOOK_NAMES[spec.bookId] || "Wahyu",
                 chapter: spec.chapter,
-                verse: spec.endV === 999 || spec.startV === spec.endV ? String(spec.startV) : `${spec.startV}-${spec.endV}`
+                verse: spec.endV === 999 || spec.startV === spec.endV ? String(spec.startV) : `${spec.startV}-${spec.endV}`,
+                returnTab: 'belajar_sekolah_sabat'
             };
         }
         window.__alkitabDirectTarget = target;
+        window.__alkitabReturnTab = 'belajar_sekolah_sabat';
         try {
             localStorage.setItem('alkitabDirectTarget', JSON.stringify(target));
+            localStorage.setItem('alkitabReturnTab', 'belajar_sekolah_sabat');
         } catch (e) { }
         window.dispatchEvent(new CustomEvent('alkitab-direct-target', { detail: target }));
         setActiveTab("alkitab");
@@ -962,8 +968,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                 key={tab.idx}
                                 onClick={() => setSelectedDayIdx(tab.idx)}
                                 className={`px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex flex-col items-center justify-center shrink-0 cursor-pointer min-w-[5.5rem] sm:min-w-[6.5rem] relative ${isActive
-                                        ? "bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-md scale-102 font-extrabold"
-                                        : "bg-white/80 dark:bg-navy-800 text-navy-800 dark:text-gray-200 hover:bg-white dark:hover:bg-navy-700/80 border border-navy-100 dark:border-navy-700/50"
+                                    ? "bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-md scale-102 font-extrabold"
+                                    : "bg-white/80 dark:bg-navy-800 text-navy-800 dark:text-gray-200 hover:bg-white dark:hover:bg-navy-700/80 border border-navy-100 dark:border-navy-700/50"
                                     }`}
                             >
                                 <div className="flex items-center gap-1">
@@ -1078,11 +1084,10 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                     <button
                                         type="button"
                                         onClick={() => handleSetPopupFontSize(0)}
-                                        className={`px-2 py-1 text-xs rounded-lg font-bold transition cursor-pointer ${
-                                            popupFontSizeLevel === 0
+                                        className={`px-2 py-1 text-xs rounded-lg font-bold transition cursor-pointer ${popupFontSizeLevel === 0
                                                 ? "bg-navy-900 text-gold-400 dark:bg-gold-500 dark:text-navy-950 shadow-xs"
                                                 : "text-navy-600 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-navy-700"
-                                        }`}
+                                            }`}
                                         title="Ukuran Teks Standar"
                                     >
                                         A
@@ -1090,11 +1095,10 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                     <button
                                         type="button"
                                         onClick={() => handleSetPopupFontSize(1)}
-                                        className={`px-2 py-1 text-xs rounded-lg font-bold transition cursor-pointer ${
-                                            popupFontSizeLevel === 1
+                                        className={`px-2 py-1 text-xs rounded-lg font-bold transition cursor-pointer ${popupFontSizeLevel === 1
                                                 ? "bg-navy-900 text-gold-400 dark:bg-gold-500 dark:text-navy-950 shadow-xs"
                                                 : "text-navy-600 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-navy-700"
-                                        }`}
+                                            }`}
                                         title="Ukuran Teks Besar"
                                     >
                                         A+
@@ -1102,11 +1106,10 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                     <button
                                         type="button"
                                         onClick={() => handleSetPopupFontSize(2)}
-                                        className={`px-2 py-1 text-xs rounded-lg font-bold transition cursor-pointer ${
-                                            popupFontSizeLevel === 2
+                                        className={`px-2 py-1 text-xs rounded-lg font-bold transition cursor-pointer ${popupFontSizeLevel === 2
                                                 ? "bg-navy-900 text-gold-400 dark:bg-gold-500 dark:text-navy-950 shadow-xs"
                                                 : "text-navy-600 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-navy-700"
-                                        }`}
+                                            }`}
                                         title="Ukuran Teks Ekstra Besar (Ramah Lansia)"
                                     >
                                         A++

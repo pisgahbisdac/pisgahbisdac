@@ -16958,9 +16958,42 @@ const getCurrentDayOfYear365 = () => {
     return Math.max(1, Math.min(365, dayNum));
 };
 
-const Alkitab = ({ setHideGlobalBack }) => {
+const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
     const [selectedBook, setSelectedBook] = React.useState(null);
     const [selectedChapter, setSelectedChapter] = React.useState(null);
+    const [returnTab, setReturnTab] = React.useState(() => {
+        try {
+            return window.__alkitabReturnTab || localStorage.getItem('alkitabReturnTab') || null;
+        } catch (e) {
+            return null;
+        }
+    });
+
+    const handleBackNavigation = () => {
+        const dest = returnTab || window.__alkitabReturnTab || localStorage.getItem('alkitabReturnTab');
+        if (dest) {
+            setReturnTab(null);
+            window.__alkitabReturnTab = null;
+            try {
+                localStorage.removeItem('alkitabReturnTab');
+            } catch (e) { }
+            if (setActiveTab) {
+                setActiveTab(dest);
+                return;
+            }
+        }
+        if (selectedBook && selectedChapter) {
+            setSelectedChapter(null);
+            setSelectedVerses(new Set());
+            setSelectedAyat('');
+        } else if (selectedBook) {
+            setSelectedBook(null);
+        } else if (window.history.length > 1) {
+            window.history.back();
+        } else if (setActiveTab) {
+            setActiveTab('home');
+        }
+    };
     const [verses, setVerses] = React.useState([]);
     const [isLoadingChapter, setIsLoadingChapter] = React.useState(false);
     const [fetchError, setFetchError] = React.useState(null);
@@ -17535,6 +17568,10 @@ const Alkitab = ({ setHideGlobalBack }) => {
             endAyat
         });
 
+        if (target.returnTab) {
+            setReturnTab(target.returnTab);
+        }
+
         setSelectedBook(matchedBook);
         setSelectedChapter(chapterNum);
         setSelectedAyat(String(startAyat));
@@ -17573,11 +17610,13 @@ const Alkitab = ({ setHideGlobalBack }) => {
             } catch (e) { }
         }
         if (target) {
+            if (target.returnTab) setReturnTab(target.returnTab);
             processDirectTarget(target);
         }
 
         const handleDirectTargetEvent = (e) => {
             if (e.detail) {
+                if (e.detail.returnTab) setReturnTab(e.detail.returnTab);
                 processDirectTarget(e.detail);
             }
         };
@@ -17987,11 +18026,16 @@ const Alkitab = ({ setHideGlobalBack }) => {
                 <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-3 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 flex flex-col gap-2.5 transition-all">
                     <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
                         <button
-                            onClick={() => window.history.back()}
-                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group"
-                            title="Kembali"
+                            onClick={handleBackNavigation}
+                            className="h-10 sm:h-11 px-3 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
+                            title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali'}
                         >
                             <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                            {returnTab === 'belajar_sekolah_sabat' && (
+                                <span className="text-xs font-black text-[#4A7045] dark:text-gold-400">
+                                    Sekolah Sabat
+                                </span>
+                            )}
                         </button>
                         <div className="flex-1 min-w-0">
                             {renderDropdowns()}
@@ -18498,17 +18542,22 @@ const Alkitab = ({ setHideGlobalBack }) => {
                 <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 transition-all">
                     <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
                         <button
-                            onClick={() => setSelectedBook(null)}
-                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group"
-                            title="Kembali ke Daftar Kitab"
+                            onClick={handleBackNavigation}
+                            className="h-10 sm:h-11 px-3 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
+                            title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali ke Daftar Kitab'}
                         >
                             <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                            {returnTab === 'belajar_sekolah_sabat' && (
+                                <span className="text-xs font-black text-[#4A7045] dark:text-gold-400">
+                                    Sekolah Sabat
+                                </span>
+                            )}
                         </button>
                         <div className="flex-1 min-w-0">
                             {renderDropdowns()}
                         </div>
                         <button
-                            onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            onClick={() => { setReturnTab(null); window.__alkitabReturnTab = null; try { localStorage.removeItem('alkitabReturnTab'); } catch (e) { } setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                             className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
                             title="Daftar Kitab (Home)"
                         >
@@ -18540,11 +18589,16 @@ const Alkitab = ({ setHideGlobalBack }) => {
                     <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
                         {/* Tombol Panah (Kembali) di sebelah kiri */}
                         <button
-                            onClick={() => { setSelectedChapter(null); setSelectedVerses(new Set()); setSelectedAyat(''); }}
-                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group"
-                            title="Kembali ke Pilih Pasal"
+                            onClick={handleBackNavigation}
+                            className="h-10 sm:h-11 px-3 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
+                            title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali ke Pilih Pasal'}
                         >
                             <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                            {returnTab === 'belajar_sekolah_sabat' && (
+                                <span className="text-xs font-black text-[#4A7045] dark:text-gold-400">
+                                    Sekolah Sabat
+                                </span>
+                            )}
                         </button>
 
                         {/* Kotak Kitab (Dropdowns: Kitab, Pasal, Ayat) di tengah */}
@@ -20503,7 +20557,16 @@ const App = () => {
                     } else {
                         // Logika "UP": Tentukan parent tab (kembali ke atas)
                         let nextTab = 'home';
-                        if (currentTab.startsWith('belajar_')) {
+                        if (currentTab === 'alkitab') {
+                            const ret = window.__alkitabReturnTab || localStorage.getItem('alkitabReturnTab');
+                            if (ret) {
+                                nextTab = ret;
+                                window.__alkitabReturnTab = null;
+                                try { localStorage.removeItem('alkitabReturnTab'); } catch (e) { }
+                            } else {
+                                nextTab = 'home';
+                            }
+                        } else if (currentTab.startsWith('belajar_')) {
                             nextTab = 'belajar';
                         } else if (currentTab === 'member_baru' || currentTab === 'pindah_masuk' || currentTab === 'form_acms') {
                             nextTab = 'keanggotaan';
@@ -21117,7 +21180,7 @@ const App = () => {
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} />;
             case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} /> : <Home setShowManualInstall={setShowManualInstall} setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
-            case 'alkitab': return <Alkitab setHideGlobalBack={setHideGlobalBack} />;
+            case 'alkitab': return <Alkitab setActiveTab={setActiveTab} setHideGlobalBack={setHideGlobalBack} />;
             case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} setSelectedWarta={setSelectedWartaDetail} />;
             default: return <Home setShowManualInstall={setShowManualInstall} setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
