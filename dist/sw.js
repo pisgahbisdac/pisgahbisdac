@@ -7,7 +7,7 @@
 // 4. Bypass untuk API dinamis Google Apps Script & Supabase.
 // ============================================================
 
-const STATIC_CACHE = 'pisgah-static-v6.6';
+const STATIC_CACHE = 'pisgah-static-v6.7';
 const DATA_CACHE = 'pisgah-spiritual-v2.0';
 
 // Aset Inti Aplikasi yang langsung di-cache saat instalasi
@@ -126,6 +126,31 @@ self.addEventListener('fetch', (e) => {
           });
         });
       })
+    );
+    return;
+  }
+
+  // STRATEGI 2.5: Navigasi Halaman HTML (index.html / root / hadir.html / dll)
+  // Selalu Network-First dengan cache bypass agar pengguna langsung mendapatkan update terbaru setiap ada edit!
+  if (e.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/')) {
+    e.respondWith(
+      fetch(new Request(e.request.url, { cache: 'no-store' }))
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => cache.put(e.request, clone));
+          }
+          return response;
+        })
+        .catch(async () => {
+          // Hanya jika benar-benar offline (tanpa sinyal internet), baru gunakan fallback cache
+          const cached = (await caches.match(e.request)) || (await caches.match('./index.html')) || (await caches.match('./'));
+          if (cached) return cached;
+          return new Response('Aplikasi GMAHK Pisgah sedang dibuka dalam mode offline.', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+          });
+        })
     );
     return;
   }

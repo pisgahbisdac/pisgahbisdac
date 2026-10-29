@@ -8,13 +8,32 @@ import DetailSekolahSabat from './DetailSekolahSabat';
 
 // --- PWA & SERVICE WORKER LOGIC ---
 if ('serviceWorker' in navigator) {
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    const isDev = window.location.hostname === 'localhost' ||
+                  window.location.hostname === '127.0.0.1' ||
+                  window.location.port === '4000' ||
+                  window.location.port === '5173' ||
+                  window.location.hostname.startsWith('192.168.') ||
+                  window.location.hostname.startsWith('10.') ||
+                  window.location.hostname.endsWith('.local');
+
+    if (isDev) {
         navigator.serviceWorker.getRegistrations().then(regs => {
             regs.forEach(r => r.unregister());
         }).catch(() => { });
     } else {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
+            navigator.serviceWorker.register('./sw.js').then(reg => {
+                reg.onupdatefound = () => {
+                    const installingWorker = reg.installing;
+                    if (installingWorker) {
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('[PWA] Versi baru terpasang di latar belakang.');
+                            }
+                        };
+                    }
+                };
+            }).catch(err => console.log('SW registration failed:', err));
         });
     }
 }
@@ -21526,14 +21545,23 @@ class ErrorBoundary extends React.Component {
 const mountApp = () => {
     const container = document.getElementById('root');
     if (!container) return;
-    const root = ReactDOM.createRoot(container);
-    root.render(<ErrorBoundary><App /></ErrorBoundary>);
-
-    // Bersihkan preloader jika masih ada di DOM
-    const preloader = document.getElementById('app-preloader') || document.querySelector('.preloader-bg');
-    if (preloader && preloader.parentNode) {
-        try { preloader.parentNode.removeChild(preloader); } catch (e) { }
+    try {
+        const root = ReactDOM.createRoot(container);
+        root.render(<ErrorBoundary><App /></ErrorBoundary>);
+    } catch (err) {
+        console.error('Mount error:', err);
     }
+
+    // Bersihkan preloader jika masih ada di DOM dengan beberapa tahap pengecekan
+    const removePreloader = () => {
+        const preloader = document.getElementById('app-preloader') || document.querySelector('.preloader-bg');
+        if (preloader && preloader.parentNode) {
+            try { preloader.parentNode.removeChild(preloader); } catch (e) { }
+        }
+    };
+    removePreloader();
+    setTimeout(removePreloader, 100);
+    setTimeout(removePreloader, 500);
 };
 
 if (document.readyState === 'loading') {

@@ -52,6 +52,31 @@
         } catch (e) { }
     </script>
 
+    <!-- Header Anti-Cache untuk index.html agar selalu memuat chunk JS versi terbaru saat ada edit baru -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <script>
+        // Penanganan otomatis error chunk versi lama (setelah deploy/edit baru)
+        window.addEventListener('vite:preloadError', function () {
+            console.warn('[PISGAH] Chunk baru terdeteksi setelah pembaruan. Memuat ulang aplikasi otomatis...');
+            window.location.reload();
+        });
+        window.addEventListener('error', function (e) {
+            var msg = (e && e.message) ? e.message.toLowerCase() : '';
+            if (msg.includes('dynamically imported module') || msg.includes('loading chunk') || msg.includes('importing a module script failed') || msg.includes('failed to fetch')) {
+                var key = 'pisgah_last_chunk_reload';
+                var last = sessionStorage.getItem(key);
+                if (!last || Date.now() - Number(last) > 8000) {
+                    sessionStorage.setItem(key, String(Date.now()));
+                    console.warn('[PISGAH] Chunk modul gagal dimuat. Memuat ulang bersih...');
+                    window.location.reload();
+                }
+            }
+        }, true);
+    </script>
+
 
 
     <!-- HAPUS SCRIPT LUCIDE KARENA ANDA SUDAH MEMILIKI KOMPONEN ICON CUSTOM (Mengurangi beban download) -->
@@ -136,13 +161,19 @@
     </div>
 
     <script>
-        // Nonaktifkan & hapus service worker lama jika sedang berjalan di localhost
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function (regs) {
-                    regs.forEach(function (r) { r.unregister(); });
-                }).catch(function () { });
-            }
+        // Nonaktifkan & bersihkan service worker jika sedang berjalan di mode development (localhost / port dev)
+        var isDevEnv = window.location.hostname === 'localhost' ||
+                       window.location.hostname === '127.0.0.1' ||
+                       window.location.port === '4000' ||
+                       window.location.port === '5173' ||
+                       window.location.hostname.startsWith('192.168.') ||
+                       window.location.hostname.startsWith('10.') ||
+                       window.location.hostname.endsWith('.local');
+
+        if (isDevEnv && 'serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+                regs.forEach(function (r) { r.unregister(); });
+            }).catch(function () { });
         }
 
         // Fungsi darurat untuk membersihkan cache service worker jika loading terhambat
@@ -168,13 +199,14 @@
             window.location.reload();
         };
 
-        // Tampilkan tombol rescue jika dalam 5 detik React belum me-mount
+        // Tampilkan tombol rescue HANYA jika dalam 12 detik React benar-benar belum me-mount
         setTimeout(function () {
             var rescue = document.getElementById('preloader-rescue');
-            if (rescue && document.querySelector('.preloader-bg')) {
+            var preloader = document.getElementById('app-preloader') || document.querySelector('.preloader-bg');
+            if (rescue && preloader && preloader.parentNode) {
                 rescue.style.display = 'block';
             }
-        }, 5000);
+        }, 12000);
     </script>
 
     <script type="module" src="/src/index.jsx"></script>

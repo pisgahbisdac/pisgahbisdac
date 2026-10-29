@@ -38,6 +38,7 @@ function safeguardIndexApp() {
 export default defineConfig({
   plugins: [safeguardIndexApp(), react()],
   build: {
+    emptyOutDir: false,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       input: {
