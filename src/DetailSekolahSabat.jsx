@@ -2482,11 +2482,11 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 )}
             </div>
 
-            {/* FLOATING ACTION TOOLBAR SAAT TEKS/KALIMAT DIBLOK (MUNCUL HANYA SAAT ADA YANG DIBLOK & TEPAT DI TENGAH PADA MOBILE) */}
+            {/* FLOATING ACTION TOOLBAR SAAT TEKS/KALIMAT DIBLOK (MUNCUL DI ATAS BOTTOM MENU AGAR TIDAK MENUTUPI NAVIGASI) */}
             {selectionToolbar && (
                 <div
                     ref={selectionToolbarRef}
-                    className="fixed z-[120] bottom-8 sm:bottom-auto left-1/2 -translate-x-1/2 sm:left-[var(--desk-left)] sm:top-[var(--desk-top)] flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-1.5 rounded-2xl bg-navy-950/95 dark:bg-navy-900/98 backdrop-blur-2xl border-2 border-gold-400 shadow-2xl animate-scale-up max-w-[92vw] sm:max-w-md w-max"
+                    className="fixed z-[120] bottom-[calc(env(safe-area-inset-bottom,0px)+86px)] sm:bottom-auto left-1/2 -translate-x-1/2 sm:left-[var(--desk-left)] sm:top-[var(--desk-top)] flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-1.5 rounded-2xl bg-navy-950/95 dark:bg-navy-900/98 backdrop-blur-2xl border-2 border-gold-400 shadow-2xl animate-scale-up max-w-[92vw] sm:max-w-md w-max"
                     style={{
                         '--desk-left': `${selectionToolbar.desktopLeft || (typeof window !== 'undefined' ? window.innerWidth / 2 : 300)}px`,
                         '--desk-top': `${selectionToolbar.desktopTop || 80}px`
