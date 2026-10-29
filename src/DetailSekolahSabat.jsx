@@ -245,6 +245,16 @@ const SS_ALKITAB_BOOK_ALIAS = {
     "why": 66, "wahyu": 66, "rev": 66, "re": 66
 };
 
+// Normalisasi alias kamus Alkitab (tanpa spasi, titik, atau tanda hubung)
+const NORMALIZED_SS_BOOK_ALIAS = {};
+for (const [k, v] of Object.entries(SS_ALKITAB_BOOK_ALIAS)) {
+    NORMALIZED_SS_BOOK_ALIAS[k.toLowerCase().replace(/[\s.-]/g, "")] = v;
+}
+NORMALIZED_SS_BOOK_ALIAS["kisahrasulrasul"] = 44;
+NORMALIZED_SS_BOOK_ALIAS["kisahpararasul"] = 44;
+NORMALIZED_SS_BOOK_ALIAS["kisahrasul"] = 44;
+NORMALIZED_SS_BOOK_ALIAS["kis"] = 44;
+
 const SS_ALKITAB_BOOK_NAMES = {
     1: "Kejadian", 2: "Keluaran", 3: "Imamat", 4: "Bilangan", 5: "Ulangan",
     6: "Yosua", 7: "Hakim-hakim", 8: "Rut", 9: "1 Samuel", 10: "2 Samuel",
@@ -262,7 +272,110 @@ const SS_ALKITAB_BOOK_NAMES = {
     62: "1 Yohanes", 63: "2 Yohanes", 64: "3 Yohanes", 65: "Yudas", 66: "Wahyu"
 };
 
-// Fungsi ekstraksi spesifikasi ayat dari teks label (e.g. "Ibr. 1: 1, 2; 2 Tim. 3: 15-17" atau "Daniel 7 dan 8")
+// Parsing satu referensi spesifik (e.g. "Yohanes 8:12", "Yohanes 9:5", "Daniel 7", "Wahyu 1:1-3")
+function parseSingleRef(t, fallbackBookId = null) {
+    if (!t) return null;
+    const cleanT = t.trim();
+
+    // 1. Pola standar: [Nama Kitab] [Pasal](:[Ayat])
+    const m = cleanT.match(/^([123]?\s*[A-Za-z\s.-]+?)\s*(\d+)(?:\s*[:,\s]\s*([\d\s,-]+))?$/i);
+    let bookId = null;
+    let chapter = 1;
+    let vPart = "";
+
+    if (m) {
+        const bookStr = m[1].toLowerCase().replace(/[\s.-]/g, "");
+        bookId = NORMALIZED_SS_BOOK_ALIAS[bookStr];
+        if (bookId) {
+            chapter = parseInt(m[2], 10);
+            vPart = m[3] ? m[3].trim() : "";
+        }
+    }
+
+    // 2. Pola tanpa nama kitab: [Pasal]:[Ayat] atau [Pasal] saja dengan fallbackBookId
+    if (!bookId && fallbackBookId) {
+        const m2 = cleanT.match(/^(\d+)(?:\s*[:,\s]\s*([\d\s,-]+))?$/i);
+        if (m2) {
+            bookId = fallbackBookId;
+            chapter = parseInt(m2[1], 10);
+            vPart = m2[2] ? m2[2].trim() : "";
+        }
+    }
+
+    if (!bookId) return null;
+
+    let startV = 1;
+    let endV = 999;
+    if (vPart) {
+        const vList = [];
+        for (const seg of vPart.split(/[,]/)) {
+            const cleanSeg = seg.trim();
+            if (cleanSeg.includes("-")) {
+                const [s, e] = cleanSeg.split("-").map(x => parseInt(x.trim(), 10));
+                if (!isNaN(s) && !isNaN(e)) vList.push({ s, e });
+            } else {
+                const n = parseInt(cleanSeg, 10);
+                if (!isNaN(n)) vList.push({ s: n, e: n });
+            }
+        }
+        if (vList.length > 0) {
+            startV = Math.min(...vList.map(x => x.s));
+            endV = Math.max(...vList.map(x => x.e));
+        }
+    }
+
+    const bookName = SS_ALKITAB_BOOK_NAMES[bookId] || "Kitab";
+    const verse = endV === 999 || startV === endV ? String(startV) : `${startV}-${endV}`;
+    const buttonLabel = endV === 999
+        ? `${bookName} ${chapter}`
+        : `${bookName} ${chapter}:${verse}`;
+
+    return {
+        bookId,
+        bookName,
+        chapter,
+        startV,
+        endV,
+        verse,
+        buttonLabel,
+        returnTab: "belajar_sekolah_sabat"
+    };
+}
+
+// Pisahkan HTML ayat menjadi beberapa perikop / pasal / kitab jika terdapat lebih dari satu referensi
+function parseSectionsFromHtml(html, fallbackLabel) {
+    if (!html) return [];
+    const regex = /<h2[^>]*>(.*?)<\/h2>([\s\S]*?)(?=(?:<h2[^>]*>|$))/gi;
+    const sections = [];
+    let match;
+    let lastBookId = null;
+
+    while ((match = regex.exec(html)) !== null) {
+        const rawTitle = match[1].replace(/<[^>]*>/g, "").trim();
+        const bodyHtml = match[2].trim();
+        const target = parseSingleRef(rawTitle, lastBookId);
+        if (target) lastBookId = target.bookId;
+
+        sections.push({
+            title: rawTitle,
+            bodyHtml,
+            target
+        });
+    }
+
+    if (sections.length === 0) {
+        const target = parseSingleRef(fallbackLabel);
+        sections.push({
+            title: fallbackLabel || "Ayat Alkitab",
+            bodyHtml: html,
+            target
+        });
+    }
+
+    return sections;
+}
+
+// Fungsi ekstraksi spesifikasi ayat dari teks label majemuk (e.g. "Ibr. 1: 1, 2; 2 Tim. 3: 15-17" atau "Daniel 7 dan 8")
 function parseCompoundRef(label) {
     if (!label) return [];
     const parts = label.split(";");
@@ -271,10 +384,10 @@ function parseCompoundRef(label) {
         const t = part.trim();
         if (!t) continue;
         // Tangani "Daniel 7 dan 8"
-        const mDan = t.match(/^([123]?\s*[A-Za-z]+)\s+(\d+)\s+(?:dan|sampai|-)\s+(\d+)$/i);
+        const mDan = t.match(/^([123]?\s*[A-Za-z\s.-]+?)\s+(\d+)\s+(?:dan|sampai|-)\s+(\d+)$/i);
         if (mDan) {
-            const bookStr = mDan[1].toLowerCase().replace(/[\s.]/g, "");
-            const bookId = SS_ALKITAB_BOOK_ALIAS[bookStr];
+            const bookStr = mDan[1].toLowerCase().replace(/[\s.-]/g, "");
+            const bookId = NORMALIZED_SS_BOOK_ALIAS[bookStr];
             if (bookId) {
                 allSpecs.push({ bookId, chapter: parseInt(mDan[2], 10), startV: 1, endV: 999 });
                 allSpecs.push({ bookId, chapter: parseInt(mDan[3], 10), startV: 1, endV: 999 });
@@ -282,10 +395,10 @@ function parseCompoundRef(label) {
             }
         }
 
-        const m = t.match(/^([123]?\s*[A-Za-z.]+)\s*(\d+)(?:\s*[:,\s]\s*([\d\s,-]+))?$/i);
+        const m = t.match(/^([123]?\s*[A-Za-z\s.-]+?)\s*(\d+)(?:\s*[:,\s]\s*([\d\s,-]+))?$/i);
         if (m) {
-            const bookStr = m[1].toLowerCase().replace(/[\s.]/g, "");
-            const bookId = SS_ALKITAB_BOOK_ALIAS[bookStr];
+            const bookStr = m[1].toLowerCase().replace(/[\s.-]/g, "");
+            const bookId = NORMALIZED_SS_BOOK_ALIAS[bookStr];
             if (bookId) {
                 const chapter = parseInt(m[2], 10);
                 const vPart = m[3] ? m[3].trim() : "";
@@ -561,9 +674,11 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 const tempDiv = document.createElement("div");
                 tempDiv.innerHTML = verseHtml;
                 const rawText = tempDiv.textContent || tempDiv.innerText || "";
+                const sections = parseSectionsFromHtml(verseHtml, verseLabel);
 
                 setActiveVersePopup({
-                    title: title || verseLabel,
+                    title: verseLabel || title,
+                    sections: sections,
                     html: verseHtml,
                     rawText: rawText.trim(),
                     verseKey,
@@ -575,6 +690,12 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             // 5. Lookup dinamis langsung dari Alkitab Digital lokal (sehingga isi firman Tuhan PASTI LANGSUNG MUNCUL!)
             setActiveVersePopup({
                 title: verseLabel,
+                isLoading: true,
+                sections: [{
+                    title: verseLabel,
+                    bodyHtml: `<div class="p-6 text-center text-navy-500 dark:text-gray-400 font-medium animate-pulse"><p>Memuat firman Tuhan untuk <b>${verseLabel}</b>...</p></div>`,
+                    target: null
+                }],
                 html: `<div class="p-6 text-center text-navy-500 dark:text-gray-400 font-medium animate-pulse"><p>Memuat firman Tuhan untuk <b>${verseLabel}</b>...</p></div>`,
                 rawText: verseLabel,
                 verseKey,
@@ -588,9 +709,11 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 const tempDiv = document.createElement("div");
                 tempDiv.innerHTML = dynamicHtml;
                 const rawText = tempDiv.textContent || tempDiv.innerText || "";
+                const sections = parseSectionsFromHtml(dynamicHtml, verseLabel);
 
                 setActiveVersePopup({
-                    title: title || verseLabel,
+                    title: verseLabel || title,
+                    sections: sections,
                     html: dynamicHtml,
                     rawText: rawText.trim(),
                     verseKey,
@@ -600,9 +723,16 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             }
 
             // 6. Fallback jika format teks ayat di luar pola baku
+            const fallbackTarget = parseSingleRef(verseLabel);
+            const fallbackSections = [{
+                title: verseLabel,
+                bodyHtml: `<div class="p-4 bg-amber-50/80 dark:bg-navy-800 rounded-2xl border border-amber-200/80 dark:border-navy-700 text-sm leading-relaxed"><p class="font-bold text-navy-900 dark:text-gold-400 mb-1.5 flex items-center gap-1.5">📖 ${verseLabel}</p><p class="text-xs text-navy-600 dark:text-gray-300">Teks firman Tuhan dapat Anda buka dan baca langsung secara menyeluruh di Alkitab Digital melalui tombol di bawah.</p></div>`,
+                target: fallbackTarget
+            }];
             setActiveVersePopup({
                 title: verseLabel,
-                html: `<div class="p-4 bg-amber-50/80 dark:bg-navy-800 rounded-2xl border border-amber-200/80 dark:border-navy-700 text-sm leading-relaxed"><p class="font-bold text-navy-900 dark:text-gold-400 mb-1.5 flex items-center gap-1.5">📖 ${verseLabel}</p><p class="text-xs text-navy-600 dark:text-gray-300">Teks firman Tuhan dapat Anda buka dan baca langsung secara menyeluruh di Alkitab Digital melalui tombol di bawah.</p></div>`,
+                sections: fallbackSections,
+                html: fallbackSections[0].bodyHtml,
                 rawText: verseLabel,
                 verseKey,
                 verseLabel
@@ -612,9 +742,22 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
     // Salin ayat ke clipboard
     const handleCopyVerse = async () => {
-        if (!activeVersePopup?.rawText) return;
+        if (!activeVersePopup) return;
+        let textToCopy = "";
+        if (activeVersePopup.sections && activeVersePopup.sections.length > 0) {
+            textToCopy = activeVersePopup.sections.map(s => {
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = s.bodyHtml;
+                const cleanText = (tempDiv.textContent || tempDiv.innerText || "").trim();
+                return `${s.title}\n${cleanText}`;
+            }).join("\n\n");
+        } else if (activeVersePopup.rawText) {
+            textToCopy = activeVersePopup.rawText;
+        }
+        if (!textToCopy) return;
+
         try {
-            await navigator.clipboard.writeText(activeVersePopup.rawText);
+            await navigator.clipboard.writeText(textToCopy);
             setCopiedToast(true);
             setTimeout(() => setCopiedToast(false), 2500);
         } catch (e) {
@@ -636,9 +779,57 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             ? "text-base sm:text-lg leading-relaxed font-medium"
             : "text-sm sm:text-base leading-relaxed font-medium";
 
-    // Navigasi langsung ke ayat di Alkitab Digital dari Popup Modal
+    // Daftar target unik (kitab, pasal, ayat) dari perikop di popup
+    const distinctTargets = useMemo(() => {
+        if (!activeVersePopup) return [];
+        if (activeVersePopup.sections && activeVersePopup.sections.length > 0) {
+            const targets = [];
+            const seen = new Set();
+            for (const sec of activeVersePopup.sections) {
+                if (sec.target) {
+                    const key = `${sec.target.bookId}_${sec.target.chapter}_${sec.target.verse}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        targets.push(sec.target);
+                    }
+                }
+            }
+            if (targets.length > 0) return targets;
+        }
+        if (activeVersePopup.target) return [activeVersePopup.target];
+        const fallback = parseSingleRef(activeVersePopup.verseLabel || activeVersePopup.title);
+        return fallback ? [fallback] : [];
+    }, [activeVersePopup]);
+
+    // Navigasi langsung ke ayat di Alkitab Digital dari Popup Modal (mendukung pasal/kitab berbeda)
+    const handleNavigateTarget = (target) => {
+        if (!target) return;
+        const finalTarget = {
+            bookId: target.bookId,
+            bookName: target.bookName || SS_ALKITAB_BOOK_NAMES[target.bookId] || "Wahyu",
+            chapter: target.chapter || 1,
+            verse: target.verse || (target.startV ? String(target.startV) : "1"),
+            returnTab: 'belajar_sekolah_sabat'
+        };
+
+        window.__alkitabDirectTarget = finalTarget;
+        window.__alkitabReturnTab = 'belajar_sekolah_sabat';
+        try {
+            localStorage.setItem('alkitabDirectTarget', JSON.stringify(finalTarget));
+            localStorage.setItem('alkitabReturnTab', 'belajar_sekolah_sabat');
+        } catch (e) { }
+        window.dispatchEvent(new CustomEvent('alkitab-direct-target', { detail: finalTarget }));
+
+        setActiveVersePopup(null);
+        setActiveTab("alkitab");
+    };
+
     const handleOpenInAlkitab = (popup) => {
         if (!popup) return;
+        if (distinctTargets.length > 0) {
+            handleNavigateTarget(distinctTargets[0]);
+            return;
+        }
         const specs = parseCompoundRef(popup.verseLabel || popup.title);
         let target = null;
         if (specs && specs.length > 0) {
@@ -657,17 +848,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         } else {
             target = { bookName: "Wahyu", bookId: 66, chapter: 1, verse: "1", returnTab: 'belajar_sekolah_sabat' };
         }
-
-        window.__alkitabDirectTarget = target;
-        window.__alkitabReturnTab = 'belajar_sekolah_sabat';
-        try {
-            localStorage.setItem('alkitabDirectTarget', JSON.stringify(target));
-            localStorage.setItem('alkitabReturnTab', 'belajar_sekolah_sabat');
-        } catch (e) { }
-        window.dispatchEvent(new CustomEvent('alkitab-direct-target', { detail: target }));
-
-        setActiveVersePopup(null);
-        setActiveTab("alkitab");
+        handleNavigateTarget(target);
     };
 
     // Navigasi langsung ke ayat hafalan di Alkitab Digital
@@ -685,14 +866,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 returnTab: 'belajar_sekolah_sabat'
             };
         }
-        window.__alkitabDirectTarget = target;
-        window.__alkitabReturnTab = 'belajar_sekolah_sabat';
-        try {
-            localStorage.setItem('alkitabDirectTarget', JSON.stringify(target));
-            localStorage.setItem('alkitabReturnTab', 'belajar_sekolah_sabat');
-        } catch (e) { }
-        window.dispatchEvent(new CustomEvent('alkitab-direct-target', { detail: target }));
-        setActiveTab("alkitab");
+        handleNavigateTarget(target);
     };
 
     const handlePrevDay = () => {
@@ -1070,7 +1244,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                 </div>
                                 <div className="min-w-0">
                                     <h3 className="text-sm sm:text-base font-black text-navy-900 dark:text-white leading-tight truncate">
-                                        {activeVersePopup.title}
+                                        {activeVersePopup.verseLabel || activeVersePopup.title}
                                     </h3>
                                     <p className="text-[10.5px] font-bold text-gold-600 dark:text-gold-400">
                                         Alkitab Terjemahan Baru (TB)
@@ -1126,32 +1300,88 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             </div>
                         </div>
 
-                        {/* Isi Teks Ayat Alkitab (Scrollable dengan kelas font dinamis) */}
-                        <div
-                            className={`overflow-y-auto flex-1 pr-1 space-y-3 verse-popup-body ${popupFontClass} text-navy-800 dark:text-gray-200 select-text`}
-                            dangerouslySetInnerHTML={{ __html: activeVersePopup.html }}
-                        />
+                        {/* Isi Teks Ayat Alkitab (Scrollable dengan perikop dan font dinamis) */}
+                        <div className={`overflow-y-auto flex-1 pr-1 space-y-3.5 verse-popup-body ${popupFontClass} text-navy-800 dark:text-gray-200 select-text`}>
+                            {activeVersePopup.sections && activeVersePopup.sections.length > 0 ? (
+                                activeVersePopup.sections.map((sec, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="bg-navy-50/70 dark:bg-navy-800/70 rounded-2xl p-3.5 sm:p-4 border border-navy-100/90 dark:border-navy-700/70 space-y-2.5 transition-all shadow-2xs"
+                                    >
+                                        {/* Header Tiap Bagian / Pasal / Ayat dengan Tombol Alkitab Khusus */}
+                                        <div className="flex items-center justify-between gap-2 border-b border-navy-100 dark:border-navy-700/60 pb-2">
+                                            <div className="flex items-center gap-1.5 min-w-0">
+                                                <span className="w-2 h-2 rounded-full bg-[#4A7045] dark:bg-gold-400 shrink-0"></span>
+                                                <h4 className="text-sm sm:text-base font-black text-navy-950 dark:text-gold-300 truncate">
+                                                    {sec.title}
+                                                </h4>
+                                            </div>
+                                            {sec.target && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleNavigateTarget(sec.target)}
+                                                    className="px-2.5 py-1 text-xs font-bold rounded-lg bg-[#4A7045]/15 dark:bg-gold-500/20 hover:bg-[#4A7045] hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-[#375533] dark:text-gold-300 transition flex items-center gap-1.5 cursor-pointer border border-[#4A7045]/30 dark:border-gold-500/30 shrink-0 active:scale-95 shadow-xs"
+                                                    title={`Buka ${sec.target.buttonLabel || sec.title} di Alkitab Digital`}
+                                                >
+                                                    <BookOpen className="w-3.5 h-3.5" />
+                                                    <span>Buka di Alkitab</span>
+                                                </button>
+                                            )}
+                                        </div>
 
-                        {/* Tombol Aksi */}
-                        <div className="pt-4 mt-3 border-t border-navy-100 dark:border-navy-800 flex items-center justify-between gap-2 flex-wrap shrink-0">
-                            <div className="flex items-center gap-2">
+                                        {/* Teks Ayat Firman Tuhan */}
+                                        <div
+                                            className="leading-relaxed pl-1 text-navy-800 dark:text-gray-200"
+                                            dangerouslySetInnerHTML={{ __html: sec.bodyHtml }}
+                                        />
+                                    </div>
+                                ))
+                            ) : (
+                                <div dangerouslySetInnerHTML={{ __html: activeVersePopup.html }} />
+                            )}
+                        </div>
+
+                        {/* Tombol Aksi Bawah */}
+                        <div className="pt-3.5 mt-2 border-t border-navy-100 dark:border-navy-800 flex items-center justify-between gap-2 flex-wrap shrink-0">
+                            <div className="flex items-center gap-2 flex-wrap">
                                 <button
                                     type="button"
                                     onClick={handleCopyVerse}
-                                    className="px-3.5 py-2 rounded-xl bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-800 dark:text-gray-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                    className="px-3.5 py-2 rounded-xl bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-800 dark:text-gray-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                                 >
-                                    {copiedToast ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                    {copiedToast ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-navy-600 dark:text-gray-300" />}
                                     <span>{copiedToast ? "Tersalin!" : "Salin Ayat"}</span>
                                 </button>
-                                <button
-                                    type="button"
-                                    onClick={() => handleOpenInAlkitab(activeVersePopup)}
-                                    className="px-3.5 py-2 rounded-xl bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-950 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
-                                >
-                                    <BookOpen className="w-4 h-4" />
-                                    <span>Buka di Alkitab Digital</span>
-                                </button>
+
+                                {/* Jika hanya 1 target ayat: Tombol tunggal "Buka di Alkitab Digital" */}
+                                {distinctTargets.length <= 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleNavigateTarget(distinctTargets[0] || activeVersePopup.target)}
+                                        className="px-3.5 py-2 rounded-xl bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-950 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                                    >
+                                        <BookOpen className="w-4 h-4" />
+                                        <span>Buka di Alkitab Digital</span>
+                                    </button>
+                                )}
+
+                                {/* Jika ada lebih dari 1 pasal atau kitab berbeda: Setiap perikop memiliki tombol spesifik */}
+                                {distinctTargets.length > 1 && (
+                                    distinctTargets.map((tgt, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => handleNavigateTarget(tgt)}
+                                            className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-950 text-[11px] sm:text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                                            title={`Buka ${tgt.buttonLabel} di Alkitab Digital`}
+                                        >
+                                            <BookOpen className="w-3.5 h-3.5" />
+                                            <span>Buka {tgt.buttonLabel}</span>
+                                        </button>
+                                    ))
+                                )}
                             </div>
+
                             <button
                                 type="button"
                                 onClick={() => setActiveVersePopup(null)}
