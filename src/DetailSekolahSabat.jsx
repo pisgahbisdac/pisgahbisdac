@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { BookOpen, ArrowLeft, Calendar, ChevronRight, ChevronLeft, ExternalLink, Sparkles, X, Copy, Check, FileText, Edit, Edit3, Trash2, Share2, Bookmark, Search, Save } from "lucide-react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { BookOpen, ArrowLeft, Calendar, ChevronRight, ChevronLeft, ChevronDown, ExternalLink, Sparkles, X, Copy, Check, FileText, Edit, Edit3, Trash2, Share2, Bookmark, Search, Save } from "lucide-react";
 
 // ============================================================
 // MODUL PELAJARAN SEKOLAH SABAT HARIAN (ADVENTIST SABBATH SCHOOL)
@@ -579,6 +579,40 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         return BUILTIN_LESSON_5;
     });
     const [isLoading, setIsLoading] = useState(false);
+
+    // State & Ref untuk Custom Glassblur Dropdown Pemilih Pekan Pelajaran
+    const [isLessonDropdownOpen, setIsLessonDropdownOpen] = useState(false);
+    const lessonDropdownRef = useRef(null);
+    const activeLessonItemRef = useRef(null);
+
+    // Auto-close dropdown saat klik di luar atau tekan Escape, serta auto-scroll ke pekan terpilih
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (lessonDropdownRef.current && !lessonDropdownRef.current.contains(e.target)) {
+                setIsLessonDropdownOpen(false);
+            }
+        };
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                setIsLessonDropdownOpen(false);
+            }
+        };
+
+        if (isLessonDropdownOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+            document.addEventListener("touchstart", handleClickOutside);
+            document.addEventListener("keydown", handleKeyDown);
+            const timer = setTimeout(() => {
+                activeLessonItemRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            }, 60);
+            return () => {
+                clearTimeout(timer);
+                document.removeEventListener("mousedown", handleClickOutside);
+                document.removeEventListener("touchstart", handleClickOutside);
+                document.removeEventListener("keydown", handleKeyDown);
+            };
+        }
+    }, [isLessonDropdownOpen]);
 
     // Ambil data pelajaran ketika lessonId berubah
     useEffect(() => {
@@ -1417,22 +1451,120 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                     <span className="text-xs sm:text-sm">Kembali</span>
                 </button>
 
-                {/* Dropdown Pemilih Pekan Pelajaran */}
-                <div className="flex-1 max-w-xs sm:max-w-md min-w-0">
-                    <select
-                        value={selectedLessonId}
-                        onChange={(e) => {
-                            setSelectedLessonId(e.target.value);
-                            setSelectedDayIdx(0);
-                        }}
-                        className="w-full px-2.5 sm:px-3 py-1.5 bg-white/90 dark:bg-navy-900 border border-navy-200/80 dark:border-navy-700 rounded-xl text-xs sm:text-sm font-bold text-navy-800 dark:text-gold-400 outline-none focus:border-gold-500 shadow-2xs cursor-pointer truncate"
+                {/* Dropdown Pemilih Pekan Pelajaran (Custom Glassblur Effect) */}
+                <div className="flex-1 max-w-xs sm:max-w-md min-w-0 relative" ref={lessonDropdownRef}>
+                    <button
+                        type="button"
+                        onClick={() => setIsLessonDropdownOpen(prev => !prev)}
+                        className="w-full px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white/80 dark:bg-navy-900/80 hover:bg-white/95 dark:hover:bg-navy-850/95 backdrop-blur-xl border border-navy-200/80 dark:border-gold-500/35 hover:border-gold-500/70 dark:hover:border-gold-400/70 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between gap-1.5 sm:gap-2 cursor-pointer group text-left"
+                        title="Pilih Pekan Pelajaran Sekolah Sabat"
+                        aria-expanded={isLessonDropdownOpen}
                     >
-                        {SS_LESSONS_CATALOG.map((item) => (
-                            <option key={item.id} value={item.id}>
-                                Pelajaran {parseInt(item.id, 10)}: {item.title} {item.id === currentActiveLessonId ? "(Pekan Ini)" : ""}
-                            </option>
-                        ))}
-                    </select>
+                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+                            <span className="px-1.5 py-0.5 rounded-md bg-gold-500/15 dark:bg-gold-500/25 text-gold-700 dark:text-gold-300 font-black text-[10px] sm:text-xs shrink-0 border border-gold-500/30">
+                                P{parseInt(selectedLessonId, 10)}
+                            </span>
+                            <span className="truncate text-xs sm:text-sm font-extrabold text-navy-900 dark:text-gold-200 group-hover:text-gold-600 dark:group-hover:text-gold-300 transition-colors">
+                                {currentCatalogItem?.title || `Pelajaran ${parseInt(selectedLessonId, 10)}`}
+                            </span>
+                            {selectedLessonId === currentActiveLessonId && (
+                                <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shrink-0">
+                                    Pekan Ini
+                                </span>
+                            )}
+                        </div>
+                        <ChevronDown
+                            className={`w-4 h-4 text-navy-400 dark:text-gold-400/80 shrink-0 transition-transform duration-300 ${
+                                isLessonDropdownOpen ? "rotate-180 text-gold-500" : "group-hover:text-navy-700 dark:group-hover:text-gold-300"
+                            }`}
+                        />
+                    </button>
+
+                    {/* Menu Popover Glassblur */}
+                    {isLessonDropdownOpen && (
+                        <div
+                            className="absolute top-full left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:w-[26rem] w-[calc(100vw-2.5rem)] max-w-sm sm:max-w-md mt-2 z-50 rounded-2xl bg-white/90 dark:bg-navy-950/90 backdrop-blur-2xl border border-navy-100/90 dark:border-gold-500/25 shadow-2xl shadow-navy-950/25 dark:shadow-black/70 overflow-hidden"
+                            style={{
+                                backdropFilter: "blur(24px) saturate(190%) contrast(105%)",
+                                WebkitBackdropFilter: "blur(24px) saturate(190%) contrast(105%)"
+                            }}
+                        >
+                            {/* Panel Header */}
+                            <div className="px-3.5 py-2.5 bg-gradient-to-r from-navy-50/90 via-white/60 to-gold-50/60 dark:from-navy-900/90 dark:via-navy-900/70 dark:to-gold-950/40 border-b border-navy-100/80 dark:border-navy-800/80 flex items-center justify-between">
+                                <div className="flex items-center gap-1.5">
+                                    <Sparkles className="w-3.5 h-3.5 text-gold-500" />
+                                    <span className="text-[11px] font-black text-navy-800 dark:text-gold-300 uppercase tracking-wider">
+                                        Pilih Pekan Pelajaran
+                                    </span>
+                                </div>
+                                <span className="text-[10px] font-semibold text-navy-400 dark:text-navy-400">
+                                    Triwulan IV 2026
+                                </span>
+                            </div>
+
+                            {/* Daftar Pekan (Scrollable) */}
+                            <div className="max-h-80 sm:max-h-96 overflow-y-auto overscroll-contain p-1.5 space-y-1 divide-y divide-transparent scrollbar-thin">
+                                {SS_LESSONS_CATALOG.map((item) => {
+                                    const isSelected = item.id === selectedLessonId;
+                                    const isCurrent = item.id === currentActiveLessonId;
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            ref={isSelected ? activeLessonItemRef : null}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedLessonId(item.id);
+                                                setSelectedDayIdx(0);
+                                                setIsLessonDropdownOpen(false);
+                                            }}
+                                            className={`w-full px-3 py-2 rounded-xl text-left transition-all flex items-center gap-2.5 cursor-pointer group ${
+                                                isSelected
+                                                    ? "bg-gradient-to-r from-gold-500/20 via-gold-500/10 to-transparent dark:from-gold-500/25 dark:via-gold-500/15 border border-gold-500/40 text-navy-950 dark:text-gold-100 shadow-2xs font-black"
+                                                    : "hover:bg-navy-50/80 dark:hover:bg-navy-900/60 border border-transparent text-navy-800 dark:text-navy-200 font-medium"
+                                            }`}
+                                        >
+                                            {/* Nomor Pekan */}
+                                            <div
+                                                className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0 transition-colors ${
+                                                    isSelected
+                                                        ? "bg-gold-500 text-white shadow-xs"
+                                                        : isCurrent
+                                                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                                                        : "bg-navy-100/70 dark:bg-navy-800/80 text-navy-600 dark:text-navy-400 group-hover:bg-gold-500/20 group-hover:text-gold-600 dark:group-hover:text-gold-400"
+                                                }`}
+                                            >
+                                                {parseInt(item.id, 10)}
+                                            </div>
+
+                                            {/* Info Judul & Tanggal */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className={`text-xs sm:text-sm truncate ${isSelected ? "font-black text-navy-950 dark:text-gold-200" : "font-bold text-navy-800 dark:text-navy-100 group-hover:text-gold-600 dark:group-hover:text-gold-300"}`}>
+                                                        Pelajaran {parseInt(item.id, 10)}: {item.title}
+                                                    </span>
+                                                    {isCurrent && (
+                                                        <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 shrink-0">
+                                                            Pekan Ini
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="text-[10px] text-navy-400 dark:text-navy-400 flex items-center gap-1 mt-0.5">
+                                                    <span>{item.dateRange}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Indikator Terpilih */}
+                                            {isSelected && (
+                                                <div className="w-5 h-5 rounded-full bg-gold-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                                    <Check className="w-3 h-3 stroke-[3]" />
+                                                </div>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Kontrol Ukuran Teks (Ramah Lansia), Koleksi Catatan Saya, & Link Luar */}
