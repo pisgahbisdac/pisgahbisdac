@@ -882,13 +882,19 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         return html;
     };
 
-    // Listener seleksi teks pembaca untuk floating toolbar
+    // Listener seleksi teks pembaca untuk floating toolbar (Hanya muncul saat teks diblok)
     const handleCheckSelection = () => {
         setTimeout(() => {
             const sel = window.getSelection();
-            if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+            if (!sel || sel.isCollapsed || !sel.rangeCount) {
+                setSelectionToolbar(null);
+                return;
+            }
             const text = sel.toString().trim();
-            if (text.length < 3) return;
+            if (text.length < 3) {
+                setSelectionToolbar(null);
+                return;
+            }
 
             if (readerRef.current && readerRef.current.contains(sel.anchorNode)) {
                 const range = sel.getRangeAt(0);
@@ -904,18 +910,71 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                         node = node.parentNode;
                     }
 
+                    const desktopTop = Math.max(80, rect.top - 56);
+                    const desktopLeft = Math.max(120, Math.min(window.innerWidth - 120, rect.left + rect.width / 2));
+
                     setSelectionToolbar({
                         text,
                         blockIdx: foundBlockIdx,
-                        top: Math.max(70, rect.top - 54),
-                        left: Math.max(20, Math.min(window.innerWidth - 220, rect.left + rect.width / 2 - 100))
+                        desktopTop,
+                        desktopLeft
                     });
                 }
+            } else {
+                setSelectionToolbar(null);
             }
-        }, 60);
+        }, 80);
     };
 
-    // Auto-dismiss floating toolbar saat klik di luar
+    // Auto-detect seleksi teks di mobile & desktop via event listener selectionchange
+    useEffect(() => {
+        let timer = null;
+        const handleSelectionChange = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                const sel = window.getSelection();
+                if (!sel || sel.isCollapsed || !sel.rangeCount) {
+                    return;
+                }
+                const text = sel.toString().trim();
+                if (text.length < 3) return;
+
+                if (readerRef.current && readerRef.current.contains(sel.anchorNode)) {
+                    const range = sel.getRangeAt(0);
+                    const rect = range.getBoundingClientRect();
+                    if (rect.width > 0 && rect.height > 0) {
+                        let foundBlockIdx = 0;
+                        let node = sel.anchorNode;
+                        while (node && node !== readerRef.current) {
+                            if (node.getAttribute && node.getAttribute('data-block-idx') !== null) {
+                                foundBlockIdx = parseInt(node.getAttribute('data-block-idx'), 10);
+                                break;
+                            }
+                            node = node.parentNode;
+                        }
+
+                        const desktopTop = Math.max(80, rect.top - 56);
+                        const desktopLeft = Math.max(120, Math.min(window.innerWidth - 120, rect.left + rect.width / 2));
+
+                        setSelectionToolbar({
+                            text,
+                            blockIdx: foundBlockIdx,
+                            desktopTop,
+                            desktopLeft
+                        });
+                    }
+                }
+            }, 120);
+        };
+
+        document.addEventListener("selectionchange", handleSelectionChange);
+        return () => {
+            clearTimeout(timer);
+            document.removeEventListener("selectionchange", handleSelectionChange);
+        };
+    }, []);
+
+    // Auto-dismiss floating toolbar saat klik di luar area seleksi
     useEffect(() => {
         const handleDocClick = (e) => {
             if (selectionToolbarRef.current && selectionToolbarRef.current.contains(e.target)) return;
@@ -1008,16 +1067,6 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             `✍️ *Catatan Saya:* \n${note.content.trim()}\n\n` +
             `_Aplikasi Jemaat Pisgah Batam_`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
-    };
-
-    const handleOpenAddNoteForBlock = (block) => {
-        setInlineNoteModal({
-            mode: 'create',
-            blockIdx: block.idx,
-            selectedText: block.text.slice(0, 180).trim() + (block.text.length > 180 ? '...' : ''),
-            content: '',
-            color: 'gold'
-        });
     };
 
     // 2. Catatan & Stabilo Ayat Alkitab (Sinkron 2-Arah dengan Alkitab Digital)
@@ -1761,17 +1810,17 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                                 setIsLessonDropdownOpen(false);
                                             }}
                                             className={`w-full px-3 py-2 rounded-xl text-left transition-all flex items-center gap-2.5 cursor-pointer group ${isSelected
-                                                    ? "bg-gradient-to-r from-gold-500/20 via-gold-500/10 to-transparent dark:from-gold-500/25 dark:via-gold-500/15 border border-gold-500/40 text-navy-950 dark:text-gold-100 shadow-2xs font-black"
-                                                    : "hover:bg-navy-50/80 dark:hover:bg-navy-900/60 border border-transparent text-navy-800 dark:text-navy-200 font-medium"
+                                                ? "bg-gradient-to-r from-gold-500/20 via-gold-500/10 to-transparent dark:from-gold-500/25 dark:via-gold-500/15 border border-gold-500/40 text-navy-950 dark:text-gold-100 shadow-2xs font-black"
+                                                : "hover:bg-navy-50/80 dark:hover:bg-navy-900/60 border border-transparent text-navy-800 dark:text-navy-200 font-medium"
                                                 }`}
                                         >
                                             {/* Nomor Pekan */}
                                             <div
                                                 className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0 transition-colors ${isSelected
-                                                        ? "bg-gold-500 text-white shadow-xs"
-                                                        : isCurrent
-                                                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
-                                                            : "bg-navy-100/70 dark:bg-navy-800/80 text-navy-600 dark:text-navy-400 group-hover:bg-gold-500/20 group-hover:text-gold-600 dark:group-hover:text-gold-400"
+                                                    ? "bg-gold-500 text-white shadow-xs"
+                                                    : isCurrent
+                                                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                                                        : "bg-navy-100/70 dark:bg-navy-800/80 text-navy-600 dark:text-navy-400 group-hover:bg-gold-500/20 group-hover:text-gold-600 dark:group-hover:text-gold-400"
                                                     }`}
                                             >
                                                 {parseInt(item.id, 10)}
@@ -2028,19 +2077,6 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                             dangerouslySetInnerHTML={{ __html: blockHtml }}
                                         />
 
-                                        {/* Tombol Cepat Sematkan Catatan Paragraf (Hover / Focus) */}
-                                        <div className="opacity-0 group-hover/block:opacity-100 focus-within:opacity-100 transition-opacity duration-150 flex justify-end -mt-2 mb-2 pr-1">
-                                            <button
-                                                type="button"
-                                                onClick={() => handleOpenAddNoteForBlock(block)}
-                                                className="px-2.5 py-1 rounded-lg bg-amber-500/15 dark:bg-gold-500/20 hover:bg-amber-500/30 text-amber-900 dark:text-gold-300 text-[11px] font-extrabold transition flex items-center gap-1.5 cursor-pointer border border-amber-400/40 dark:border-gold-500/30 shadow-2xs active:scale-95"
-                                                title="Sematkan catatan pada kalimat/paragraf ini"
-                                            >
-                                                <span>📌</span>
-                                                <span>Sematkan Catatan</span>
-                                            </button>
-                                        </div>
-
                                         {/* KARTU CATATAN TERSEMAT SECARA INLINE TEPAT DI BAWAH KALIMAT */}
                                         {blockNotes.length > 0 && (
                                             <div className="space-y-2.5 my-3 pt-1">
@@ -2211,14 +2247,14 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 )}
             </div>
 
-            {/* FLOATING ACTION TOOLBAR SAAT TEKS/KALIMAT DISOROT (MEDIUM / KINDLE STYLE) */}
+            {/* FLOATING ACTION TOOLBAR SAAT TEKS/KALIMAT DIBLOK (MUNCUL HANYA SAAT ADA YANG DIBLOK & TEPAT DI TENGAH PADA MOBILE) */}
             {selectionToolbar && (
                 <div
                     ref={selectionToolbarRef}
-                    className="fixed z-[100] transform -translate-x-1/2 flex items-center gap-1.5 p-1 rounded-2xl bg-navy-950/92 dark:bg-navy-900/95 backdrop-blur-xl border border-gold-400/50 shadow-2xl animate-scale-up"
+                    className="fixed z-[120] bottom-8 sm:bottom-auto left-1/2 -translate-x-1/2 sm:left-[var(--desk-left)] sm:top-[var(--desk-top)] flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-1.5 rounded-2xl bg-navy-950/95 dark:bg-navy-900/98 backdrop-blur-2xl border-2 border-gold-400 shadow-2xl animate-scale-up max-w-[92vw] sm:max-w-md w-max"
                     style={{
-                        top: `${selectionToolbar.top}px`,
-                        left: `${selectionToolbar.left}px`
+                        '--desk-left': `${selectionToolbar.desktopLeft || (typeof window !== 'undefined' ? window.innerWidth / 2 : 300)}px`,
+                        '--desk-top': `${selectionToolbar.desktopTop || 80}px`
                     }}
                 >
                     <button
@@ -2233,10 +2269,10 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             });
                             setSelectionToolbar(null);
                         }}
-                        className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-gold-500 hover:from-amber-600 hover:to-gold-600 text-navy-950 font-black text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition active:scale-95"
+                        className="px-3.5 sm:px-4 py-2 sm:py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-gold-500 to-amber-500 hover:from-amber-600 hover:to-gold-600 text-navy-950 font-black text-xs sm:text-sm flex items-center gap-2 shadow-md cursor-pointer transition active:scale-95 shrink-0"
                     >
-                        <span>📌</span>
-                        <span>Sematkan Catatan</span>
+                        <span className="text-base sm:text-sm">📌</span>
+                        <span className="whitespace-nowrap">Sematkan Catatan</span>
                     </button>
 
                     <button
@@ -2249,20 +2285,20 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             } catch (e) { }
                             setSelectionToolbar(null);
                         }}
-                        className="px-2.5 py-1.5 rounded-xl hover:bg-white/10 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition active:scale-95"
+                        className="px-3 py-2 sm:py-1.5 rounded-xl hover:bg-white/10 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer transition active:scale-95 shrink-0"
                         title="Salin Kalimat"
                     >
-                        <Copy className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Salin</span>
+                        <Copy className="w-4 h-4" />
+                        <span className="whitespace-nowrap">Salin</span>
                     </button>
 
                     <button
                         type="button"
                         onClick={() => setSelectionToolbar(null)}
-                        className="p-1 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white cursor-pointer"
+                        className="p-2 sm:p-1.5 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white cursor-pointer transition shrink-0"
                         title="Tutup"
                     >
-                        <X className="w-3.5 h-3.5" />
+                        <X className="w-4 h-4" />
                     </button>
                 </div>
             )}
@@ -2322,9 +2358,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                         key={pal.id}
                                         type="button"
                                         onClick={() => setInlineNoteModal(prev => ({ ...prev, color: pal.id }))}
-                                        className={`w-7 h-7 rounded-full border-2 ${pal.dotClass} flex items-center justify-center transition cursor-pointer ${
-                                            inlineNoteModal.color === pal.id ? "scale-115 ring-2 ring-gold-400 shadow-md" : "opacity-70 hover:opacity-100"
-                                        }`}
+                                        className={`w-7 h-7 rounded-full border-2 ${pal.dotClass} flex items-center justify-center transition cursor-pointer ${inlineNoteModal.color === pal.id ? "scale-115 ring-2 ring-gold-400 shadow-md" : "opacity-70 hover:opacity-100"
+                                            }`}
                                         title={pal.label}
                                     >
                                         {inlineNoteModal.color === pal.id && <Check className="w-3.5 h-3.5 text-navy-950" />}
