@@ -925,7 +925,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             } else {
                 setSelectionToolbar(null);
             }
-        }, 80);
+        }, 60);
     };
 
     // Auto-detect seleksi teks di mobile & desktop via event listener selectionchange
@@ -933,20 +933,40 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         let timer = null;
         const handleSelectionChange = () => {
             clearTimeout(timer);
+            const sel = window.getSelection();
+            if (!sel || sel.isCollapsed || !sel.rangeCount) {
+                setSelectionToolbar(null);
+                return;
+            }
+            const text = sel.toString().trim();
+            if (text.length < 3) {
+                setSelectionToolbar(null);
+                return;
+            }
+
+            if (!readerRef.current || !readerRef.current.contains(sel.anchorNode)) {
+                setSelectionToolbar(null);
+                return;
+            }
+
             timer = setTimeout(() => {
-                const sel = window.getSelection();
-                if (!sel || sel.isCollapsed || !sel.rangeCount) {
+                const currentSel = window.getSelection();
+                if (!currentSel || currentSel.isCollapsed || !currentSel.rangeCount) {
+                    setSelectionToolbar(null);
                     return;
                 }
-                const text = sel.toString().trim();
-                if (text.length < 3) return;
+                const currentText = currentSel.toString().trim();
+                if (currentText.length < 3) {
+                    setSelectionToolbar(null);
+                    return;
+                }
 
-                if (readerRef.current && readerRef.current.contains(sel.anchorNode)) {
-                    const range = sel.getRangeAt(0);
+                if (readerRef.current && readerRef.current.contains(currentSel.anchorNode)) {
+                    const range = currentSel.getRangeAt(0);
                     const rect = range.getBoundingClientRect();
                     if (rect.width > 0 && rect.height > 0) {
                         let foundBlockIdx = 0;
-                        let node = sel.anchorNode;
+                        let node = currentSel.anchorNode;
                         while (node && node !== readerRef.current) {
                             if (node.getAttribute && node.getAttribute('data-block-idx') !== null) {
                                 foundBlockIdx = parseInt(node.getAttribute('data-block-idx'), 10);
@@ -960,14 +980,16 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                         lastSelectionTimeRef.current = Date.now();
 
                         setSelectionToolbar({
-                            text,
+                            text: currentText,
                             blockIdx: foundBlockIdx,
                             desktopTop,
                             desktopLeft
                         });
                     }
+                } else {
+                    setSelectionToolbar(null);
                 }
-            }, 120);
+            }, 80);
         };
 
         document.addEventListener("selectionchange", handleSelectionChange);
@@ -983,16 +1005,16 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             if (selectionToolbarRef.current && selectionToolbarRef.current.contains(e.target)) return;
             setTimeout(() => {
                 const sel = window.getSelection();
-                if (!sel || sel.isCollapsed) {
+                if (!sel || sel.isCollapsed || !sel.rangeCount || sel.toString().trim().length < 3) {
                     setSelectionToolbar(null);
                 }
-            }, 100);
+            }, 60);
         };
         document.addEventListener("mousedown", handleDocClick);
-        document.addEventListener("touchstart", handleDocClick);
+        document.addEventListener("pointerdown", handleDocClick);
         return () => {
             document.removeEventListener("mousedown", handleDocClick);
-            document.removeEventListener("touchstart", handleDocClick);
+            document.removeEventListener("pointerdown", handleDocClick);
         };
     }, []);
 

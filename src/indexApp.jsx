@@ -17915,10 +17915,10 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
         const activeBookObj = selectedBook || ALKITAB_BOOKS.find(b => b.id === currentBookChapter?.bookId) || null;
         const activeChapterVal = selectedBook ? (selectedChapter || '') : (currentBookChapter?.chapter || '');
         return (
-            <div className="flex-1 w-full flex flex-row items-center gap-1.5 sm:gap-2 bg-white dark:bg-navy-900 px-2 sm:px-3 py-1.5 rounded-2xl shadow-sm border border-navy-100 dark:border-navy-800">
+            <div className="flex-1 min-w-0 w-full flex flex-row items-center gap-1 sm:gap-2 bg-white dark:bg-navy-900 px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-2xl shadow-sm border border-navy-100 dark:border-navy-800">
                 {/* KITAB */}
-                <div className="flex-[1.4] min-w-[75px] sm:min-w-[110px]">
-                    <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Kitab</label>
+                <div className="flex-1 min-w-[65px] sm:min-w-[100px]">
+                    <label className="text-[8px] sm:text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-0.5 sm:px-1 truncate">Kitab</label>
                     <select
                         value={activeBookObj?.id || ''}
                         onChange={(e) => {
@@ -17929,7 +17929,7 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                                 setSelectedAyat('');
                             }
                         }}
-                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer truncate"
+                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer truncate"
                     >
                         <option value="" disabled>Pilih Kitab...</option>
                         {ALKITAB_BOOKS.map(b => (
@@ -17939,8 +17939,8 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                 </div>
 
                 {/* PASAL */}
-                <div className="flex-1 min-w-[50px] sm:min-w-[65px]">
-                    <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Pasal</label>
+                <div className="w-12 sm:w-16 shrink-0">
+                    <label className="text-[8px] sm:text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-0.5 sm:px-1 truncate text-center sm:text-left">Pasal</label>
                     <select
                         value={activeChapterVal}
                         onChange={(e) => {
@@ -17952,7 +17952,7 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                             setSelectedAyat('');
                         }}
                         disabled={!activeBookObj}
-                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1 sm:px-2 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-center"
                     >
                         <option value="" disabled>--</option>
                         {activeBookObj && Array.from({ length: activeBookObj.pasal }, (_, i) => i + 1).map(ch => (
@@ -17962,8 +17962,8 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                 </div>
 
                 {/* AYAT */}
-                <div className="flex-1 min-w-[50px] sm:min-w-[65px]">
-                    <label className="text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-1 truncate">Ayat</label>
+                <div className="w-12 sm:w-16 shrink-0">
+                    <label className="text-[8px] sm:text-[9px] font-black text-navy-400 dark:text-navy-500 uppercase tracking-widest mb-0.5 block px-0.5 sm:px-1 truncate text-center sm:text-left">Ayat</label>
                     <select
                         value={selectedAyat || ''}
                         onChange={(e) => {
@@ -17971,7 +17971,7 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                             if (val) scrollToVerse(val);
                         }}
                         disabled={!selectedChapter || verses.length === 0}
-                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1.5 sm:px-2.5 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-navy-50 dark:bg-navy-800 border-none rounded-xl px-1 sm:px-2 py-1 text-navy-900 dark:text-white font-bold text-xs sm:text-sm focus:ring-2 focus:ring-gold-400 outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-center"
                     >
                         <option value="">--</option>
                         {verses.filter(v => v.type === 'content').map(v => (
@@ -18070,15 +18070,15 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
             <div className="animate-fade-in pb-10">
                 {renderAlkitabModals()}
                 <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-3 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 flex flex-col gap-2.5 transition-all">
-                    <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
+                    <div className="flex items-center gap-1.5 sm:gap-3 w-full max-w-4xl mx-auto">
                         <button
                             onClick={handleBackNavigation}
-                            className="h-10 sm:h-11 px-3 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
+                            className="h-9 sm:h-11 px-2.5 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
                             title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali'}
                         >
                             <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
                             {returnTab === 'belajar_sekolah_sabat' && (
-                                <span className="text-xs font-black text-[#4A7045] dark:text-gold-400">
+                                <span className="hidden sm:inline text-xs font-black text-[#4A7045] dark:text-gold-400">
                                     Sekolah Sabat
                                 </span>
                             )}
@@ -18138,8 +18138,10 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                             <span className="truncate">Rencana Baca ({bibleYearPct}%)</span>
                         </button>
                     </div>
+                </div>
 
-                    {/* Quick Access Banner Target Bacaan Hari Ini (Tampil saat di tab 66 Kitab atau Stabilo agar langsung terbaca setiap hari) */}
+                <div className="mt-4 sm:mt-5 space-y-4">
+                    {/* Quick Access Banner Target Bacaan Hari Ini (Ditaruh dalam konten agar tidak menutupi daftar buku saat digulir) */}
                     {alkitabHomeTab !== 'bible_year' && !searchResults && (
                         <div className="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#1C3318]/95 via-navy-900 to-[#1C3318]/95 border border-emerald-500/40 shadow-md flex flex-wrap items-center justify-between gap-2.5">
                             <div
@@ -18197,8 +18199,6 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                             </div>
                         </div>
                     )}
-                </div>
-                <div className="mt-6">
                     {searchResults ? (
                         <div>
                             <div className="flex justify-between items-end mb-4 px-2">
@@ -18586,15 +18586,15 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
         return (
             <div className="animate-fade-in pb-10">
                 <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 transition-all">
-                    <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
+                    <div className="flex items-center gap-1.5 sm:gap-3 w-full max-w-4xl mx-auto">
                         <button
                             onClick={handleBackNavigation}
-                            className="h-10 sm:h-11 px-3 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
+                            className="h-9 sm:h-11 px-2.5 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
                             title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali ke Daftar Kitab'}
                         >
                             <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
                             {returnTab === 'belajar_sekolah_sabat' && (
-                                <span className="text-xs font-black text-[#4A7045] dark:text-gold-400">
+                                <span className="hidden sm:inline text-xs font-black text-[#4A7045] dark:text-gold-400">
                                     Sekolah Sabat
                                 </span>
                             )}
@@ -18604,10 +18604,10 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                         </div>
                         <button
                             onClick={() => { setReturnTab(null); window.__alkitabReturnTab = null; try { localStorage.removeItem('alkitabReturnTab'); } catch (e) { } setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
+                            className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
                             title="Daftar Kitab (Home)"
                         >
-                            <Icon name="Home" className="w-5 h-5 group-hover:scale-105 transition-transform" />
+                            <Icon name="Home" className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-105 transition-transform" />
                         </button>
                     </div>
                 </div>
@@ -18632,16 +18632,16 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                 {renderAlkitabModals()}
                 {/* Sticky Header: Tombol Panah (Kiri), Kotak Kitab (Tengah), Tombol Home (Kanan) */}
                 <div className="sticky top-14 md:top-16 z-40 liquid-glass-header pt-2 pb-2.5 -mx-4 px-3 sm:px-4 md:-mx-8 md:px-8 transition-all">
-                    <div className="flex items-center gap-2 sm:gap-3 w-full max-w-4xl mx-auto">
+                    <div className="flex items-center gap-1.5 sm:gap-3 w-full max-w-4xl mx-auto">
                         {/* Tombol Panah (Kembali) di sebelah kiri */}
                         <button
                             onClick={handleBackNavigation}
-                            className="h-10 sm:h-11 px-3 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
+                            className="h-9 sm:h-11 px-2.5 sm:px-3.5 flex items-center justify-center bg-white dark:bg-navy-800 shadow-sm hover:shadow border border-navy-100/80 dark:border-navy-700 rounded-2xl text-navy-700 dark:text-navy-300 hover:text-navy-900 dark:hover:text-white font-bold transition-all shrink-0 active:scale-95 group gap-1.5"
                             title={returnTab === 'belajar_sekolah_sabat' ? 'Kembali ke Sekolah Sabat' : 'Kembali ke Pilih Pasal'}
                         >
                             <Icon name="ArrowLeft" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
                             {returnTab === 'belajar_sekolah_sabat' && (
-                                <span className="text-xs font-black text-[#4A7045] dark:text-gold-400">
+                                <span className="hidden sm:inline text-xs font-black text-[#4A7045] dark:text-gold-400">
                                     Sekolah Sabat
                                 </span>
                             )}
@@ -18655,10 +18655,10 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                         {/* Tombol Home di sebelah kanan */}
                         <button
                             onClick={() => { setSelectedBook(null); setSelectedChapter(null); setVerses([]); setSelectedVerses(new Set()); setSelectedAyat(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
+                            className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-[#4A7045]/10 dark:bg-gold-500/10 shadow-sm hover:shadow border border-[#4A7045]/20 dark:border-gold-500/30 rounded-2xl text-[#2C3F21] dark:text-gold-400 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/20 font-bold transition-all shrink-0 active:scale-95 group"
                             title="Daftar Kitab (Home)"
                         >
-                            <Icon name="Home" className="w-5 h-5 group-hover:scale-105 transition-transform" />
+                            <Icon name="Home" className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-105 transition-transform" />
                         </button>
                     </div>
                 </div>
