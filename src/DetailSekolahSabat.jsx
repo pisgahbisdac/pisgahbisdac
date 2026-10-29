@@ -1493,55 +1493,26 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                 </div>
             </div>
 
-            {/* KARTU HEADER TRIWULAN & TEMA PEKAN INI (DENGAN SEMATAN GAMBAR RESMI ADVENTECH) */}
+            {/* KARTU HEADER TRIWULAN & TEMA PEKAN INI (DIPERTAHANKAN SESUAI GAMBAR) */}
             <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#1C2C16] via-[#2A4422] to-[#1E3019] dark:from-navy-900 dark:via-navy-950 dark:to-navy-900 p-6 md:p-8 text-white shadow-xl border-2 border-[#4A7045]/60 dark:border-gold-500/40">
-                {/* Background Ambient Cover Glow dari Artwork Resmi */}
-                <div
-                    className="absolute inset-0 bg-cover bg-center opacity-15 filter blur-md scale-110 pointer-events-none transition-all duration-700"
-                    style={{ backgroundImage: `url(${currentCoverUrl})` }}
-                />
                 <div className="absolute top-0 right-0 w-80 h-80 bg-gold-400/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
-
-                <div className="relative z-10 space-y-6">
-                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 md:gap-6">
-                        {/* Sematan Gambar Cover Resmi Pelajaran (Seperti di Adventech) */}
-                        <div className="relative shrink-0 group">
-                            <div className="w-36 sm:w-44 md:w-52 aspect-[3/2] rounded-2xl overflow-hidden shadow-2xl border-2 border-white/30 dark:border-gold-500/40 bg-black/40 relative">
-                                <img
-                                    src={currentCoverUrl}
-                                    alt={`Sampul Pelajaran ${parseInt(selectedLessonId, 10)}: ${currentCatalogItem.title}`}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                    loading="eager"
-                                    onError={(e) => {
-                                        e.currentTarget.onerror = null;
-                                        e.currentTarget.src = SS_QUARTERLY_INFO.cover;
-                                    }}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none"></div>
-                                <span className="absolute bottom-1.5 left-2 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-black/65 backdrop-blur-xs text-gold-300 border border-gold-400/30">
-                                    Pekan {parseInt(selectedLessonId, 10)}
-                                </span>
-                            </div>
+                <div className="relative z-10 space-y-5">
+                    <div>
+                        <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-400/20 text-gold-300 border border-gold-400/40 font-extrabold text-[10.5px] uppercase tracking-wider">
+                                <BookOpen className="w-3.5 h-3.5" /> PEDOMAN PENDALAMAN ALKITAB DEWASA
+                            </span>
+                            <span className="text-xs text-white/80 font-bold bg-white/10 px-3 py-1 rounded-full">
+                                🗓 {currentCatalogItem.dateRange}
+                            </span>
                         </div>
 
-                        {/* Teks Judul & Informasi Pelajaran */}
-                        <div className="flex-1 min-w-0 text-center sm:text-left">
-                            <div className="flex items-center justify-center sm:justify-start gap-2 mb-2 flex-wrap">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-400/20 text-gold-300 border border-gold-400/40 font-extrabold text-[10.5px] uppercase tracking-wider">
-                                    <BookOpen className="w-3.5 h-3.5" /> PEDOMAN PENDALAMAN ALKITAB DEWASA
-                                </span>
-                                <span className="text-xs text-white/80 font-bold bg-white/10 px-3 py-1 rounded-full">
-                                    🗓 {currentCatalogItem.dateRange}
-                                </span>
-                            </div>
-
-                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
-                                Pelajaran {parseInt(selectedLessonId, 10)}: {currentCatalogItem.title}
-                            </h1>
-                            <p className="text-sm sm:text-base text-gold-300 font-semibold">
-                                {SS_QUARTERLY_INFO.title} • {SS_QUARTERLY_INFO.human_date}
-                            </p>
-                        </div>
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
+                            Pelajaran {parseInt(selectedLessonId, 10)}: {currentCatalogItem.title}
+                        </h1>
+                        <p className="text-sm sm:text-base text-gold-300 font-semibold">
+                            {SS_QUARTERLY_INFO.title} • {SS_QUARTERLY_INFO.human_date}
+                        </p>
                     </div>
 
                     {/* KARTU AYAT HAFALAN KHUSUS */}
@@ -1607,19 +1578,42 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                     </div>
                 ) : currentDay ? (
                     <div className="space-y-6">
-                        {/* Judul & Tanggal Hari Pelajaran */}
-                        <div className="border-b border-navy-100 dark:border-navy-800 pb-4">
-                            <div className="flex items-center justify-between gap-2 flex-wrap mb-1.5">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#4A7045] dark:text-gold-400 font-extrabold text-xs uppercase tracking-wider">
-                                    {SS_DAY_TABS[selectedDayIdx]?.label} • {currentDay.date || "Pelajaran Harian"}
-                                </span>
-                                <span className="text-[11px] text-navy-500 dark:text-gray-400 italic">
-                                    💡 Ketuk tautan ayat untuk membuka firman Tuhan
-                                </span>
+                        {/* Judul & Tanggal Hari Pelajaran (Hero Banner dengan Latar Belakang Gambar Resmi Adventech) */}
+                        <div className="relative overflow-hidden rounded-3xl p-5 sm:p-7 md:p-8 text-white shadow-lg border border-black/10 dark:border-navy-700/60 min-h-[140px] sm:min-h-[170px] flex flex-col justify-between group">
+                            {/* Gambar Cover sebagai Latar Belakang */}
+                            <img
+                                src={currentCoverUrl}
+                                alt={`Sampul ${currentDay.title}`}
+                                className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-transform duration-700 group-hover:scale-105"
+                                onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = SS_QUARTERLY_INFO.cover;
+                                }}
+                            />
+                            {/* Dark Gradient Overlay agar teks judul selalu tajam & kontras tinggi */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-navy-950/95 via-navy-950/70 to-navy-900/40 pointer-events-none"></div>
+
+                            {/* Konten Judul di atas Latar Belakang Gambar */}
+                            <div className="relative z-10 space-y-2.5">
+                                <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/55 backdrop-blur-md text-gold-300 border border-gold-400/40 font-extrabold text-xs uppercase tracking-wider shadow-sm">
+                                        <Calendar className="w-3.5 h-3.5 text-gold-400" />
+                                        <span>{SS_DAY_TABS[selectedDayIdx]?.label} • {currentDay.date || "Pelajaran Harian"}</span>
+                                    </span>
+                                    <span className="text-[11px] text-white/90 bg-black/45 backdrop-blur-md px-3 py-1 rounded-full font-medium border border-white/10 hidden sm:inline-flex items-center gap-1">
+                                        💡 Ketuk tautan ayat untuk membuka firman Tuhan
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-md leading-tight">
+                                        {currentDay.title}
+                                    </h2>
+                                    <p className="text-xs sm:text-sm text-gold-200/90 font-semibold drop-shadow-xs mt-1">
+                                        Pelajaran {parseInt(selectedLessonId, 10)}: {currentCatalogItem.title}
+                                    </p>
+                                </div>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-navy-900 dark:text-white tracking-tight">
-                                {currentDay.title}
-                            </h2>
                         </div>
 
                         {/* Isi Teks Pelajaran (Event Delegated Click untuk Tautan Ayat) */}
@@ -1648,10 +1642,10 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
                                 <div className="flex items-center gap-2">
                                     <span className={`text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${dailyNoteSaveStatus === "saving"
-                                            ? "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300"
-                                            : currentDayNoteText.trim()
-                                                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
-                                                : "bg-navy-100 text-navy-600 dark:bg-navy-800 dark:text-navy-400"
+                                        ? "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300"
+                                        : currentDayNoteText.trim()
+                                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                                            : "bg-navy-100 text-navy-600 dark:bg-navy-800 dark:text-navy-400"
                                         }`}>
                                         {dailyNoteSaveStatus === "saving" ? (
                                             <>
@@ -2109,8 +2103,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                     type="button"
                                     onClick={() => setNotesActiveTab("daily")}
                                     className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${notesActiveTab === "daily"
-                                            ? "bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-xs font-black"
-                                            : "text-navy-600 dark:text-gray-400 hover:text-navy-900"
+                                        ? "bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-xs font-black"
+                                        : "text-navy-600 dark:text-gray-400 hover:text-navy-900"
                                         }`}
                                 >
                                     <FileText className="w-3.5 h-3.5" />
@@ -2120,8 +2114,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                     type="button"
                                     onClick={() => setNotesActiveTab("verses")}
                                     className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${notesActiveTab === "verses"
-                                            ? "bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-xs font-black"
-                                            : "text-navy-600 dark:text-gray-400 hover:text-navy-900"
+                                        ? "bg-white dark:bg-navy-800 text-navy-900 dark:text-gold-400 shadow-xs font-black"
+                                        : "text-navy-600 dark:text-gray-400 hover:text-navy-900"
                                         }`}
                                 >
                                     <Bookmark className="w-3.5 h-3.5" />
