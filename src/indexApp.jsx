@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Play, Maximize, FileText, Download, Share2, Info, BookOpen, Search as SearchIcon, X, CheckCircle, Navigation, MapPin, Calendar, Phone, Mail, Clock, Globe, ArrowRight, User, PlusCircle, PenTool, Layout, ExternalLink, Menu, Music, Activity, Megaphone, Video, ArrowLeft, MoreHorizontal, MessageCircle, Heart, Star, Compass, Anchor, Copy, Check, Upload, Trash2, Map as MapIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Maximize, Minimize2, FileText, Download, Share2, Info, BookOpen, Search as SearchIcon, X, CheckCircle, Navigation, MapPin, Calendar, Phone, Mail, Clock, Globe, ArrowRight, User, PlusCircle, PenTool, Layout, ExternalLink, Menu, Music, Activity, Megaphone, Video, ArrowLeft, MoreHorizontal, MessageCircle, Heart, Star, Compass, Anchor, Copy, Check, Upload, Trash2, Map as MapIcon } from 'lucide-react';
 import DetailSekolahSabat from './DetailSekolahSabat';
 
 // searchlaporan: redirect ke laporan.html (Cek Transaksi)
@@ -1062,7 +1062,9 @@ const Icon = ({ name, className }) => {
         SkipForward: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 4 15 12 5 20 5 4" /><line x1="19" y1="5" x2="19" y2="19" /></svg>,
         Square: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" /></svg>,
         CalendarPlus: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /><path d="M10 16h4" /><path d="M12 14v4" /></svg>,
-        AlertTriangle: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        AlertTriangle: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>,
+        Maximize: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" /></svg>,
+        Minimize: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" /></svg>
     };
     return icons[name] || null;
 };
@@ -21045,12 +21047,12 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
     const [lyricFontSize, setLyricFontSize] = React.useState(() => {
         try {
             const saved = parseInt(localStorage.getItem('PISGAH_LAGUSION_FONT_SIZE'), 10);
-            if (!isNaN(saved) && saved >= 14 && saved <= 30) return saved;
+            if (!isNaN(saved) && saved >= 14 && saved <= 36) return saved;
         } catch (e) { }
         return 18;
     });
     const updateLyricFontSize = (newSize) => {
-        const clamped = Math.min(30, Math.max(14, newSize));
+        const clamped = Math.min(36, Math.max(14, newSize));
         setLyricFontSize(clamped);
         try {
             localStorage.setItem('PISGAH_LAGUSION_FONT_SIZE', String(clamped));
@@ -21188,6 +21190,78 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
             setSelectedSong(db[nextIndex]);
         }
     };
+
+    // Tampilan Layar Penuh (Fullscreen Mode)
+    const [isFullscreen, setIsFullscreen] = React.useState(false);
+    const fullscreenScrollRef = React.useRef(null);
+
+    const toggleFullscreen = () => {
+        if (!isFullscreen) {
+            setIsFullscreen(true);
+            try {
+                const elem = document.documentElement;
+                if (elem && elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(() => {});
+                } else if (elem && elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                }
+            } catch (e) { }
+        } else {
+            setIsFullscreen(false);
+            try {
+                if (document.fullscreenElement && document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            } catch (e) { }
+        }
+    };
+
+    // Sinkronkan state isFullscreen saat keluar via ESC keyboard atau gesture browser
+    React.useEffect(() => {
+        const handleFsChange = () => {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                setIsFullscreen(false);
+            }
+        };
+        document.addEventListener('fullscreenchange', handleFsChange);
+        document.addEventListener('webkitfullscreenchange', handleFsChange);
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFsChange);
+            document.removeEventListener('webkitfullscreenchange', handleFsChange);
+        };
+    }, []);
+
+    // Reset scroll posisi atas saat ganti lagu di fullscreen
+    React.useEffect(() => {
+        if (isFullscreen && fullscreenScrollRef.current) {
+            fullscreenScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [selectedSong, isFullscreen]);
+
+    // Keyboard navigation di fullscreen
+    React.useEffect(() => {
+        if (!isFullscreen) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                setIsFullscreen(false);
+                if (document.fullscreenElement && document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                }
+            } else if (e.key === 'ArrowLeft') {
+                handlePrevNext(-1);
+            } else if (e.key === 'ArrowRight') {
+                handlePrevNext(1);
+            } else if (e.key === '+' || e.key === '=') {
+                updateLyricFontSize(lyricFontSize + 2);
+            } else if (e.key === '-') {
+                updateLyricFontSize(lyricFontSize - 2);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isFullscreen, lyricFontSize, selectedSong, db]);
 
     // Share song
     const handleShare = () => {
@@ -21501,7 +21575,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                         <button
                                             type="button"
                                             onClick={() => updateLyricFontSize(lyricFontSize + 2)}
-                                            disabled={lyricFontSize >= 30}
+                                            disabled={lyricFontSize >= 36}
                                             className="px-1.5 sm:px-2 py-1 rounded-lg font-black text-xs text-white hover:bg-white/20 disabled:opacity-35 transition cursor-pointer"
                                             title="Perbesar Lirik (A+)"
                                         >
@@ -21533,6 +21607,16 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                         title="Buka Pembidik Nada Dasar (Pitch Pipe)"
                                     >
                                         <span className="text-sm sm:text-base select-none">🎵</span>
+                                    </button>
+
+                                    {/* Tombol Tampilan Penuh (Fullscreen) */}
+                                    <button
+                                        type="button"
+                                        onClick={toggleFullscreen}
+                                        className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 active:bg-white/35 transition-colors relative shrink-0 cursor-pointer text-white"
+                                        title="Tampilan Penuh (Layar Penuh)"
+                                    >
+                                        <Maximize className="w-4 h-4 sm:w-5 sm:h-5" />
                                     </button>
 
                                     <button onClick={handleShare} className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 active:bg-white/35 transition-colors relative shrink-0 cursor-pointer" title="Bagikan Lirik Lagu">
@@ -21655,6 +21739,15 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                 >
                                     <Icon name="List" className="w-4 h-4 text-gold-500 group-hover:text-navy-950" />
                                     <span>Daftar Lagu</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={toggleFullscreen}
+                                    className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-gold-500 hover:from-amber-400 hover:to-gold-400 text-navy-950 font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95"
+                                    title="Tampilan Layar Penuh (Fullscreen)"
+                                >
+                                    <Maximize className="w-4 h-4 stroke-[2.5]" />
+                                    <span>Tampilan Penuh</span>
                                 </button>
                             </div>
                         </>
@@ -21834,6 +21927,206 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                         ))}
                     </div>
                 </div>
+            )}
+
+            {/* Fullscreen Lyrics Overlay (createPortal ke document.body) */}
+            {isFullscreen && selectedSong && createPortal(
+                <div className="fixed inset-0 z-[999999] bg-[#0c1222] text-slate-100 flex flex-col overflow-hidden select-text animate-fade-in font-sans">
+                    {/* Header Bar */}
+                    <div className="shrink-0 bg-navy-900/95 backdrop-blur-md border-b border-gold-500/30 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 shadow-lg">
+                        {/* Kiri: Nomor & Judul Lagu */}
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                            <span className="shrink-0 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-400 to-gold-400 text-navy-950 font-black text-xs sm:text-sm tracking-wider shadow-sm">
+                                LS {selectedSong.number}
+                            </span>
+                            <div className="min-w-0">
+                                <h2 className="font-black text-sm sm:text-base md:text-lg text-white truncate leading-tight">
+                                    {selectedSong.title}
+                                </h2>
+                                <p className="text-[10px] sm:text-xs text-amber-200/80 truncate">
+                                    {selectedSong.keyTime} {selectedSong.artist ? `• ${selectedSong.artist}` : ''}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Kanan: Kontrol (Ukuran Font, Pitch Pipe, Navigasi Lagu, Keluar) */}
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                            {/* Font Size A- / A+ */}
+                            <div className="flex items-center bg-white/10 rounded-xl p-0.5 border border-white/15" title="Ukuran Font Lirik">
+                                <button
+                                    type="button"
+                                    onClick={() => updateLyricFontSize(lyricFontSize - 2)}
+                                    disabled={lyricFontSize <= 14}
+                                    className="px-2 py-1 rounded-lg font-black text-xs text-white hover:bg-white/20 disabled:opacity-30 transition cursor-pointer"
+                                    title="Perkecil Font (A-)"
+                                >
+                                    A-
+                                </button>
+                                <span className="px-1.5 text-[11px] font-bold text-amber-200 select-none">
+                                    {lyricFontSize}px
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => updateLyricFontSize(lyricFontSize + 2)}
+                                    disabled={lyricFontSize >= 36}
+                                    className="px-2 py-1 rounded-lg font-black text-xs text-white hover:bg-white/20 disabled:opacity-30 transition cursor-pointer"
+                                    title="Perbesar Font (A+)"
+                                >
+                                    A+
+                                </button>
+                            </div>
+
+                            {/* Tombol Pitch Pipe di Fullscreen */}
+                            <button
+                                type="button"
+                                onClick={() => setPitchPipeOpen(prev => !prev)}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl transition-colors cursor-pointer text-sm ${pitchPipeOpen ? 'bg-amber-400 text-navy-950 font-bold shadow-md' : 'bg-white/10 hover:bg-white/20 text-white'}`}
+                                title="Pembidik Nada Dasar (Pitch Pipe)"
+                            >
+                                🎵
+                            </button>
+
+                            {/* Tombol Favorit */}
+                            <button
+                                type="button"
+                                onClick={() => toggleFavoriteSong(selectedSong.number)}
+                                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl transition-colors cursor-pointer ${favoriteSongNos.includes(selectedSong.number) ? 'bg-amber-300 text-navy-950 shadow-md' : 'bg-white/10 hover:bg-white/20 text-white'}`}
+                                title={favoriteSongNos.includes(selectedSong.number) ? "Hapus dari Favorit" : "Simpan ke Favorit"}
+                            >
+                                <Icon name="Star" className={`w-4 h-4 ${favoriteSongNos.includes(selectedSong.number) ? 'fill-current' : ''}`} />
+                            </button>
+
+                            {/* Navigasi Lagu Prev / Next */}
+                            <div className="flex items-center bg-white/10 rounded-xl p-0.5 border border-white/15">
+                                <button
+                                    type="button"
+                                    onClick={() => handlePrevNext(-1)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/20 text-white active:scale-95 transition cursor-pointer"
+                                    title="Lagu Sebelumnya (←)"
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handlePrevNext(1)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/20 text-white active:scale-95 transition cursor-pointer"
+                                    title="Lagu Berikutnya (→)"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
+
+                            {/* Tombol Keluar Layar Penuh */}
+                            <button
+                                type="button"
+                                onClick={toggleFullscreen}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/35 text-red-200 hover:text-white border border-red-400/30 transition-all font-bold text-xs cursor-pointer active:scale-95 ml-1"
+                                title="Keluar Tampilan Penuh (ESC)"
+                            >
+                                <Minimize2 className="w-4 h-4" />
+                                <span className="hidden sm:inline">Keluar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Panel Pitch Pipe (jika dibuka saat fullscreen) */}
+                    {pitchPipeOpen && (
+                        <div className="shrink-0 bg-navy-900 border-b border-gold-400/40 p-3 sm:px-6 shadow-md animate-scale-up">
+                            <div className="max-w-xl mx-auto flex items-center justify-between gap-3">
+                                <span className="text-xs font-bold text-gold-300">🎵 Pembidik Nada Dasar:</span>
+                                <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto py-1">
+                                    {PITCH_NOTES.map(p => {
+                                        const isPlaying = activePlayingNote === p.note;
+                                        return (
+                                            <button
+                                                key={p.note}
+                                                type="button"
+                                                onClick={() => playPitch(p.freq, p.note)}
+                                                className={`py-1 px-2 sm:px-2.5 rounded-lg text-xs font-black transition-all cursor-pointer ${isPlaying ? 'bg-gold-500 text-navy-950 scale-105' : 'bg-white/10 hover:bg-white/20 text-white'}`}
+                                                title={`Bunyikan nada ${p.label}`}
+                                            >
+                                                {p.note}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setPitchPipeOpen(false)}
+                                    className="text-gray-400 hover:text-white p-1 text-xs"
+                                    title="Tutup Pitch Pipe"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Area Lirik Scrollable */}
+                    <div ref={fullscreenScrollRef} className="flex-1 overflow-y-auto px-4 sm:px-8 md:px-16 py-8 sm:py-12 scroll-smooth">
+                        <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8">
+                            {(() => {
+                                let result = [];
+                                let chorusRef = null;
+                                const verses = selectedSong.verses || [];
+
+                                for (let i = 0; i < verses.length; i++) {
+                                    const v = verses[i];
+                                    result.push(v);
+                                    if (v.type === 'chorus') chorusRef = v;
+
+                                    if ((v.type === 'verse' || v.type === 'bait') && chorusRef) {
+                                        const nextV = verses[i + 1];
+                                        if (!nextV || nextV.type !== 'chorus') {
+                                            result.push({ ...chorusRef, isAuto: true });
+                                        }
+                                    }
+                                }
+
+                                return result.map((verse, idx) => {
+                                    const isCh = verse.type === 'chorus';
+                                    return (
+                                        <div key={idx} className={`space-y-2 ${isCh ? 'pl-4 sm:pl-6 border-l-4 border-amber-400 bg-amber-400/10 py-3.5 pr-4 rounded-r-2xl' : ''} ${verse.isAuto ? 'opacity-90' : ''}`}>
+                                            <div className={`text-xs sm:text-sm font-black uppercase tracking-wider ${isCh ? 'text-amber-400' : 'text-amber-200/70'}`}>
+                                                {isCh && (!verse.label || verse.label.toLowerCase() === 'koor') ? 'Reff' : verse.label} {verse.isAuto && <span className="text-[10px] sm:text-xs ml-1 opacity-60 normal-case font-normal">(otomatis)</span>}
+                                            </div>
+                                            <div
+                                                className={`leading-relaxed font-medium transition-all ${isCh ? 'italic text-amber-100 font-semibold' : 'text-slate-100'}`}
+                                                style={{ fontSize: `${lyricFontSize}px` }}
+                                            >
+                                                {verse.lines.map((line, lIdx) => (
+                                                    <p key={lIdx} className="mb-1.5">{line}</p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                });
+                            })()}
+                        </div>
+                    </div>
+
+                    {/* Bottom Status / Navigation Bar */}
+                    <div className="shrink-0 bg-navy-900/90 border-t border-white/10 px-4 py-2.5 flex items-center justify-between text-xs text-gray-400 select-none">
+                        <button
+                            type="button"
+                            onClick={() => handlePrevNext(-1)}
+                            className="flex items-center gap-1 text-amber-300 hover:text-amber-200 font-bold cursor-pointer active:scale-95 transition"
+                        >
+                            <ChevronLeft className="w-4 h-4" /> Lagu Sebelumnya
+                        </button>
+                        <span className="hidden md:inline text-[11px] text-gray-400">
+                            Gunakan panah keyboard (← / →) untuk ganti lagu • ESC untuk keluar
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => handlePrevNext(1)}
+                            className="flex items-center gap-1 text-amber-300 hover:text-amber-200 font-bold cursor-pointer active:scale-95 transition"
+                        >
+                            Lagu Berikutnya <ChevronRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>,
+                document.body
             )}
 
         </div>
