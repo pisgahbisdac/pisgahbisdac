@@ -552,16 +552,62 @@ export function extractMemoryVerseFromHtml(html) {
 // Cache key unik & fungsi validasi cache offline
 const SS_CACHE_PREFIX = "pisgah_ss_v6_";
 
-function getValidCachedLesson(lessonId) {
-    try {
-        // Hapus cache usang yang tidak memiliki ayat atau ayat hafalan belum lengkap
-        localStorage.removeItem(`pisgah_ss_lesson_2026_04_${lessonId}`);
-        localStorage.removeItem(`pisgah_ss_lesson_v2_2026_04_${lessonId}`);
-        localStorage.removeItem(`pisgah_ss_lesson_v3_2026_04_${lessonId}`);
-        localStorage.removeItem(`pisgah_ss_lesson_v4_2026_04_${lessonId}`);
-        localStorage.removeItem(`pisgah_ss_v5_${lessonId}`);
+// Parsing tanggal "DD/MM/YYYY" menjadi "YYYY-MM-DD"
+export function parseSSDateToYMD(dmy) {
+    if (!dmy) return "";
+    if (dmy.includes("-")) return dmy;
+    const parts = dmy.split("/");
+    if (parts.length === 3) {
+        return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
+    }
+    return dmy;
+}
 
-        const raw = localStorage.getItem(`${SS_CACHE_PREFIX}${lessonId}`);
+const SS_MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+// Format rentang tanggal "DD/MM/YYYY - DD/MM/YYYY" menjadi format ramah baca Indonesia
+export function formatSSDateRange(startDmy, endDmy) {
+    if (!startDmy || !endDmy) return "";
+    const sp = startDmy.split(/[\/\-]/);
+    const ep = endDmy.split(/[\/\-]/);
+    if (sp.length === 3 && ep.length === 3) {
+        const sDay = sp[0].padStart(2, "0");
+        const sMon = SS_MONTHS_SHORT[parseInt(sp[1], 10) - 1] || sp[1];
+        const eDay = ep[0].padStart(2, "0");
+        const eMon = SS_MONTHS_SHORT[parseInt(ep[1], 10) - 1] || ep[1];
+        const eYear = ep[2];
+        return `${sDay} ${sMon} - ${eDay} ${eMon} ${eYear}`;
+    }
+    return `${startDmy} - ${endDmy}`;
+}
+
+// Menentukan triwulan aktif berdasarkan tanggal kalender hari ini
+export function findActiveQuarterly(quarterliesList, targetYmd = new Date().toISOString().slice(0, 10)) {
+    if (!Array.isArray(quarterliesList) || quarterliesList.length === 0) return null;
+
+    // 1. Cari yang rentang tanggalnya mencakup targetYmd
+    const directMatch = quarterliesList.find(q => {
+        const s = parseSSDateToYMD(q.start_date);
+        const e = parseSSDateToYMD(q.end_date);
+        return s && e && targetYmd >= s && targetYmd <= e;
+    });
+    if (directMatch) return directMatch;
+
+    // 2. Jika tanggal target sudah lewat atau lebih baru (misal tahun 2027),
+    // urutkan berdasarkan start_date menurun dan ambil triwulan yang paling relevan / terbaru
+    const sorted = [...quarterliesList].sort((a, b) => {
+        const sa = parseSSDateToYMD(a.start_date) || a.id || "";
+        const sb = parseSSDateToYMD(b.start_date) || b.id || "";
+        return sb.localeCompare(sa);
+    });
+
+    return sorted[0] || null;
+}
+
+function getValidCachedLesson(quarterlyId, lessonId) {
+    try {
+        const key = `${SS_CACHE_PREFIX}${quarterlyId}_${lessonId}`;
+        const raw = localStorage.getItem(key);
         if (!raw) return null;
         const parsed = JSON.parse(raw);
         // Pastikan ada ayat di dalamnya
@@ -584,6 +630,48 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         return () => { if (setHideGlobalBack) setHideGlobalBack(false); };
     }, [setHideGlobalBack]);
 
+    // 1. Data Triwulan Dinamis (Auto-Discovery)
+    const [quarterlyInfo, setQuarterlyInfo] = useState(() => {
+        try {
+            const saved = localStorage.getItem("PISGAH_SS_CURRENT_QUARTERLY_INFO");
+            if (saved) return JSON.parse(saved);
+        } catch (e) { }
+        return SS_QUARTERLY_INFO;
+    });
+
+    const [selectedQuarterlyId, setSelectedQuarterlyId] = useState(() => {
+        try {
+            const p = new URLSearchParams(window.location.search);
+            const q = p.get('quarterly') || p.get('ss_quarterly');
+            if (q) return q;
+            const saved = localStorage.getItem("PISGAH_SS_SELECTED_QUARTERLY_ID");
+            if (saved) return saved;
+        } catch (e) { }
+        return "2026-04";
+    });
+
+    const [quarterliesList, setQuarterliesList] = useState(() => {
+        try {
+            const raw = localStorage.getItem("PISGAH_SS_ALL_QUARTERLIES");
+            if (raw) return JSON.parse(raw);
+        } catch (e) { }
+        return [
+            { id: "2026-04", title: "Karunia Nubuat", human_date: "Oktober · November · Desember 2026", start_date: "26/09/2026", end_date: "25/12/2026" }
+        ];
+    });
+
+    // 2. Daftar 13 Pekan Pelajaran (Dinamis dari Adventech)
+    const [lessonsCatalog, setLessonsCatalog] = useState(() => {
+        try {
+            const saved = localStorage.getItem(`PISGAH_SS_CATALOG_${selectedQuarterlyId}`);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            }
+        } catch (e) { }
+        return SS_LESSONS_CATALOG;
+    });
+
     // Hitung hari saat ini (0 = Sabat Petang, 1 = Minggu, ..., 6 = Jumat)
     const todayDayIdx = useMemo(() => {
         const jsDay = new Date().getDay(); // 0: Sun, 1: Mon, ..., 6: Sat
@@ -595,9 +683,9 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const currentActiveLessonId = useMemo(() => {
         const now = new Date();
         const ymd = now.toISOString().slice(0, 10);
-        const match = SS_LESSONS_CATALOG.find(l => ymd >= l.startDate && ymd <= l.endDate);
-        return match ? match.id : "05";
-    }, []);
+        const match = lessonsCatalog.find(l => ymd >= l.startDate && ymd <= l.endDate);
+        return match ? match.id : (lessonsCatalog[0]?.id || "05");
+    }, [lessonsCatalog]);
 
     const [selectedLessonId, setSelectedLessonId] = useState(() => {
         try {
@@ -605,7 +693,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             const l = p.get('lesson') || p.get('ss_lesson');
             if (l) {
                 const padded = String(parseInt(l, 10)).padStart(2, '0');
-                if (SS_LESSONS_CATALOG.some(c => c.id === padded)) return padded;
+                if (lessonsCatalog.some(c => c.id === padded)) return padded;
             }
         } catch (e) { }
         return currentActiveLessonId;
@@ -641,9 +729,10 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     };
 
     const [lessonData, setLessonData] = useState(() => {
-        const validCached = getValidCachedLesson(currentActiveLessonId);
+        const validCached = getValidCachedLesson(selectedQuarterlyId, currentActiveLessonId);
         if (validCached) return validCached;
-        return BUILTIN_LESSON_5;
+        if (selectedQuarterlyId === "2026-04" && currentActiveLessonId === "05") return BUILTIN_LESSON_5;
+        return null;
     });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -651,6 +740,103 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const [isLessonDropdownOpen, setIsLessonDropdownOpen] = useState(false);
     const lessonDropdownRef = useRef(null);
     const activeLessonItemRef = useRef(null);
+
+    // Auto-discovery triwulan baru dari Adventech API (otomatis membaca 2027 dst.)
+    useEffect(() => {
+        let isMounted = true;
+        const autoDiscoverQuarterlies = async () => {
+            try {
+                const res = await fetch("https://sabbath-school.adventech.io/api/v1/in/quarterlies/index.json");
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!Array.isArray(data) || data.length === 0) return;
+                if (!isMounted) return;
+
+                setQuarterliesList(data);
+                try {
+                    localStorage.setItem("PISGAH_SS_ALL_QUARTERLIES", JSON.stringify(data));
+                } catch (e) { }
+
+                // Tentukan Triwulan aktif berdasarkan tanggal hari ini
+                const todayYMD = new Date().toISOString().slice(0, 10);
+                const activeQ = findActiveQuarterly(data, todayYMD);
+                if (activeQ) {
+                    const p = new URLSearchParams(window.location.search);
+                    const explicitQ = p.get('quarterly') || p.get('ss_quarterly');
+                    const targetId = explicitQ || activeQ.id;
+
+                    setSelectedQuarterlyId(prev => {
+                        if (!explicitQ && prev !== targetId) return targetId;
+                        return prev;
+                    });
+
+                    const qMeta = {
+                        id: activeQ.id,
+                        title: activeQ.title,
+                        human_date: activeQ.human_date,
+                        cover: activeQ.splash || activeQ.cover || `https://sabbath-school.adventech.io/api/v1/images/global/${activeQ.id}/splash.png`
+                    };
+                    setQuarterlyInfo(qMeta);
+                    try {
+                        localStorage.setItem("PISGAH_SS_CURRENT_QUARTERLY_INFO", JSON.stringify(qMeta));
+                    } catch (e) { }
+                }
+            } catch (e) {
+                console.warn("Auto-discover SS quarterlies offline/error:", e);
+            }
+        };
+
+        autoDiscoverQuarterlies();
+        return () => { isMounted = false; };
+    }, []);
+
+    // Load daftar pekan pelajaran setiap kali selectedQuarterlyId berubah
+    useEffect(() => {
+        let isMounted = true;
+        const loadQuarterlyIndex = async () => {
+            try {
+                const res = await fetch(`https://sabbath-school.adventech.io/api/v1/in/quarterlies/${selectedQuarterlyId}/index.json`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!isMounted) return;
+
+                if (data.quarterly) {
+                    const qMeta = {
+                        id: selectedQuarterlyId,
+                        title: data.quarterly.title,
+                        human_date: data.quarterly.human_date,
+                        cover: data.quarterly.splash || data.quarterly.cover || `https://sabbath-school.adventech.io/api/v1/images/global/${selectedQuarterlyId}/splash.png`
+                    };
+                    setQuarterlyInfo(qMeta);
+                    try {
+                        localStorage.setItem("PISGAH_SS_CURRENT_QUARTERLY_INFO", JSON.stringify(qMeta));
+                    } catch (e) { }
+                }
+
+                if (Array.isArray(data.lessons) && data.lessons.length > 0) {
+                    const dynamicLessons = data.lessons.map(l => ({
+                        id: l.id,
+                        title: l.title,
+                        startDate: parseSSDateToYMD(l.start_date),
+                        endDate: parseSSDateToYMD(l.end_date),
+                        dateRange: formatSSDateRange(l.start_date, l.end_date),
+                        cover: l.cover || `https://sabbath-school.adventech.io/api/v1/images/global/${selectedQuarterlyId}/${l.id}/cover.png`
+                    }));
+
+                    setLessonsCatalog(dynamicLessons);
+                    try {
+                        localStorage.setItem(`PISGAH_SS_CATALOG_${selectedQuarterlyId}`, JSON.stringify(dynamicLessons));
+                        localStorage.setItem("PISGAH_SS_SELECTED_QUARTERLY_ID", selectedQuarterlyId);
+                    } catch (e) { }
+                }
+            } catch (e) {
+                console.warn("Gagal load index pelajaran quarterly:", e);
+            }
+        };
+
+        loadQuarterlyIndex();
+        return () => { isMounted = false; };
+    }, [selectedQuarterlyId]);
 
     // Auto-close dropdown saat klik di luar atau tekan Escape, serta auto-scroll ke pekan terpilih
     useEffect(() => {
@@ -681,22 +867,22 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         }
     }, [isLessonDropdownOpen]);
 
-    // Ambil data pelajaran ketika lessonId berubah
+    // Ambil data pelajaran ketika quarterlyId atau lessonId berubah
     useEffect(() => {
         let isMounted = true;
         const fetchLesson = async () => {
             // 1. Cek cache lokal tervalidasi
-            const validCached = getValidCachedLesson(selectedLessonId);
+            const validCached = getValidCachedLesson(selectedQuarterlyId, selectedLessonId);
             if (validCached) {
                 if (isMounted) setLessonData(validCached);
                 return;
             }
 
-            // 2. Jika Pelajaran 5 dan belum ada cache, selalu gunakan builtin lengkap
-            if (selectedLessonId === "05") {
+            // 2. Jika Pelajaran 5 pada 2026-04 dan belum ada cache, selalu gunakan builtin lengkap
+            if (selectedQuarterlyId === "2026-04" && selectedLessonId === "05") {
                 if (isMounted) setLessonData(BUILTIN_LESSON_5);
                 try {
-                    localStorage.setItem(`${SS_CACHE_PREFIX}05`, JSON.stringify(BUILTIN_LESSON_5));
+                    localStorage.setItem(`${SS_CACHE_PREFIX}2026-04_05`, JSON.stringify(BUILTIN_LESSON_5));
                 } catch (e) { }
                 return;
             }
@@ -704,7 +890,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
             // 3. Tarik dari API Adventech (Termasuk Pemetaan Ayat Alkitab)
             setIsLoading(true);
             try {
-                const res = await fetch(`https://sabbath-school.adventech.io/api/v1/in/quarterlies/2026-04/lessons/${selectedLessonId}/index.json`);
+                const res = await fetch(`https://sabbath-school.adventech.io/api/v1/in/quarterlies/${selectedQuarterlyId}/lessons/${selectedLessonId}/index.json`);
                 const data = await res.json();
                 const daysData = [];
                 for (let i = 0; i < (data.days || []).length; i++) {
@@ -750,24 +936,25 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
                 const assembled = {
                     id: selectedLessonId,
+                    quarterlyId: selectedQuarterlyId,
                     title: data.lesson.title,
-                    cover: data.lesson.cover || currentCatalogItem?.cover || `https://sabbath-school.adventech.io/api/v1/images/global/2026-04/${selectedLessonId}/cover.png`,
+                    cover: data.lesson.cover || currentCatalogItem?.cover || `https://sabbath-school.adventech.io/api/v1/images/global/${selectedQuarterlyId}/${selectedLessonId}/cover.png`,
                     start_date: data.lesson.start_date,
                     end_date: data.lesson.end_date,
                     days: daysData,
-                    memoryVerse: extractedMemoryVerse || (selectedLessonId === "05" ? BUILTIN_LESSON_5.memoryVerse : ""),
-                    memoryVerseRef: extractedMemoryVerseRef || (selectedLessonId === "05" ? BUILTIN_LESSON_5.memoryVerseRef : "")
+                    memoryVerse: extractedMemoryVerse || (selectedQuarterlyId === "2026-04" && selectedLessonId === "05" ? BUILTIN_LESSON_5.memoryVerse : ""),
+                    memoryVerseRef: extractedMemoryVerseRef || (selectedQuarterlyId === "2026-04" && selectedLessonId === "05" ? BUILTIN_LESSON_5.memoryVerseRef : "")
                 };
 
                 if (isMounted) {
                     setLessonData(assembled);
                     try {
-                        localStorage.setItem(`${SS_CACHE_PREFIX}${selectedLessonId}`, JSON.stringify(assembled));
+                        localStorage.setItem(`${SS_CACHE_PREFIX}${selectedQuarterlyId}_${selectedLessonId}`, JSON.stringify(assembled));
                     } catch (e) { }
                 }
             } catch (err) {
                 console.warn("Gagal fetch pelajaran SS online:", err);
-                if (isMounted && !lessonData) setLessonData(BUILTIN_LESSON_5);
+                if (isMounted && !lessonData && selectedQuarterlyId === "2026-04") setLessonData(BUILTIN_LESSON_5);
             } finally {
                 if (isMounted) setIsLoading(false);
             }
@@ -775,7 +962,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
         fetchLesson();
         return () => { isMounted = false; };
-    }, [selectedLessonId]);
+    }, [selectedQuarterlyId, selectedLessonId]);
 
     // Data hari yang dipilih saat ini
     const currentDay = useMemo(() => {
@@ -785,13 +972,13 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
     // Metadata pekan terpilih
     const currentCatalogItem = useMemo(() => {
-        return SS_LESSONS_CATALOG.find(l => l.id === selectedLessonId) || SS_LESSONS_CATALOG[4];
-    }, [selectedLessonId]);
+        return lessonsCatalog.find(l => l.id === selectedLessonId) || lessonsCatalog[0];
+    }, [lessonsCatalog, selectedLessonId]);
 
     // Cover gambar resmi pelajaran dari Adventech
     const currentCoverUrl = useMemo(() => {
-        return currentCatalogItem?.cover || lessonData?.cover || `https://sabbath-school.adventech.io/api/v1/images/global/2026-04/${selectedLessonId}/cover.png`;
-    }, [currentCatalogItem, lessonData, selectedLessonId]);
+        return currentCatalogItem?.cover || lessonData?.cover || `https://sabbath-school.adventech.io/api/v1/images/global/${selectedQuarterlyId}/${selectedLessonId}/cover.png`;
+    }, [currentCatalogItem, lessonData, selectedQuarterlyId, selectedLessonId]);
 
     // --- INTEGRASI SISTEM CATATAN SEKOLAH SABAT PADA KALIMAT (INLINE PINNED NOTES) ---
     const [inlineNotes, setInlineNotes] = useState(() => {
@@ -2510,22 +2697,42 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                 WebkitBackdropFilter: "blur(24px) saturate(190%) contrast(105%)"
                             }}
                         >
-                            {/* Panel Header */}
-                            <div className="px-3.5 py-2.5 bg-gradient-to-r from-navy-50/90 via-white/60 to-gold-50/60 dark:from-navy-900/90 dark:via-navy-900/70 dark:to-gold-950/40 border-b border-navy-100/80 dark:border-navy-800/80 flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                    <Sparkles className="w-3.5 h-3.5 text-gold-500" />
-                                    <span className="text-[11px] font-black text-navy-800 dark:text-gold-300 uppercase tracking-wider">
-                                        Pilih Pekan Pelajaran
+                            {/* Panel Header dengan Pemilih Triwulan Dinamis */}
+                            <div className="px-3.5 py-2.5 bg-gradient-to-r from-navy-50/90 via-white/60 to-gold-50/60 dark:from-navy-900/90 dark:via-navy-900/70 dark:to-gold-950/40 border-b border-navy-100/80 dark:border-navy-800/80 flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                    <Sparkles className="w-3.5 h-3.5 text-gold-500 shrink-0" />
+                                    <span className="text-[11px] font-black text-navy-800 dark:text-gold-300 uppercase tracking-wider truncate">
+                                        Pilih Pekan
                                     </span>
                                 </div>
-                                <span className="text-[10px] font-semibold text-navy-400 dark:text-navy-400">
-                                    Triwulan IV 2026
-                                </span>
+                                {quarterliesList.length > 1 ? (
+                                    <select
+                                        value={selectedQuarterlyId}
+                                        onChange={(e) => {
+                                            const newQ = e.target.value;
+                                            setSelectedQuarterlyId(newQ);
+                                            setSelectedLessonId("01");
+                                            setSelectedDayIdx(0);
+                                        }}
+                                        className="text-[10px] font-bold bg-white/90 dark:bg-navy-900 text-navy-900 dark:text-gold-300 border border-gold-400/40 rounded-lg px-2 py-1 outline-none cursor-pointer max-w-[190px] truncate shadow-2xs"
+                                        title="Ganti Triwulan / Arsip Pelajaran"
+                                    >
+                                        {quarterliesList.slice(0, 10).map(q => (
+                                            <option key={q.id} value={q.id}>
+                                                {q.title} ({q.id})
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <span className="text-[10px] font-bold text-navy-600 dark:text-gold-300 truncate">
+                                        {quarterlyInfo.title}
+                                    </span>
+                                )}
                             </div>
 
                             {/* Daftar Pekan (Scrollable) */}
                             <div className="max-h-80 sm:max-h-96 overflow-y-auto overscroll-contain p-1.5 space-y-1 divide-y divide-transparent scrollbar-thin">
-                                {SS_LESSONS_CATALOG.map((item) => {
+                                {lessonsCatalog.map((item) => {
                                     const isSelected = item.id === selectedLessonId;
                                     const isCurrent = item.id === currentActiveLessonId;
                                     return (
@@ -2673,7 +2880,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             Pelajaran {parseInt(selectedLessonId, 10)}: {currentCatalogItem.title}
                         </h1>
                         <p className="text-sm sm:text-base text-gold-300 font-semibold">
-                            {SS_QUARTERLY_INFO.title} • {SS_QUARTERLY_INFO.human_date}
+                            {quarterlyInfo.title} • {quarterlyInfo.human_date}
                         </p>
                     </div>
 
@@ -2800,7 +3007,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                 className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-transform duration-700 group-hover:scale-105"
                                 onError={(e) => {
                                     e.currentTarget.onerror = null;
-                                    e.currentTarget.src = SS_QUARTERLY_INFO.cover;
+                                    e.currentTarget.src = quarterlyInfo.cover || SS_QUARTERLY_INFO.cover;
                                 }}
                             />
                             {/* Dark Gradient Overlay agar teks judul selalu tajam & kontras tinggi */}
