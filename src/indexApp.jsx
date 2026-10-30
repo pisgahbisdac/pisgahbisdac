@@ -575,8 +575,10 @@ const defaultSusunan = {
     ssLaguBuka: "LS ...",
     ssAyatInti: "...",
     ssLaguTutup: "LS ...",
+    ssLaguTema: "LS 168 Kita Memiliki Pengharapan",
     kAyatBersahutan: "No. ...",
     kLaguBuka: "LS ...",
+    kLaguRespon: "LS 516 - Dengar Ya Tuhan",
     kLaguPujian1_show: false,
     kLaguPujian1_judul: "Koor / Vocal Group",
     kLaguPujian2_show: false,
@@ -584,6 +586,7 @@ const defaultSusunan = {
     kLaguPujian3_show: false,
     kLaguPujian3_judul: "Koor / Vocal Group",
     kAyatInti: "...",
+    kLaguTema: "Misi Kita",
     kLaguTutup: "LS ..."
 };
 
@@ -5763,17 +5766,19 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
                             {renderItem("Ayat Bersahutan", susunan.kAyatBersahutan)}
                             {renderItem("Lagu Buka", susunan.kLaguBuka)}
                             {renderItem("Doa Syafaat", getOfficer(activeSabat.khotbah, "Doa Syafaat"))}
-                            <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
-                                <button
-                                    type="button"
-                                    onClick={() => handleOpenSong("LS 516")}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-navy-800 text-amber-700 dark:text-gold-400 hover:bg-amber-100 dark:hover:bg-navy-700 border border-amber-300/60 dark:border-navy-600 transition cursor-pointer font-bold text-xs shadow-2xs"
-                                    title="Buka LS 516 di Lagu Sion"
-                                >
-                                    <span>🎵 "LS 516 - Dengar Ya Tuhan"</span>
-                                    <span className="text-[10px] font-black text-amber-600 dark:text-gold-300">Buka &rarr;</span>
-                                </button>
-                            </div>
+                            {Boolean(susunan.kLaguRespon !== false && susunan.kLaguRespon !== '-') && (
+                                <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleOpenSong(susunan.kLaguRespon || "LS 516")}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-navy-800 text-amber-700 dark:text-gold-400 hover:bg-amber-100 dark:hover:bg-navy-700 border border-amber-300/60 dark:border-navy-600 transition cursor-pointer font-bold text-xs shadow-2xs"
+                                        title={`Buka ${susunan.kLaguRespon || "LS 516 - Dengar Ya Tuhan"} di Lagu Sion`}
+                                    >
+                                        <span>🎵 "{susunan.kLaguRespon || "LS 516 - Dengar Ya Tuhan"}"</span>
+                                        <span className="text-[10px] font-black text-amber-600 dark:text-gold-300">Buka &rarr;</span>
+                                    </button>
+                                </div>
+                            )}
                             {renderItem("Bacaan Persembahan", getOfficer(activeSabat.khotbah, "Bacaan & Doa Persembahan"))}
                             {susunan.kLaguPujian1_show && renderItem("Lagu Persembahan dan Pujian", susunan.kLaguPujian1_judul)}
                             {renderItem("Pengumpulan Persembahan", "Diakon Berdiri")}
@@ -5782,7 +5787,7 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
                             {renderItem("Cerita Anak-anak", getOfficer(activeSabat.khotbah, "Cerita Anak-anak"))}
                             {susunan.kLaguPujian3_show && renderItem("Lagu Pujian", susunan.kLaguPujian3_judul)}
                             {renderItem("Ayat Inti", susunan.kAyatInti)}
-                            {renderItem("Lagu Tema - Jemaat Duduk", "Misi Kita")}
+                            {renderItem("Lagu Tema - Jemaat Duduk", susunan.kLaguTema || "Misi Kita")}
                             {renderItem("Khotbah", getOfficer(activeSabat.khotbah, "Khotbah"), true)}
                             {renderItem("Lagu Tutup", susunan.kLaguTutup)}
                             {renderItem("Doa Tutup - Berkat", getOfficer(activeSabat.khotbah, "Khotbah"))}
@@ -5800,17 +5805,19 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
                                 {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
                                 {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
                                 {renderItem("Doa Tutup", getOfficer(activeSabat.sekolahSabat, "Doa Tutup"))}
-                                <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleOpenSong("LS 168")}
-                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-navy-800 text-amber-700 dark:text-gold-400 hover:bg-amber-100 dark:hover:bg-navy-700 border border-amber-300/60 dark:border-navy-600 transition cursor-pointer font-bold text-xs shadow-2xs"
-                                        title="Buka LS 168 di Lagu Sion"
-                                    >
-                                        <span>🎵 "LS 168 Kita Memiliki Pengharapan"</span>
-                                        <span className="text-[10px] font-black text-amber-600 dark:text-gold-300">Buka &rarr;</span>
-                                    </button>
-                                </div>
+                                {Boolean(susunan.ssLaguTema !== false && susunan.ssLaguTema !== '-') && (
+                                    <div className="flex flex-wrap p-4 md:p-6 font-bold text-navy-400 text-xs justify-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenSong(susunan.ssLaguTema || "LS 168")}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-navy-800 text-amber-700 dark:text-gold-400 hover:bg-amber-100 dark:hover:bg-navy-700 border border-amber-300/60 dark:border-navy-600 transition cursor-pointer font-bold text-xs shadow-2xs"
+                                            title={`Buka ${susunan.ssLaguTema || "LS 168 Kita Memiliki Pengharapan"} di Lagu Sion`}
+                                        >
+                                            <span>🎵 "{susunan.ssLaguTema || "LS 168 Kita Memiliki Pengharapan"}"</span>
+                                            <span className="text-[10px] font-black text-amber-600 dark:text-gold-300">Buka &rarr;</span>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             <div className={`animate-fade-in ${openSection === 'diakon' ? 'block' : 'hidden'} lg:block`}>
@@ -14969,6 +14976,36 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                                 </button>
                                                                             </div>
                                                                         </div>
+                                                                        <div>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Lagu Tema SS (Tombol Bawah)</label>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('ssLaguTema', 'Pilih Lagu Tema Sekolah Sabat')}
+                                                                                    className="inline-flex items-center gap-1 text-[11px] font-black text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-amber-300/60"
+                                                                                    title="Pilih langsung dari 525 Lagu Sion"
+                                                                                >
+                                                                                    <span>🎵</span>
+                                                                                    <span>Pilih Lagu</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="relative flex items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editForm.ssLaguTema || ''}
+                                                                                    onChange={(e) => handleEditFormChangeSusunan('ssLaguTema', e.target.value)}
+                                                                                    placeholder="Default: LS 168 Kita Memiliki Pengharapan"
+                                                                                    className="w-full p-2.5 pr-20 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('ssLaguTema', 'Pilih Lagu Tema Sekolah Sabat')}
+                                                                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-gold-50 text-gold-700 hover:text-navy-900 border border-gold-300/60 rounded-lg shadow-2xs transition cursor-pointer"
+                                                                                >
+                                                                                    Pilih ▾
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                     <div className="space-y-4 p-5 bg-white rounded-xl border border-navy-100/60 shadow-sm">
                                                                         <h4 className="font-black text-sm text-gold-600 border-b border-navy-50 pb-2">Khotbah Umum</h4>
@@ -15026,6 +15063,36 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                                 <button
                                                                                     type="button"
                                                                                     onClick={() => openSongPicker('kLaguBuka', 'Pilih Lagu Buka Khotbah')}
+                                                                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-gold-50 text-gold-700 hover:text-navy-900 border border-gold-300/60 rounded-lg shadow-2xs transition cursor-pointer"
+                                                                                >
+                                                                                    Pilih ▾
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Lagu Respon Syafaat (Tombol Tengah)</label>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('kLaguRespon', 'Pilih Lagu Respon Syafaat')}
+                                                                                    className="inline-flex items-center gap-1 text-[11px] font-black text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-amber-300/60"
+                                                                                    title="Pilih langsung dari 525 Lagu Sion"
+                                                                                >
+                                                                                    <span>🎵</span>
+                                                                                    <span>Pilih Lagu</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="relative flex items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editForm.kLaguRespon || ''}
+                                                                                    onChange={(e) => handleEditFormChangeSusunan('kLaguRespon', e.target.value)}
+                                                                                    placeholder="Default: LS 516 - Dengar Ya Tuhan"
+                                                                                    className="w-full p-2.5 pr-20 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('kLaguRespon', 'Pilih Lagu Respon Syafaat')}
                                                                                     className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-gold-50 text-gold-700 hover:text-navy-900 border border-gold-300/60 rounded-lg shadow-2xs transition cursor-pointer"
                                                                                 >
                                                                                     Pilih ▾
@@ -15121,6 +15188,36 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                                     type="button"
                                                                                     onClick={() => openVersePicker('kAyatInti', false, 'Pilih Ayat Inti Khotbah')}
                                                                                     className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-emerald-50 text-emerald-700 hover:text-navy-900 border border-emerald-300/60 rounded-lg shadow-2xs transition cursor-pointer"
+                                                                                >
+                                                                                    Pilih ▾
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Lagu Tema - Jemaat Duduk</label>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('kLaguTema', 'Pilih Lagu Tema Khotbah')}
+                                                                                    className="inline-flex items-center gap-1 text-[11px] font-black text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-amber-300/60"
+                                                                                    title="Pilih dari Lagu Sion atau ketik judul langsung"
+                                                                                >
+                                                                                    <span>🎵</span>
+                                                                                    <span>Pilih Lagu</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="relative flex items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editForm.kLaguTema || ''}
+                                                                                    onChange={(e) => handleEditFormChangeSusunan('kLaguTema', e.target.value)}
+                                                                                    placeholder="Default: Misi Kita atau nomor LS"
+                                                                                    className="w-full p-2.5 pr-20 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openSongPicker('kLaguTema', 'Pilih Lagu Tema Khotbah')}
+                                                                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-gold-50 text-gold-700 hover:text-navy-900 border border-gold-300/60 rounded-lg shadow-2xs transition cursor-pointer"
                                                                                 >
                                                                                     Pilih ▾
                                                                                 </button>
