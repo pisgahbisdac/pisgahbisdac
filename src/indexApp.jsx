@@ -11843,7 +11843,7 @@ const parseLyricsToVerses = (rawText) => {
 
         if (chorusMatch && (firstLine.toLowerCase().includes('koor') || firstLine.toLowerCase().includes('reff') || firstLine.toLowerCase().includes('refrain') || firstLine.toLowerCase().includes('chorus'))) {
             type = 'chorus';
-            label = 'Koor';
+            label = 'Reff';
             const remainder = (chorusMatch[1] || '').trim();
             if (remainder) {
                 lines = [remainder, ...rawLines.slice(1)];
@@ -11877,7 +11877,7 @@ const parseLyricsToVerses = (rawText) => {
 const versesToRawText = (verses) => {
     if (!Array.isArray(verses) || verses.length === 0) return '';
     return verses.map(v => {
-        const lbl = v.label || (v.type === 'chorus' ? 'Koor' : 'Bait');
+        const lbl = (v.type === 'chorus' && (!v.label || v.label.toLowerCase() === 'koor')) ? 'Reff' : (v.label || (v.type === 'chorus' ? 'Reff' : 'Bait'));
         const linesStr = Array.isArray(v.lines) ? v.lines.join('\n') : String(v.lines || '');
         return `[${lbl}]\n${linesStr}`;
     }).join('\n\n');
@@ -11960,9 +11960,9 @@ const AdminLaguPanel = ({
         setForm(prev => ({ ...prev, rawLyrics: prev.rawLyrics + prefix + `Bait ${nextBait}:\n` }));
     };
 
-    const handleInsertKoor = () => {
+    const handleInsertReff = () => {
         const prefix = form.rawLyrics.trim() ? '\n\n' : '';
-        setForm(prev => ({ ...prev, rawLyrics: prev.rawLyrics + prefix + 'Koor:\n' }));
+        setForm(prev => ({ ...prev, rawLyrics: prev.rawLyrics + prefix + 'Reff:\n' }));
     };
 
     const previewVerses = React.useMemo(() => {
@@ -12260,7 +12260,7 @@ const AdminLaguPanel = ({
                                                 {vCount > 0 && (
                                                     <>
                                                         <span>•</span>
-                                                        <span>{baitCount > 0 ? `${baitCount} Bait` : ''}{chorusCount > 0 ? ` + ${chorusCount} Koor` : ''}</span>
+                                                        <span>{baitCount > 0 ? `${baitCount} Bait` : ''}{chorusCount > 0 ? ` + ${chorusCount} Reff` : ''}</span>
                                                     </>
                                                 )}
                                             </div>
@@ -12423,10 +12423,10 @@ const AdminLaguPanel = ({
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={handleInsertKoor}
+                                            onClick={handleInsertReff}
                                             className="px-2 py-1 bg-gold-100 hover:bg-gold-200 text-gold-900 rounded-lg text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
                                         >
-                                            <Icon name="Plus" className="w-3 h-3" /> Koor / Reff
+                                            <Icon name="Plus" className="w-3 h-3" /> Reff / Chorus
                                         </button>
                                     </div>
                                 </div>
@@ -12435,7 +12435,7 @@ const AdminLaguPanel = ({
                                     rows="8"
                                     value={form.rawLyrics}
                                     onChange={(e) => setForm({ ...form, rawLyrics: e.target.value })}
-                                    placeholder={`Bait 1:\nDi hadapan hadirat-Mu kami bersujud\nMenyembah Engkau Tuhan kekal abadi\n\nKoor:\nPuji Tuhan haleluya\nKasih-Nya kekal selamanya\n\nBait 2:\n...`}
+                                    placeholder={`Bait 1:\nDi hadapan hadirat-Mu kami bersujud\nMenyembah Engkau Tuhan kekal abadi\n\nReff:\nPuji Tuhan haleluya\nKasih-Nya kekal selamanya\n\nBait 2:\n...`}
                                     className="w-full p-3.5 bg-navy-50/50 border border-navy-200 rounded-xl text-xs md:text-sm font-mono text-navy-900 outline-none focus:border-gold-500 transition leading-relaxed resize-y"
                                 />
 
@@ -12444,8 +12444,8 @@ const AdminLaguPanel = ({
                                         <span>💡 Petunjuk Format Lirik:</span>
                                     </p>
                                     <ul className="list-disc list-inside space-y-0.5 text-amber-800 font-medium">
-                                        <li>Pisahkan setiap bait dan koor dengan <strong>satu baris kosong</strong> (tekan Enter 2x).</li>
-                                        <li>Beri awalan <strong>Koor:</strong> atau <strong>Reff:</strong> untuk bagian refrain.</li>
+                                        <li>Pisahkan setiap bait dan reff dengan <strong>satu baris kosong</strong> (tekan Enter 2x).</li>
+                                        <li>Beri awalan <strong>Reff:</strong> atau <strong>Chorus:</strong> untuk bagian refrain.</li>
                                         <li>Bait dapat diawali dengan <strong>Bait 1:</strong>, <strong>Bait 2:</strong> dst., atau otomatis diberi nomor.</li>
                                     </ul>
                                 </div>
@@ -12472,7 +12472,7 @@ const AdminLaguPanel = ({
                                                     className={`p-3 rounded-xl ${isCh ? 'bg-amber-100/60 border-l-4 border-amber-500 text-navy-900' : 'bg-white border border-navy-100 text-navy-800'}`}
                                                 >
                                                     <span className={`text-[10px] font-black uppercase tracking-wider block mb-1 ${isCh ? 'text-amber-800' : 'text-navy-400'}`}>
-                                                        {verse.label || (isCh ? 'Koor' : `Bait ${idx + 1}`)}
+                                                        {isCh && (!verse.label || verse.label.toLowerCase() === 'koor') ? 'Reff' : (verse.label || (isCh ? 'Reff' : `Bait ${idx + 1}`))}
                                                     </span>
                                                     <div className={`text-xs leading-relaxed font-medium ${isCh ? 'italic' : ''}`}>
                                                         {verse.lines.map((l, li) => (
@@ -21198,12 +21198,14 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
         const verses = selectedSong.verses || [];
         for (let i = 0; i < verses.length; i++) {
             const v = verses[i];
-            lyricsLines.push(`[${v.label}]\n${v.lines.join('\n')}`);
+            const vLabel = (v.type === 'chorus' && (!v.label || v.label.toLowerCase() === 'koor')) ? 'Reff' : v.label;
+            lyricsLines.push(`[${vLabel}]\n${v.lines.join('\n')}`);
             if (v.type === 'chorus') chorusRef = v;
             if ((v.type === 'verse' || v.type === 'bait') && chorusRef) {
                 const nextV = verses[i + 1];
                 if (!nextV || nextV.type !== 'chorus') {
-                    lyricsLines.push(`[${chorusRef.label}]\n${chorusRef.lines.join('\n')}`);
+                    const cLabel = (!chorusRef.label || chorusRef.label.toLowerCase() === 'koor') ? 'Reff' : chorusRef.label;
+                    lyricsLines.push(`[${cLabel}]\n${chorusRef.lines.join('\n')}`);
                 }
             }
         }
@@ -21612,7 +21614,7 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                                         return (
                                             <div key={idx} className={`space-y-2 ${isCh ? 'pl-4 border-l-4 border-[#D19B45] bg-[#D19B45]/10 py-2 pr-2 rounded-r-lg' : ''} ${verse.isAuto ? 'opacity-90' : ''}`}>
                                                 <div className={`text-xs font-black uppercase tracking-wider ${isCh ? 'text-[#D19B45]' : 'text-navy-400 dark:text-navy-400'}`}>
-                                                    {verse.label} {verse.isAuto && <span className="text-[10px] ml-1 opacity-60 normal-case font-normal">(otomatis)</span>}
+                                                    {isCh && (!verse.label || verse.label.toLowerCase() === 'koor') ? 'Reff' : verse.label} {verse.isAuto && <span className="text-[10px] ml-1 opacity-60 normal-case font-normal">(otomatis)</span>}
                                                 </div>
                                                 <div
                                                     className={`leading-relaxed font-medium transition-all ${isCh ? 'italic text-navy-800 dark:text-gold-200' : 'text-navy-900 dark:text-navy-100'}`}
