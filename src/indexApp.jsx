@@ -5589,7 +5589,14 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], setLaguSionInitialSong = () => { }, setLaguSionSubTab = () => { } }) => {
     const [openSection, setOpenSection] = React.useState('khotbah');
 
-    const getOfficer = (arr, role) => arr?.find(p => p.tugas === role)?.nama || "-";
+    const getOfficer = (arr, ...roles) => {
+        if (!arr || !Array.isArray(arr)) return "-";
+        for (const role of roles) {
+            const found = arr.find(p => p.tugas === role)?.nama;
+            if (found && found !== '-' && found.trim() !== '') return found;
+        }
+        return "-";
+    };
     const susunan = activeSabat.susunan || defaultSusunan;
 
     const handleOpenSong = (text) => {
@@ -5787,7 +5794,8 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
                                 <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 dark:border-navy-700/50 pb-2"><Icon name="BookOpen" className="w-4 h-4 mr-2" /> Sekolah Sabat</h3>
                                 {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
                                 {renderItem("Lagu Buka", susunan.ssLaguBuka)}
-                                {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka") || getOfficer(activeSabat.sekolahSabat, "Doa Buka"), false, susunan.ssAyatInti)}
+                                {renderItem("Ayat Inti", susunan.ssAyatInti || "-")}
+                                {renderItem("Doa Buka", getOfficer(activeSabat.sekolahSabat, "Doa Buka", "Ayat Inti & Doa Buka"))}
                                 {renderItem("Berita Misi", getOfficer(activeSabat.sekolahSabat, "Berita Misi"))}
                                 {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
                                 {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
