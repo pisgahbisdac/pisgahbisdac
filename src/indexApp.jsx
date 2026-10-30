@@ -11820,11 +11820,746 @@ const AdminBibleVersePickerModal = ({ isOpen, onClose, onSelect, title = "Pilih 
     );
 };
 
+// =========================================================================
+// HELPER PARSER & FORMATTER LIRIK LAGU SION
+// =========================================================================
+const parseLyricsToVerses = (rawText) => {
+    if (!rawText || !rawText.trim()) return [];
+    const blocks = rawText.split(/\n\s*\n+/);
+    let baitCount = 0;
+    const verses = [];
+
+    blocks.forEach(block => {
+        const rawLines = block.split('\n').map(l => l.trim()).filter(Boolean);
+        if (rawLines.length === 0) return;
+
+        let label = '';
+        let type = 'bait';
+        let lines = [...rawLines];
+
+        const firstLine = rawLines[0];
+        const chorusMatch = firstLine.match(/^(?:\[?\s*(?:koor|reff|refrain|chorus)\s*\]?:?)\s*(.*)$/i);
+        const baitMatch = firstLine.match(/^(?:\[?\s*(?:bait|verse)?\s*(\d+)[\.\:\s\]]*)\s*(.*)$/i);
+
+        if (chorusMatch && (firstLine.toLowerCase().includes('koor') || firstLine.toLowerCase().includes('reff') || firstLine.toLowerCase().includes('refrain') || firstLine.toLowerCase().includes('chorus'))) {
+            type = 'chorus';
+            label = 'Koor';
+            const remainder = (chorusMatch[1] || '').trim();
+            if (remainder) {
+                lines = [remainder, ...rawLines.slice(1)];
+            } else {
+                lines = rawLines.slice(1);
+            }
+        } else if (baitMatch && (firstLine.toLowerCase().includes('bait') || firstLine.toLowerCase().includes('verse') || /^\d+[\.\:\)]/.test(firstLine))) {
+            baitCount = parseInt(baitMatch[1], 10) || (baitCount + 1);
+            type = 'bait';
+            label = `Bait ${baitCount}`;
+            const remainder = (baitMatch[2] || '').trim();
+            if (remainder) {
+                lines = [remainder, ...rawLines.slice(1)];
+            } else {
+                lines = rawLines.slice(1);
+            }
+        } else {
+            baitCount += 1;
+            label = `Bait ${baitCount}`;
+            type = 'bait';
+        }
+
+        if (lines.length > 0) {
+            verses.push({ label, type, lines });
+        }
+    });
+
+    return verses;
+};
+
+const versesToRawText = (verses) => {
+    if (!Array.isArray(verses) || verses.length === 0) return '';
+    return verses.map(v => {
+        const lbl = v.label || (v.type === 'chorus' ? 'Koor' : 'Bait');
+        const linesStr = Array.isArray(v.lines) ? v.lines.join('\n') : String(v.lines || '');
+        return `[${lbl}]\n${linesStr}`;
+    }).join('\n\n');
+};
+
+// =========================================================================
+// PANEL KELOLA LAGU SION UNTUK ADMIN
+// =========================================================================
+const AdminLaguPanel = ({
+    customSongs = [],
+    setCustomSongs,
+    laguSionDb = [],
+    setLaguSionDb,
+    adminToken,
+    setLaguSionInitialSong,
+    setLaguSionSubTab,
+    setActiveTab
+}) => {
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [filterMode, setFilterMode] = React.useState('custom'); // 'custom' | 'all'
+    const [modalOpen, setModalOpen] = React.useState(false);
+    const [editingSong, setEditingSong] = React.useState(null);
+    const [isSaving, setIsSaving] = React.useState(false);
+    const [isDeleting, setIsDeleting] = React.useState(false);
+    const [deleteConfirmSong, setDeleteConfirmSong] = React.useState(null);
+    const [statusMsg, setStatusMsg] = React.useState(null);
+
+    const [form, setForm] = React.useState({
+        id: '',
+        number: '',
+        title: '',
+        artist: '',
+        keyTime: '',
+        rawLyrics: ''
+    });
+
+    const getNextSongNumber = () => {
+        if (!laguSionDb || laguSionDb.length === 0) return 526;
+        const maxNum = Math.max(525, ...laguSionDb.map(s => Number(s.number) || 0));
+        return maxNum + 1;
+    };
+
+    const handleOpenAddModal = () => {
+        setEditingSong(null);
+        setForm({
+            id: '',
+            number: String(getNextSongNumber()),
+            title: '',
+            artist: '',
+            keyTime: '',
+            rawLyrics: ''
+        });
+        setStatusMsg(null);
+        setModalOpen(true);
+    };
+
+    const handleOpenEditModal = (song) => {
+        setEditingSong(song);
+        const lyricsText = song.rawLyrics || versesToRawText(song.verses);
+        setForm({
+            id: song.id || ('LS_' + song.number),
+            number: String(song.number || ''),
+            title: song.title || '',
+            artist: song.artist || '',
+            keyTime: song.keyTime || '',
+            rawLyrics: lyricsText
+        });
+        setStatusMsg(null);
+        setModalOpen(true);
+    };
+
+    const handleInsertBait = () => {
+        const parsed = parseLyricsToVerses(form.rawLyrics);
+        const baitNums = parsed.filter(v => v.type === 'bait').map(v => {
+            const m = (v.label || '').match(/\d+/);
+            return m ? parseInt(m[0], 10) : 0;
+        });
+        const nextBait = (baitNums.length > 0 ? Math.max(...baitNums) : 0) + 1;
+        const prefix = form.rawLyrics.trim() ? '\n\n' : '';
+        setForm(prev => ({ ...prev, rawLyrics: prev.rawLyrics + prefix + `Bait ${nextBait}:\n` }));
+    };
+
+    const handleInsertKoor = () => {
+        const prefix = form.rawLyrics.trim() ? '\n\n' : '';
+        setForm(prev => ({ ...prev, rawLyrics: prev.rawLyrics + prefix + 'Koor:\n' }));
+    };
+
+    const previewVerses = React.useMemo(() => {
+        return parseLyricsToVerses(form.rawLyrics);
+    }, [form.rawLyrics]);
+
+    const handleSaveSong = async (e) => {
+        if (e) e.preventDefault();
+        const num = parseInt(form.number, 10);
+        if (isNaN(num) || num <= 0) {
+            alert('Nomor lagu harus berupa angka positif!');
+            return;
+        }
+        if (!form.title.trim()) {
+            alert('Judul lagu tidak boleh kosong!');
+            return;
+        }
+
+        const parsedVerses = parseLyricsToVerses(form.rawLyrics);
+        if (parsedVerses.length === 0 && !confirm('Lirik lagu masih kosong. Apakah Anda tetap ingin menyimpan lagu ini?')) {
+            return;
+        }
+
+        setIsSaving(true);
+        setStatusMsg(null);
+
+        const songPayload = {
+            id: form.id || editingSong?.id || ('LS_' + num),
+            number: num,
+            title: form.title.trim(),
+            artist: form.artist.trim(),
+            keyTime: form.keyTime.trim(),
+            verses: parsedVerses,
+            rawLyrics: form.rawLyrics.trim(),
+            isCustom: true
+        };
+
+        let updatedList = [...customSongs];
+        if (editingSong) {
+            const idx = updatedList.findIndex(s => s.id === editingSong.id || Number(s.number) === Number(editingSong.number));
+            if (idx >= 0) {
+                updatedList[idx] = songPayload;
+            } else {
+                updatedList.push(songPayload);
+            }
+        } else {
+            const existingIdx = updatedList.findIndex(s => Number(s.number) === num);
+            if (existingIdx >= 0) {
+                updatedList[existingIdx] = songPayload;
+            } else {
+                updatedList.push(songPayload);
+            }
+        }
+
+        updatedList.sort((a, b) => (Number(a.number) || 0) - (Number(b.number) || 0));
+        setCustomSongs(updatedList);
+        try {
+            localStorage.setItem('pisgah_custom_songs', JSON.stringify(updatedList));
+        } catch (err) { }
+
+        if (GAS_API_URL) {
+            try {
+                const action = editingSong ? 'updateCustomSong' : 'addCustomSong';
+                const res = await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action,
+                        password: adminToken,
+                        adminToken,
+                        data: songPayload,
+                        ...songPayload
+                    })
+                });
+                const result = await res.json();
+                if (result.success || result.status === 'success') {
+                    if (result.id && !editingSong) {
+                        songPayload.id = result.id;
+                        const finalized = updatedList.map(s => Number(s.number) === num ? { ...s, id: result.id } : s);
+                        setCustomSongs(finalized);
+                        try { localStorage.setItem('pisgah_custom_songs', JSON.stringify(finalized)); } catch (e) { }
+                    }
+                }
+            } catch (err) {
+                console.warn("Lagu tersimpan di cache lokal (sinkronisasi online pending):", err);
+            }
+        }
+
+        setIsSaving(false);
+        setModalOpen(false);
+        setStatusMsg({ type: 'success', text: `Lagu LS ${num} - "${form.title.trim()}" berhasil disimpan!` });
+        setTimeout(() => setStatusMsg(null), 5000);
+    };
+
+    const handleDeleteSong = async (song) => {
+        if (!song) return;
+        setIsDeleting(true);
+        const targetId = song.id || ('LS_' + song.number);
+        const targetNum = Number(song.number);
+
+        const updatedList = customSongs.filter(s => s.id !== targetId && Number(s.number) !== targetNum);
+        setCustomSongs(updatedList);
+        try {
+            localStorage.setItem('pisgah_custom_songs', JSON.stringify(updatedList));
+        } catch (e) { }
+
+        if (GAS_API_URL) {
+            try {
+                await fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'deleteCustomSong',
+                        password: adminToken,
+                        adminToken,
+                        id: targetId,
+                        data: targetId,
+                        number: targetNum
+                    })
+                });
+            } catch (err) {
+                console.warn("Gagal hapus lagu di server:", err);
+            }
+        }
+
+        setIsDeleting(false);
+        setDeleteConfirmSong(null);
+        setStatusMsg({ type: 'success', text: `Lagu LS ${targetNum} berhasil dihapus.` });
+        setTimeout(() => setStatusMsg(null), 4000);
+    };
+
+    const handleViewInLaguSion = (song) => {
+        try {
+            localStorage.setItem('laguSionReturnTab', 'admin_dashboard');
+            window.__laguSionReturnTab = 'admin_dashboard';
+        } catch (e) { }
+        if (setLaguSionInitialSong) setLaguSionInitialSong(song);
+        if (setLaguSionSubTab) setLaguSionSubTab('lyrics');
+        if (setActiveTab) setActiveTab('lagu_sion');
+    };
+
+    const displayedSongs = React.useMemo(() => {
+        const source = filterMode === 'custom' ? customSongs : laguSionDb;
+        const q = searchQuery.trim().toLowerCase();
+        if (!q) return source;
+
+        return source.filter(s => {
+            const numStr = String(s.number || '');
+            const titleStr = (s.title || '').toLowerCase();
+            const artistStr = (s.artist || '').toLowerCase();
+            const keyStr = (s.keyTime || '').toLowerCase();
+            const lyricsStr = (s.rawLyrics || (s.verses || []).map(v => (v.lines || []).join(' ')).join(' ')).toLowerCase();
+            return numStr.includes(q) || titleStr.includes(q) || artistStr.includes(q) || keyStr.includes(q) || lyricsStr.includes(q);
+        });
+    }, [customSongs, laguSionDb, filterMode, searchQuery]);
+
+    return (
+        <div className="space-y-6 animate-fade-in">
+            {/* Header & Tombol Tambah */}
+            <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-gold-500 to-amber-400 text-navy-950 flex items-center justify-center font-black shadow-md shrink-0">
+                        <Icon name="Music" className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h2 className="text-xl md:text-2xl font-black text-navy-900">Kelola Lagu Sion</h2>
+                        <p className="text-xs md:text-sm text-navy-500 font-medium mt-0.5">
+                            Total: <strong className="text-navy-800">{laguSionDb.length} lagu</strong> ({525} Bawaan + <span className="text-gold-600 font-bold">{customSongs.length} Tambahan</span>)
+                        </p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <button
+                        type="button"
+                        onClick={handleOpenAddModal}
+                        className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-gold-500 to-amber-500 hover:from-gold-600 hover:to-amber-600 text-navy-950 font-black px-5 py-3 rounded-xl text-xs md:text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+                    >
+                        <Icon name="Plus" className="w-4 h-4 stroke-[3]" />
+                        <span>Tambah Lagu Baru</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* Notifikasi Status */}
+            {statusMsg && (
+                <div className={`p-4 rounded-xl text-xs md:text-sm font-bold flex items-center gap-2 shadow-sm animate-fade-in ${statusMsg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                    <Icon name={statusMsg.type === 'success' ? 'CheckCircle' : 'AlertCircle'} className="w-5 h-5 shrink-0" />
+                    <span>{statusMsg.text}</span>
+                </div>
+            )}
+
+            {/* Container Konten Utama */}
+            <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 p-5 md:p-6 space-y-5">
+                {/* Filter Tabs & Search Bar */}
+                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pb-3 border-b border-navy-100/70">
+                    <div className="flex items-center bg-navy-50 p-1 rounded-xl shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => setFilterMode('custom')}
+                            className={`px-4 py-2 rounded-lg text-xs md:text-sm font-bold transition-all ${filterMode === 'custom' ? 'bg-navy-900 text-gold-400 shadow-sm' : 'text-navy-600 hover:text-navy-900'}`}
+                        >
+                            Lagu Tambahan ({customSongs.length})
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setFilterMode('all')}
+                            className={`px-4 py-2 rounded-lg text-xs md:text-sm font-bold transition-all ${filterMode === 'all' ? 'bg-navy-900 text-gold-400 shadow-sm' : 'text-navy-600 hover:text-navy-900'}`}
+                        >
+                            Semua Lagu ({laguSionDb.length})
+                        </button>
+                    </div>
+
+                    <div className="relative flex-1 max-w-md">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
+                            <Icon name="Search" className="w-4 h-4" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Cari nomor, judul, pengarang, nada, atau lirik..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-10 pr-9 py-2.5 bg-navy-50/50 border border-navy-100 rounded-xl text-xs md:text-sm font-semibold text-navy-900 placeholder-navy-400 outline-none focus:border-gold-500 transition-all"
+                        />
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-navy-200 text-navy-600 hover:bg-navy-300 flex items-center justify-center text-xs"
+                            >
+                                <Icon name="X" className="w-3 h-3" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Empty State jika belum ada lagu kustom dan filter 'custom' */}
+                {customSongs.length === 0 && filterMode === 'custom' ? (
+                    <div className="p-8 md:p-12 text-center rounded-2xl border-2 border-dashed border-navy-100 bg-navy-50/30 flex flex-col items-center">
+                        <div className="w-14 h-14 rounded-2xl bg-gold-100 text-gold-700 flex items-center justify-center mb-3">
+                            <Icon name="Music" className="w-7 h-7" />
+                        </div>
+                        <h3 className="text-base md:text-lg font-black text-navy-900 mb-1">Belum Ada Lagu Tambahan</h3>
+                        <p className="text-xs md:text-sm text-navy-500 max-w-md leading-relaxed mb-5">
+                            Lagu Sion standar memuat nomor 1 s/d 525. Anda dapat menambahkan lagu tambahan baru (seperti LS 526, lagu rohani, atau suplemen) yang akan otomatis dapat dicari dan dipilih di Susunan Acara dan Lagu Sion.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={handleOpenAddModal}
+                            className="inline-flex items-center gap-2 bg-navy-900 text-gold-400 hover:bg-navy-800 font-bold px-6 py-2.5 rounded-xl text-xs md:text-sm shadow transition active:scale-95"
+                        >
+                            <Icon name="Plus" className="w-4 h-4" />
+                            <span>Tambah Lagu Pertama (LS {getNextSongNumber()})</span>
+                        </button>
+                    </div>
+                ) : displayedSongs.length === 0 ? (
+                    <div className="p-8 text-center text-navy-400 font-medium text-sm">
+                        Tidak ada lagu yang cocok dengan pencarian "{searchQuery}".
+                    </div>
+                ) : (
+                    <div className="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1 custom-scrollbar">
+                        {displayedSongs.map((song) => {
+                            const isCustom = Boolean(song.isCustom || customSongs.some(cs => Number(cs.number) === Number(song.number)));
+                            const vCount = (song.verses || []).length;
+                            const baitCount = (song.verses || []).filter(v => v.type === 'bait' || v.type === 'verse').length;
+                            const chorusCount = (song.verses || []).filter(v => v.type === 'chorus').length;
+
+                            return (
+                                <div
+                                    key={song.id || song.number}
+                                    className={`p-3.5 md:p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isCustom ? 'bg-gradient-to-r from-amber-50/40 via-white to-white border-amber-200/80 shadow-xs hover:border-amber-400' : 'bg-white border-navy-100 hover:border-navy-200'}`}
+                                >
+                                    {/* Info Kiri */}
+                                    <div className="flex items-start sm:items-center gap-3 min-w-0">
+                                        <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center font-black shrink-0 ${isCustom ? 'bg-gradient-to-tr from-amber-500 to-gold-400 text-navy-950 shadow-sm' : 'bg-navy-100 text-navy-800'}`}>
+                                            <span className="text-[10px] uppercase tracking-wider font-extrabold opacity-75">LS</span>
+                                            <span className="text-sm font-black leading-none">{song.number}</span>
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <h4 className="font-bold text-sm md:text-base text-navy-950 truncate">
+                                                    {song.title}
+                                                </h4>
+                                                {isCustom && (
+                                                    <span className="text-[10px] font-black uppercase tracking-wider bg-gold-100 text-gold-800 px-2 py-0.5 rounded-full border border-gold-300/40">
+                                                        Tambahan
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2 text-xs text-navy-500 mt-0.5 flex-wrap">
+                                                {song.artist && <span>Oleh: <strong className="text-navy-700">{song.artist}</strong></span>}
+                                                {song.keyTime && (
+                                                    <>
+                                                        <span>•</span>
+                                                        <span className="px-1.5 py-0.5 bg-navy-50 rounded text-navy-700 font-semibold">{song.keyTime}</span>
+                                                    </>
+                                                )}
+                                                {vCount > 0 && (
+                                                    <>
+                                                        <span>•</span>
+                                                        <span>{baitCount > 0 ? `${baitCount} Bait` : ''}{chorusCount > 0 ? ` + ${chorusCount} Koor` : ''}</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons Kanan */}
+                                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleViewInLaguSion(song)}
+                                            className="px-3 py-1.5 rounded-lg bg-navy-50 hover:bg-gold-100 text-navy-800 hover:text-gold-900 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer"
+                                            title="Lihat Tampilan Lagu di Lagu Sion"
+                                        >
+                                            <Icon name="Music" className="w-3.5 h-3.5 text-gold-600" />
+                                            <span>Lihat</span>
+                                        </button>
+
+                                        {isCustom && (
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleOpenEditModal(song)}
+                                                    className="px-3 py-1.5 rounded-lg bg-navy-900 hover:bg-navy-800 text-gold-400 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer"
+                                                    title="Edit Lagu"
+                                                >
+                                                    <Icon name="PenTool" className="w-3.5 h-3.5" />
+                                                    <span>Edit</span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setDeleteConfirmSong(song)}
+                                                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-700 transition cursor-pointer"
+                                                    title="Hapus Lagu Ini"
+                                                >
+                                                    <Icon name="Trash2" className="w-4 h-4" />
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            {/* Modal Tambah / Edit Lagu */}
+            {modalOpen && createPortal(
+                <div className="fixed inset-0 z-[99999] bg-navy-950/60 backdrop-blur-xs flex items-center justify-center p-3 md:p-6 overflow-y-auto animate-fade-in">
+                    <div className="bg-white dark:bg-navy-900 rounded-[1.75rem] shadow-2xl border border-navy-100 max-w-2xl w-full p-5 md:p-7 space-y-5 my-auto max-h-[92vh] flex flex-col overflow-hidden">
+                        {/* Header Modal */}
+                        <div className="flex items-center justify-between pb-3 border-b border-navy-100 shrink-0">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-10 h-10 rounded-xl bg-gold-100 text-gold-800 flex items-center justify-center font-bold">
+                                    <Icon name="Music" className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-black text-navy-900 dark:text-white">
+                                        {editingSong ? `Edit Lagu: LS ${form.number}` : 'Tambah Lagu Baru'}
+                                    </h3>
+                                    <p className="text-xs text-navy-400">
+                                        Lagu Sion & Lagu Rohani Tambahan
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setModalOpen(false)}
+                                className="w-8 h-8 rounded-full bg-navy-50 hover:bg-navy-100 text-navy-500 flex items-center justify-center transition cursor-pointer"
+                            >
+                                <Icon name="X" className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {/* Form Fields */}
+                        <form onSubmit={handleSaveSong} className="space-y-4 overflow-y-auto pr-1 flex-1 custom-scrollbar">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {/* Nomor Lagu */}
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-wider text-navy-700 dark:text-navy-300 mb-1">
+                                        Nomor Lagu <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        required
+                                        value={form.number}
+                                        onChange={(e) => setForm({ ...form, number: e.target.value })}
+                                        placeholder="Misal: 526"
+                                        className="w-full px-3.5 py-2.5 bg-navy-50/50 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 transition"
+                                    />
+                                    <p className="text-[11px] text-navy-400 mt-1">
+                                        💡 Lagu bawaan 1-525. Lagu baru disarankan dimulai dari 526 dst.
+                                    </p>
+                                </div>
+
+                                {/* Nada Dasar & Ketukan */}
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-wider text-navy-700 dark:text-navy-300 mb-1">
+                                        Nada Dasar & Ketukan (Key Time)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={form.keyTime}
+                                        onChange={(e) => setForm({ ...form, keyTime: e.target.value })}
+                                        placeholder="Contoh: D 4/4 atau G 3/4"
+                                        className="w-full px-3.5 py-2.5 bg-navy-50/50 border border-navy-200 rounded-xl text-sm font-medium text-navy-900 outline-none focus:border-gold-500 transition"
+                                    />
+                                    <p className="text-[11px] text-navy-400 mt-1">
+                                        Digunakan untuk nada pembuka & ketukan birama.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {/* Judul Lagu */}
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-wider text-navy-700 dark:text-navy-300 mb-1">
+                                        Judul Lagu <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={form.title}
+                                        onChange={(e) => setForm({ ...form, title: e.target.value })}
+                                        placeholder="Contoh: Kasih Allah Yang Agung"
+                                        className="w-full px-3.5 py-2.5 bg-navy-50/50 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 transition"
+                                    />
+                                </div>
+
+                                {/* Pengarang / Artis */}
+                                <div>
+                                    <label className="block text-xs font-black uppercase tracking-wider text-navy-700 dark:text-navy-300 mb-1">
+                                        Pengarang / Pencipta / Artis
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={form.artist}
+                                        onChange={(e) => setForm({ ...form, artist: e.target.value })}
+                                        placeholder="Contoh: Fanny Crosby (Opsional)"
+                                        className="w-full px-3.5 py-2.5 bg-navy-50/50 border border-navy-200 rounded-xl text-sm font-medium text-navy-900 outline-none focus:border-gold-500 transition"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Lirik Teks */}
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                    <label className="block text-xs font-black uppercase tracking-wider text-navy-700 dark:text-navy-300">
+                                        Lirik Lagu
+                                    </label>
+                                    <div className="flex items-center gap-1.5">
+                                        <button
+                                            type="button"
+                                            onClick={handleInsertBait}
+                                            className="px-2 py-1 bg-navy-100 hover:bg-navy-200 text-navy-800 rounded-lg text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                                        >
+                                            <Icon name="Plus" className="w-3 h-3" /> Bait Baru
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleInsertKoor}
+                                            className="px-2 py-1 bg-gold-100 hover:bg-gold-200 text-gold-900 rounded-lg text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                                        >
+                                            <Icon name="Plus" className="w-3 h-3" /> Koor / Reff
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <textarea
+                                    rows="8"
+                                    value={form.rawLyrics}
+                                    onChange={(e) => setForm({ ...form, rawLyrics: e.target.value })}
+                                    placeholder={`Bait 1:\nDi hadapan hadirat-Mu kami bersujud\nMenyembah Engkau Tuhan kekal abadi\n\nKoor:\nPuji Tuhan haleluya\nKasih-Nya kekal selamanya\n\nBait 2:\n...`}
+                                    className="w-full p-3.5 bg-navy-50/50 border border-navy-200 rounded-xl text-xs md:text-sm font-mono text-navy-900 outline-none focus:border-gold-500 transition leading-relaxed resize-y"
+                                />
+
+                                <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200/60 text-[11px] text-amber-900 space-y-1">
+                                    <p className="font-bold flex items-center gap-1">
+                                        <span>💡 Petunjuk Format Lirik:</span>
+                                    </p>
+                                    <ul className="list-disc list-inside space-y-0.5 text-amber-800 font-medium">
+                                        <li>Pisahkan setiap bait dan koor dengan <strong>satu baris kosong</strong> (tekan Enter 2x).</li>
+                                        <li>Beri awalan <strong>Koor:</strong> atau <strong>Reff:</strong> untuk bagian refrain.</li>
+                                        <li>Bait dapat diawali dengan <strong>Bait 1:</strong>, <strong>Bait 2:</strong> dst., atau otomatis diberi nomor.</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {/* Pratinjau Format Langsung (Live Preview) */}
+                            {previewVerses.length > 0 && (
+                                <div className="space-y-2 pt-2 border-t border-navy-100">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-black uppercase tracking-wider text-gold-700">
+                                            Pratinjau Tampilan ({previewVerses.length} Bagian)
+                                        </span>
+                                        <span className="text-[11px] text-navy-400">
+                                            Akan tampil di Lagu Sion seperti ini:
+                                        </span>
+                                    </div>
+
+                                    <div className="p-4 bg-navy-50/50 rounded-2xl border border-navy-100 space-y-3 max-h-56 overflow-y-auto custom-scrollbar">
+                                        {previewVerses.map((verse, idx) => {
+                                            const isCh = verse.type === 'chorus';
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    className={`p-3 rounded-xl ${isCh ? 'bg-amber-100/60 border-l-4 border-amber-500 text-navy-900' : 'bg-white border border-navy-100 text-navy-800'}`}
+                                                >
+                                                    <span className={`text-[10px] font-black uppercase tracking-wider block mb-1 ${isCh ? 'text-amber-800' : 'text-navy-400'}`}>
+                                                        {verse.label || (isCh ? 'Koor' : `Bait ${idx + 1}`)}
+                                                    </span>
+                                                    <div className={`text-xs leading-relaxed font-medium ${isCh ? 'italic' : ''}`}>
+                                                        {verse.lines.map((l, li) => (
+                                                            <p key={li}>{l}</p>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Tombol Aksi */}
+                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-navy-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setModalOpen(false)}
+                                    className="px-5 py-2.5 rounded-xl border border-navy-200 text-navy-700 font-bold text-xs md:text-sm hover:bg-navy-50 transition cursor-pointer"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSaving}
+                                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-500 hover:from-gold-600 hover:to-amber-600 text-navy-950 font-black text-xs md:text-sm shadow-md transition disabled:opacity-50 flex items-center gap-2 cursor-pointer active:scale-95"
+                                >
+                                    {isSaving ? (
+                                        <>
+                                            <span className="w-4 h-4 border-2 border-navy-950 border-t-transparent rounded-full animate-spin"></span>
+                                            <span>Menyimpan...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Icon name="CheckCircle" className="w-4 h-4" />
+                                            <span>Simpan Lagu</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                , document.body)}
+
+            {/* Modal Konfirmasi Hapus Lagu */}
+            {deleteConfirmSong && createPortal(
+                <div className="fixed inset-0 z-[99999] bg-navy-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+                    <div className="bg-white rounded-2xl shadow-xl border border-red-100 max-w-sm w-full p-5 space-y-4 text-center">
+                        <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+                            <Icon name="Trash2" className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h4 className="text-base font-black text-navy-900">Hapus Lagu Ini?</h4>
+                            <p className="text-xs text-navy-500 mt-1">
+                                Anda yakin ingin menghapus <strong>LS {deleteConfirmSong.number} - {deleteConfirmSong.title}</strong>? Lagu ini tidak akan muncul lagi di daftar Lagu Sion.
+                            </p>
+                        </div>
+                        <div className="flex gap-2 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setDeleteConfirmSong(null)}
+                                className="flex-1 py-2 rounded-xl bg-navy-50 text-navy-700 font-bold text-xs hover:bg-navy-100 transition cursor-pointer"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                disabled={isDeleting}
+                                onClick={() => handleDeleteSong(deleteConfirmSong)}
+                                className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
+                            >
+                                {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                , document.body)}
+        </div>
+    );
+};
+
 // --- KOMPONEN AdminDashboard yang DIPERBAIKI (dengan fitur warta) ---
 const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, adminToken, setAdminToken,
     youtubeUrl, setYoutubeUrl, anthemUrl, setAnthemUrl, anthemUrl2, setAnthemUrl2, anthemTitle, setAnthemTitle, anthemTitle2, setAnthemTitle2, youtubeTitle, setYoutubeTitle, youtubeChannelTitle, setYoutubeChannelTitle, kategoriPejabat, setKategoriPejabat, heroImages, setHeroImages,
-    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, perjamuanNote, setPerjamuanNote, perpuluhanNote, setPerpuluhanNote, daftarRekening, setDaftarRekening, handleLogout, carouselEvents, setCarouselEvents, carouselVideos, setCarouselVideos, laguSionDb = [] }) => {
-    const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku
+    pengumuman, setPengumuman, daftarWarta, setDaftarWarta, refreshWarta, kontakGereja, setKontakGereja, liveUrl, setLiveUrl, perjamuanDate, setPerjamuanDate, perpuluhanDate, setPerpuluhanDate, perjamuanNote, setPerjamuanNote, perpuluhanNote, setPerpuluhanNote, daftarRekening, setDaftarRekening, handleLogout, carouselEvents, setCarouselEvents, carouselVideos, setCarouselVideos, laguSionDb = [], setLaguSionDb, customSongs = [], setCustomSongs = () => {}, setLaguSionInitialSong = () => {}, setLaguSionSubTab = () => {}, setActiveTab = () => {} }) => {
+    const [adminTab, setAdminTab] = React.useState('jadwal'); // jadwal, pelayan, warta, pengaturan, buku, pastoral, lagu
     React.useEffect(() => {
         scrollToTop();
     }, [adminTab]);
@@ -14367,6 +15102,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     <button onClick={() => setAdminTab('pastoral')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pastoral' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Doa & Kalender</button>
                     <button onClick={() => setAdminTab('pelayan')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pelayan' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Pejabat</button>
                     <button onClick={() => setAdminTab('buku')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'buku' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Buku</button>
+                    <button onClick={() => setAdminTab('lagu')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'lagu' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Kelola Lagu</button>
                     <button onClick={() => setAdminTab('pengaturan')} className={`flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 ${adminTab === 'pengaturan' ? 'bg-navy-900 text-gold-400 shadow-inner' : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50/50'}`}>Pengaturan Admin</button>
                     <button onClick={() => { if (confirm('Yakin ingin logout dari akun admin?')) handleLogout(); }} className="flex-1 py-4 font-bold text-sm md:text-base text-center transition-colors border-l sm:border-t-0 border-t border-navy-50 text-red-600 hover:text-red-700 hover:bg-red-50/50">Logout</button>
                 </div>
@@ -17913,6 +18649,19 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                     <AdminPastoralAndCalendarPanel />
                 )}
 
+                {adminTab === 'lagu' && (
+                    <AdminLaguPanel
+                        customSongs={customSongs}
+                        setCustomSongs={setCustomSongs}
+                        laguSionDb={laguSionDb}
+                        setLaguSionDb={setLaguSionDb}
+                        adminToken={adminToken}
+                        setLaguSionInitialSong={setLaguSionInitialSong}
+                        setLaguSionSubTab={setLaguSionSubTab}
+                        setActiveTab={setActiveTab}
+                    />
+                )}
+
                 {/* Modal Selector Lagu Sion & Ayat Alkitab untuk Susunan Acara */}
                 <AdminSongPickerModal
                     isOpen={Boolean(songPicker)}
@@ -20406,8 +21155,8 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
         } else if (val === 'backspace') {
             setSongNo(prev => prev.slice(0, -1));
         } else {
-            // Max 3 digits
-            if (songNo.length < 3) {
+            // Max 4 digits
+            if (songNo.length < 4) {
                 setSongNo(prev => prev + val);
             }
         }
@@ -20423,19 +21172,20 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
             setSubTab('lyrics');
             setSongNo('');
         } else {
-            alert(`Lagu nomor ${songNo} tidak ditemukan. Silakan masukkan nomor antara 1 dan 525.`);
+            const maxNum = db.length > 0 ? Math.max(...db.map(s => Number(s.number) || 0)) : 525;
+            alert(`Lagu nomor ${songNo} tidak ditemukan. Silakan masukkan nomor antara 1 dan ${maxNum}.`);
         }
     };
 
     // Navigate to Prev/Next song
     const handlePrevNext = (direction) => {
-        if (!selectedSong) return;
-        let nextNum = selectedSong.number + direction;
-        if (nextNum < 1) nextNum = 525;
-        if (nextNum > 525) nextNum = 1;
-        const nextSong = db.find(s => s.number === nextNum);
-        if (nextSong) {
-            setSelectedSong(nextSong);
+        if (!selectedSong || !db || db.length === 0) return;
+        const currentIndex = db.findIndex(s => s.number === selectedSong.number);
+        if (currentIndex >= 0) {
+            let nextIndex = currentIndex + direction;
+            if (nextIndex < 0) nextIndex = db.length - 1;
+            if (nextIndex >= db.length) nextIndex = 0;
+            setSelectedSong(db[nextIndex]);
         }
     };
 
@@ -20541,14 +21291,14 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
             {/* Desktop SubTab Navigation Bar */}
             <div className="hidden md:flex items-center justify-center mt-1 mb-6">
                 <div className="bg-white dark:bg-navy-800/90 backdrop-blur-md p-1.5 rounded-2xl border border-navy-100 dark:border-navy-700 shadow-sm flex items-center gap-2">
-                    {returnTab === 'susunan_ibadah' && (
+                    {Boolean(returnTab) && (
                         <button
                             onClick={handleReturnNavigation}
                             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-amber-400 to-gold-400 hover:from-amber-300 hover:to-gold-300 text-navy-950 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
-                            title="Kembali ke Susunan Ibadah"
+                            title={`Kembali ke ${returnTab === 'admin_dashboard' ? 'Admin Dashboard' : 'Susunan Ibadah'}`}
                         >
                             <Icon name="ArrowLeft" className="w-4 h-4 stroke-[3]" />
-                            <span>Susunan Ibadah</span>
+                            <span>{returnTab === 'admin_dashboard' ? 'Admin' : 'Susunan Ibadah'}</span>
                         </button>
                     )}
                     <button
@@ -20684,14 +21434,14 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
                             {/* Navy Song navigation header */}
                             <div className="bg-navy-900 text-white px-4 sm:px-5 py-3 rounded-2xl flex items-center justify-between shadow-md">
                                 <div className="flex items-center gap-2 sm:gap-3">
-                                    {returnTab === 'susunan_ibadah' ? (
+                                    {Boolean(returnTab) ? (
                                         <button
                                             onClick={handleReturnNavigation}
                                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-gold-400 hover:from-amber-300 hover:to-gold-300 text-navy-950 font-black active:scale-95 transition-all text-xs cursor-pointer shadow-sm group"
-                                            title="Kembali ke Susunan Ibadah"
+                                            title={`Kembali ke ${returnTab === 'admin_dashboard' ? 'Admin Dashboard' : 'Susunan Ibadah'}`}
                                         >
                                             <Icon name="ArrowLeft" className="w-4 h-4 stroke-[3] group-hover:-translate-x-0.5 transition-transform" />
-                                            <span>Susunan Ibadah</span>
+                                            <span>{returnTab === 'admin_dashboard' ? 'Admin' : 'Susunan Ibadah'}</span>
                                         </button>
                                     ) : (
                                         <button
@@ -20880,14 +21630,14 @@ const LaguSion = ({ setActiveTab, initialSong, clearInitialSong, laguSionDb = []
 
                             {/* Action Buttons below lyrics */}
                             <div className="flex items-center justify-center gap-3 pt-2 flex-wrap">
-                                {returnTab === 'susunan_ibadah' && (
+                                {Boolean(returnTab) && (
                                     <button
                                         onClick={handleReturnNavigation}
                                         className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-gold-400 hover:from-amber-300 hover:to-gold-300 text-navy-950 font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-95"
-                                        title="Kembali ke Susunan Ibadah"
+                                        title={`Kembali ke ${returnTab === 'admin_dashboard' ? 'Admin Dashboard' : 'Susunan Ibadah'}`}
                                     >
                                         <Icon name="ArrowLeft" className="w-4 h-4 stroke-[3]" />
-                                        <span>Kembali ke Susunan Ibadah</span>
+                                        <span>Kembali ke {returnTab === 'admin_dashboard' ? 'Admin' : 'Susunan Ibadah'}</span>
                                     </button>
                                 )}
                                 <button
@@ -22000,6 +22750,15 @@ const App = () => {
         }
     }, [activeTab]);
 
+    const [baseLaguSion, setBaseLaguSion] = React.useState([]);
+    const [customSongs, setCustomSongs] = React.useState(() => {
+        try {
+            const saved = localStorage.getItem('pisgah_custom_songs');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
+        }
+    });
     const [laguSionDb, setLaguSionDb] = React.useState([]);
     const [laguSionInitialSong, setLaguSionInitialSong] = React.useState(null);
     const [laguSionSubTab, setLaguSionSubTab] = React.useState('numpad');
@@ -22007,9 +22766,26 @@ const App = () => {
     React.useEffect(() => {
         fetch('./lagu_sion.json')
             .then(r => r.json())
-            .then(data => setLaguSionDb(data))
+            .then(data => setBaseLaguSion(data))
             .catch(err => console.error("Error loading Lagu Sion DB:", err));
     }, []);
+
+    // Gabungkan lagu bawaan (1-525) dengan lagu kustom / tambahan admin
+    React.useEffect(() => {
+        if (!baseLaguSion || baseLaguSion.length === 0) return;
+        const songMap = new Map();
+        baseLaguSion.forEach(s => {
+            songMap.set(Number(s.number), { ...s, isCustom: false });
+        });
+        (customSongs || []).forEach(cs => {
+            const num = Number(cs.number);
+            if (num > 0) {
+                songMap.set(num, { ...cs, number: num, isCustom: true });
+            }
+        });
+        const combined = Array.from(songMap.values()).sort((a, b) => (Number(a.number) || 0) - (Number(b.number) || 0));
+        setLaguSionDb(combined);
+    }, [baseLaguSion, customSongs]);
 
     // Otomatis buka lagu jika terdapat parameter ?song= atau ?lagu= di URL
     React.useEffect(() => {
@@ -22415,6 +23191,17 @@ const App = () => {
                         if (cached.carouselVideos) { try { setCarouselVideos(JSON.parse(cached.carouselVideos)); } catch (e) { } }
                         if (cached.daftarWarta) setDaftarWarta(cached.daftarWarta);
                         if (cached.daftarBuku) setDaftarBuku(cached.daftarBuku);
+                        if (cached.customSongs && Array.isArray(cached.customSongs)) {
+                            setCustomSongs(cached.customSongs);
+                        } else {
+                            try {
+                                const savedSongs = localStorage.getItem('pisgah_custom_songs');
+                                if (savedSongs) {
+                                    const parsedSongs = JSON.parse(savedSongs);
+                                    if (Array.isArray(parsedSongs) && parsedSongs.length > 0) setCustomSongs(parsedSongs);
+                                }
+                            } catch (e) { }
+                        }
                         if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
                         if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
                         setIsAppLoading(false);
@@ -22576,6 +23363,14 @@ const App = () => {
                     console.error('Error fetching books:', e);
                 }
 
+                let fetchedCustomSongs = [];
+                if (data.customSongs && Array.isArray(data.customSongs)) {
+                    fetchedCustomSongs = data.customSongs;
+                    setCustomSongs(fetchedCustomSongs);
+                    try {
+                        localStorage.setItem('pisgah_custom_songs', JSON.stringify(fetchedCustomSongs));
+                    } catch (e) { }
+                }
 
                 if (data.pengumuman !== undefined) {
                     try {
@@ -22612,6 +23407,7 @@ const App = () => {
                     carouselVideos: data.carouselVideos,
                     daftarWarta: data.daftarWarta,
                     daftarBuku: fetchedBuku.length > 0 ? fetchedBuku : daftarBuku, // Simpan ke cache
+                    customSongs: fetchedCustomSongs.length > 0 ? fetchedCustomSongs : customSongs,
                     pengumumanObj: newPengumumanObj,
                     kontakGerejaObj: newKontakGerejaObj,
                     _cachedAt: Date.now()
@@ -22711,7 +23507,7 @@ const App = () => {
             case 'hubungi': return <Hubungi setActiveTab={setActiveTab} dataPejabat={dataPejabat} kontakGereja={kontakGereja} />;
             case 'form_acms': return <FormACMS setActiveTab={setActiveTab} />;
             case 'susunan_ibadah': return <SusunanIbadah setActiveTab={setActiveTab} activeSabat={activeSabat} sabatYMD={sabatYMD} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} setLaguSionSubTab={setLaguSionSubTab} />;
-            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} laguSionDb={laguSionDb} /> : <Home setShowManualInstall={setShowManualInstall} setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
+            case 'admin_dashboard': return isAdminLoggedIn ? <AdminDashboard dataPejabat={dataPejabat} setDataPejabat={setDataPejabat} jadwalDB={jadwalDB} setJadwalDB={setJadwalDB} adminToken={adminToken} setAdminToken={setAdminToken} youtubeUrl={youtubeUrl} setYoutubeUrl={setYoutubeUrl} anthemUrl={anthemUrl} setAnthemUrl={setAnthemUrl} anthemUrl2={anthemUrl2} setAnthemUrl2={setAnthemUrl2} anthemTitle={anthemTitle} setAnthemTitle={setAnthemTitle} anthemTitle2={anthemTitle2} setAnthemTitle2={setAnthemTitle2} youtubeTitle={youtubeTitle} setYoutubeTitle={setYoutubeTitle} youtubeChannelTitle={youtubeChannelTitle} setYoutubeChannelTitle={setYoutubeChannelTitle} kategoriPejabat={kategoriPejabat} setKategoriPejabat={setKategoriPejabat} heroImages={heroImages} setHeroImages={setHeroImages} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} kontakGereja={kontakGereja} setKontakGereja={setKontakGereja} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} perpuluhanDate={perpuluhanDate} setPerpuluhanDate={setPerpuluhanDate} perjamuanNote={perjamuanNote} setPerjamuanNote={setPerjamuanNote} perpuluhanNote={perpuluhanNote} setPerpuluhanNote={setPerpuluhanNote} daftarRekening={daftarRekening} setDaftarRekening={setDaftarRekening} handleLogout={handleLogout} carouselEvents={carouselEvents} setCarouselEvents={setCarouselEvents} carouselVideos={carouselVideos} setCarouselVideos={setCarouselVideos} laguSionDb={laguSionDb} setLaguSionDb={setLaguSionDb} customSongs={customSongs} setCustomSongs={setCustomSongs} setLaguSionInitialSong={setLaguSionInitialSong} setLaguSionSubTab={setLaguSionSubTab} setActiveTab={setActiveTab} /> : <Home setShowManualInstall={setShowManualInstall} setActiveTab={setActiveTab} youtubeUrl={youtubeUrl} anthemUrl={anthemUrl} anthemUrl2={anthemUrl2} anthemTitle={anthemTitle} anthemTitle2={anthemTitle2} youtubeTitle={youtubeTitle} youtubeChannelTitle={youtubeChannelTitle} heroImages={heroImages} jadwalDB={jadwalDB} dataPejabat={dataPejabat} pengumuman={pengumuman} setPengumuman={setPengumuman} daftarWarta={daftarWarta} setDaftarWarta={setDaftarWarta} refreshWarta={refreshWarta} setSelectedWarta={setSelectedWartaDetail} liveUrl={liveUrl} setLiveUrl={setLiveUrl} perjamuanDate={perjamuanDate} setPerjamuanDate={setPerjamuanDate} daftarBuku={daftarBuku} setInitialBook={setInitialBook} showPerjamuan={showPerjamuan} perjamuanYMD={perjamuanYMD} showPerpuluhan={showPerpuluhan} perpuluhanYMD={perpuluhanYMD} perjamuanNote={perjamuanNote} perpuluhanNote={perpuluhanNote} kontakGereja={kontakGereja} carouselVideos={carouselVideos} carouselEvents={carouselEvents} />;
             case 'alkitab': return <Alkitab setActiveTab={setActiveTab} setHideGlobalBack={setHideGlobalBack} />;
             case 'lagu_sion': return <LaguSion setActiveTab={setActiveTab} subTab={laguSionSubTab} setSubTab={setLaguSionSubTab} initialSong={laguSionInitialSong} clearInitialSong={() => setLaguSionInitialSong(null)} laguSionDb={laguSionDb} />;
             case 'search': return <Search setActiveTab={setActiveTab} jadwalDB={jadwalDB} rabuYMD={rabuYMD} sabatYMD={sabatYMD} tabs={tabs} daftarWarta={daftarWarta} dataPejabat={dataPejabat} pengumuman={pengumuman} daftarBuku={daftarBuku} setInitialBook={setInitialBook} laguSionDb={laguSionDb} setLaguSionInitialSong={setLaguSionInitialSong} setSelectedWarta={setSelectedWartaDetail} />;

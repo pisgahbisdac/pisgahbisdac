@@ -15,6 +15,7 @@ const SHEET_DOA = 'Pokok_Doa';
 const SHEET_KALENDER = 'Agenda_Tahunan';
 const SHEET_ULTAH = 'Ulang_Tahun_Jemaat';
 const SHEET_KONFIRMASI_PETUGAS = 'Konfirmasi_Petugas';
+const SHEET_LAGU_TAMBAHAN = 'Lagu_Tambahan';
 
 // Kategori Sheet Jadwal
 const CATEGORY_MAP = {
@@ -43,6 +44,9 @@ const CATEGORY_MAP_REV = {
 // =========================================================================
 
 function doGet(e) {
+  if (e.parameter.action === 'getCustomSongs') {
+    return getCustomSongs();
+  }
   if (e.parameter.action === 'getData' || !e.parameter.action) {
     return getInitialData();
   }
@@ -61,6 +65,7 @@ function doPost(e) {
     if (action === 'getPublicImages') return getPublicImages(payload.folderId);
     if (action === 'verifyPassword') return verifyPassword(payload.password);
     if (action === 'getBooks') return getBooks();
+    if (action === 'getCustomSongs') return getCustomSongs();
     if (action === 'submitPrayer') return submitPrayer(payload.prayer);
     if (action === 'incrementPrayerCount') return incrementPrayerCount(payload.id);
     if (action === 'saveOfficerAttendance') return saveOfficerAttendance(payload.recordKey, payload.payload);
@@ -69,7 +74,7 @@ function doPost(e) {
     const currentPassword = getSetting('PASSWORD') || 'admin123';
 
     // Public actions yang tidak perlu password
-    const publicActions = ['getPublicFolders', 'getPublicImages', 'verifyPassword', 'getBooks', 'submitPrayer', 'incrementPrayerCount', 'saveOfficerAttendance'];
+    const publicActions = ['getPublicFolders', 'getPublicImages', 'verifyPassword', 'getBooks', 'getCustomSongs', 'submitPrayer', 'incrementPrayerCount', 'saveOfficerAttendance'];
 
     // Check password hanya untuk admin actions
     if (!publicActions.includes(action) && payload.password !== currentPassword && action !== 'changePassword') {
@@ -126,6 +131,11 @@ function doPost(e) {
       case 'addBook': return addBook(payload.data || payload);
       case 'updateBook': return updateBook(payload.data || payload);
       case 'deleteBook': return deleteBook(payload.data || payload.id);
+
+      // -- Lagu Sion Tambahan --
+      case 'addCustomSong': return addCustomSong(payload.data || payload);
+      case 'updateCustomSong': return updateCustomSong(payload.data || payload);
+      case 'deleteCustomSong': return deleteCustomSong(payload.data || payload.id);
 
       // Di handler doPost, tambahkan case ini:
       case 'saveAnthemUrl': 
@@ -278,7 +288,8 @@ function getInitialData() {
     daftarDoa: getDoaDB(),
     daftarKalender: getKalenderDB(),
     daftarUltah: getUltahDB(),
-    konfirmasiPetugas: getKonfirmasiPetugasDB()
+    konfirmasiPetugas: getKonfirmasiPetugasDB(),
+    customSongs: getCustomSongsData()
   });
 }
 
@@ -1038,6 +1049,141 @@ function deleteBook(bookId) {
       }
     }
     return jsonResponse({ success: false, status: 'error', message: 'Buku tidak ditemukan' });
+  } catch (e) {
+    return jsonResponse({ success: false, status: 'error', message: e.toString() });
+  }
+}
+
+// =========================================================================
+// 7B. HANDLER LAGU SION TAMBAHAN
+// =========================================================================
+
+function getOrCreateSongSheet() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_LAGU_TAMBAHAN);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_LAGU_TAMBAHAN);
+    const headers = [['ID', 'Nomor', 'Judul', 'Pengarang', 'Nada_Ketukan', 'Verses_JSON', 'Lirik_Teks', 'Updated_At']];
+    sheet.getRange(1, 1, 1, 8).setValues(headers).setBackground('#C49A45').setFontColor('#FFFFFF').setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(1, 120);
+    sheet.setColumnWidth(2, 80);
+    sheet.setColumnWidth(3, 220);
+    sheet.setColumnWidth(4, 150);
+    sheet.setColumnWidth(5, 100);
+    sheet.setColumnWidth(6, 200);
+    sheet.setColumnWidth(7, 300);
+    sheet.setColumnWidth(8, 150);
+  }
+  return sheet;
+}
+
+function getCustomSongsData() {
+  try {
+    const sheet = getOrCreateSongSheet();
+    if (sheet.getLastRow() <= 1) return [];
+    const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues();
+    return rows
+      .filter(r => String(r[0]).trim() !== '' || String(r[1]).trim() !== '')
+      .map(r => {
+        let verses = [];
+        try {
+          if (r[5]) verses = JSON.parse(r[5]);
+        } catch (e) {
+          verses = [];
+        }
+        return {
+          id: String(r[0] || ('LS_' + r[1])),
+          number: parseInt(r[1], 10) || 0,
+          title: String(r[2] || ''),
+          artist: String(r[3] || ''),
+          keyTime: String(r[4] || ''),
+          verses: verses,
+          rawLyrics: String(r[6] || ''),
+          isCustom: true
+        };
+      })
+      .filter(s => s.number > 0 && s.title.trim() !== '');
+  } catch (e) {
+    return [];
+  }
+}
+
+function getCustomSongs() {
+  try {
+    const data = getCustomSongsData();
+    return jsonResponse({ success: true, status: 'success', data: data });
+  } catch (e) {
+    return jsonResponse({ success: false, status: 'error', message: e.toString() });
+  }
+}
+
+function addCustomSong(data) {
+  try {
+    const sheet = getOrCreateSongSheet();
+    const newId = 'LS_' + (data.number || new Date().getTime());
+    const versesJson = typeof data.verses === 'string' ? data.verses : JSON.stringify(data.verses || []);
+    sheet.appendRow([
+      newId,
+      parseInt(data.number, 10) || '',
+      data.title || '',
+      data.artist || '',
+      data.keyTime || '',
+      versesJson,
+      data.rawLyrics || '',
+      new Date().toISOString()
+    ]);
+    return jsonResponse({ success: true, status: 'success', id: newId, message: 'Lagu berhasil ditambahkan' });
+  } catch (e) {
+    return jsonResponse({ success: false, status: 'error', message: e.toString() });
+  }
+}
+
+function updateCustomSong(data) {
+  try {
+    const sheet = getOrCreateSongSheet();
+    if (sheet.getLastRow() <= 1) return jsonResponse({ success: false, message: 'Lagu tidak ditemukan' });
+    const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 8).getValues();
+    const targetId = String(data.id || ('LS_' + data.number)).trim();
+    const versesJson = typeof data.verses === 'string' ? data.verses : JSON.stringify(data.verses || []);
+
+    for (let i = 0; i < rows.length; i++) {
+      const rowId = String(rows[i][0]).trim();
+      const rowNum = String(rows[i][1]).trim();
+      if (rowId === targetId || (data.number && rowNum === String(data.number))) {
+        sheet.getRange(i + 2, 2, 1, 7).setValues([[
+          parseInt(data.number, 10) || rows[i][1],
+          data.title || '',
+          data.artist || '',
+          data.keyTime || '',
+          versesJson,
+          data.rawLyrics || '',
+          new Date().toISOString()
+        ]]);
+        return jsonResponse({ success: true, status: 'success', message: 'Lagu berhasil diperbarui' });
+      }
+    }
+    return jsonResponse({ success: false, status: 'error', message: 'Lagu tidak ditemukan' });
+  } catch (e) {
+    return jsonResponse({ success: false, status: 'error', message: e.toString() });
+  }
+}
+
+function deleteCustomSong(songIdOrNum) {
+  try {
+    const id = String(songIdOrNum).trim();
+    const sheet = getOrCreateSongSheet();
+    if (sheet.getLastRow() <= 1) return jsonResponse({ success: false, message: 'Lagu tidak ditemukan' });
+    const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues();
+    for (let i = 0; i < rows.length; i++) {
+      const rowId = String(rows[i][0]).trim();
+      const rowNum = String(rows[i][1]).trim();
+      if (rowId === id || rowNum === id || ('LS_' + rowNum) === id) {
+        sheet.deleteRow(i + 2);
+        return jsonResponse({ success: true, status: 'success', message: 'Lagu berhasil dihapus' });
+      }
+    }
+    return jsonResponse({ success: false, status: 'error', message: 'Lagu tidak ditemukan' });
   } catch (e) {
     return jsonResponse({ success: false, status: 'error', message: e.toString() });
   }
