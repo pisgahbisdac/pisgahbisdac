@@ -573,6 +573,7 @@ const LoadingScreen = () => {
 // --- INITIAL DATA ---
 const defaultSusunan = {
     ssLaguBuka: "LS ...",
+    ssAyatInti: "...",
     ssLaguTutup: "LS ...",
     kAyatBersahutan: "No. ...",
     kLaguBuka: "LS ...",
@@ -5645,7 +5646,7 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
 
     const renderItem = (title, desc, isHighlight = false) => {
         const isSong = Boolean(desc && (title.toLowerCase().includes('lagu') || /(?:LS|Lagu Sion)\s*\d+/i.test(desc)));
-        const isVerse = Boolean(desc && title.toLowerCase().includes('ayat') && desc !== '-' && desc !== 'Sesuai Khotbah');
+        const isVerse = Boolean(desc && title.toLowerCase().includes('ayat') && desc !== '-' && desc !== '...' && desc !== 'Sesuai Khotbah');
 
         return (
             <div className={`flex justify-between items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 transition-colors rounded-xl mx-2 my-1.5 ${isHighlight ? 'bg-gold-500/10 shadow-sm border-gold-500/50' : 'hover:bg-navy-50 dark:hover:bg-navy-700/50'}`}>
@@ -5762,7 +5763,8 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
                                 <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 dark:border-navy-700/50 pb-2"><Icon name="BookOpen" className="w-4 h-4 mr-2" /> Sekolah Sabat</h3>
                                 {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
                                 {renderItem("Lagu Buka", susunan.ssLaguBuka)}
-                                {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka"))}
+                                {renderItem("Ayat Inti", susunan.ssAyatInti || "-")}
+                                {renderItem("Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka") || getOfficer(activeSabat.sekolahSabat, "Doa Buka"))}
                                 {renderItem("Berita Misi", getOfficer(activeSabat.sekolahSabat, "Berita Misi"))}
                                 {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
                                 {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
@@ -13326,7 +13328,8 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
         setEditingDate(date);
         const existingData = jadwalDB[date] || (isRabu ? initialJadwalRabu : initialJadwalSabat);
         if (subTab === 'susunanAcara') {
-            setEditForm(JSON.parse(JSON.stringify(existingData.susunan || defaultSusunan)));
+            const sus = existingData.susunan || {};
+            setEditForm({ ...defaultSusunan, ...sus });
         } else {
             // Menggabungkan data tersimpan dengan template awal jika ada penambahan kolom baru
             const baseTemplate = getActiveArray(isRabu ? initialJadwalRabu : initialJadwalSabat, subTab);
@@ -14870,6 +14873,36 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                                     type="button"
                                                                                     onClick={() => openSongPicker('ssLaguBuka', 'Pilih Lagu Buka Sekolah Sabat')}
                                                                                     className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-gold-50 text-gold-700 hover:text-navy-900 border border-gold-300/60 rounded-lg shadow-2xs transition cursor-pointer"
+                                                                                >
+                                                                                    Pilih ▾
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="flex items-center justify-between mb-1">
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Ayat Inti (SS)</label>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openVersePicker('ssAyatInti', false, 'Pilih Ayat Inti Sekolah Sabat')}
+                                                                                    className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-emerald-300/60"
+                                                                                    title="Pilih Kitab, Pasal, dan Ayat Alkitab"
+                                                                                >
+                                                                                    <span>📖</span>
+                                                                                    <span>Pilih Ayat</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="relative flex items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editForm.ssAyatInti || ''}
+                                                                                    onChange={(e) => handleEditFormChangeSusunan('ssAyatInti', e.target.value)}
+                                                                                    placeholder="Contoh: Yohanes 3:16 atau Mazmur 23:1"
+                                                                                    className="w-full p-2.5 pr-20 border border-navy-200 rounded-xl text-sm font-bold text-navy-900 outline-none focus:border-gold-500 bg-navy-50/50 transition-colors"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openVersePicker('ssAyatInti', false, 'Pilih Ayat Inti Sekolah Sabat')}
+                                                                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-emerald-50 text-emerald-700 hover:text-navy-900 border border-emerald-300/60 rounded-lg shadow-2xs transition cursor-pointer"
                                                                                 >
                                                                                     Pilih ▾
                                                                                 </button>
