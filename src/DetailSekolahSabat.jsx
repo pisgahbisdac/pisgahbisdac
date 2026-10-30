@@ -90,8 +90,8 @@ const BUILTIN_LESSON_5 = {
     "cover": "https://sabbath-school.adventech.io/api/v1/images/global/2026-04/05/cover.png",
     "start_date": "24/10/2026",
     "end_date": "30/10/2026",
-    "memoryVerse": "\"Inilah wahyu Yesus Kristus, yang dikaruniakan Allah kepada-Nya, supaya ditunjukkan-Nya kepada hamba-hamba-Nya apa yang harus segera terjadi. Dan oleh malaikat-Nya yang diutus-Nya, Ia telah menyatakannya kepada hamba-Nya Yohanes.\" (Wahyu 1:1)",
-    "memoryVerseRef": "Wahyu 1:1",
+    "memoryVerse": "\"Inilah wahyu Yesus Kristus, yang dikaruniakan Allah kepada Nya, supaya ditunjukkan-Nya kepada hamba-hamba-Nya apa yang harus segera terjadi. Dan oleh malaikat-Nya yang diutus-Nya, Ia telah menyatakannya kepada hamba-Nya Yohanes. Yohanes telah bersaksi tentang firman Allah dan tentang kesaksian yang diberikan oleh Yesus Kristus, yaitu segala sesuatu yang telah dilihatnya\" (Wahyu 1: 1, 2).",
+    "memoryVerseRef": "Wahyu 1: 1, 2",
     "days": [
         {
             "idx": 0,
@@ -511,16 +511,55 @@ async function resolveVersesFromLocalBible(verseLabel) {
     return fullHtml.trim() || null;
 }
 
+// Ekstraksi otomatis ayat hafalan dari teks HTML Sabat Petang
+export function extractMemoryVerseFromHtml(html) {
+    if (!html) return { text: "", ref: "" };
+    const m = html.match(/<blockquote>\s*(?:<p>)?\s*(?:Ayat Hafalan|Memory Verse)[\s\S]*?<\/blockquote>/i)
+           || html.match(/<blockquote>([\s\S]*?)<\/blockquote>/i);
+    if (!m) return { text: "", ref: "" };
+
+    const rawBlock = m[0];
+    let ref = "";
+    const refMatch = rawBlock.match(/<a[^>]+class=[\"']?[^>]*verse[^>]*[\"']?[^>]*>([^<]+)<\/a>/i);
+    if (refMatch) {
+        ref = refMatch[1].trim();
+    }
+
+    let text = rawBlock
+        .replace(/<\/?[^>]+(>|$)/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    text = text.replace(/^Ayat Hafalan\s*/i, "").trim();
+
+    if (!ref) {
+        const endParenMatch = text.match(/\(([^)]+)\)\.?\s*$/);
+        if (endParenMatch) {
+            ref = endParenMatch[1].trim();
+        }
+    }
+
+    // Rapikan spasi tanda baca
+    text = text
+        .replace(/\(\s+/g, "(")
+        .replace(/\s+\)/g, ")")
+        .replace(/\s+([.,;:!?])/g, "$1")
+        .trim();
+
+    return { text, ref };
+}
+
 // Cache key unik & fungsi validasi cache offline
-const SS_CACHE_PREFIX = "pisgah_ss_v5_";
+const SS_CACHE_PREFIX = "pisgah_ss_v6_";
 
 function getValidCachedLesson(lessonId) {
     try {
-        // Hapus cache usang yang tidak memiliki ayat
+        // Hapus cache usang yang tidak memiliki ayat atau ayat hafalan belum lengkap
         localStorage.removeItem(`pisgah_ss_lesson_2026_04_${lessonId}`);
         localStorage.removeItem(`pisgah_ss_lesson_v2_2026_04_${lessonId}`);
         localStorage.removeItem(`pisgah_ss_lesson_v3_2026_04_${lessonId}`);
         localStorage.removeItem(`pisgah_ss_lesson_v4_2026_04_${lessonId}`);
+        localStorage.removeItem(`pisgah_ss_v5_${lessonId}`);
 
         const raw = localStorage.getItem(`${SS_CACHE_PREFIX}${lessonId}`);
         if (!raw) return null;
@@ -699,13 +738,25 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                     }
                 }
 
+                let extractedMemoryVerse = "";
+                let extractedMemoryVerseRef = "";
+                if (daysData.length > 0 && daysData[0]?.content) {
+                    const parsed = extractMemoryVerseFromHtml(daysData[0].content);
+                    if (parsed.text) {
+                        extractedMemoryVerse = parsed.text;
+                        extractedMemoryVerseRef = parsed.ref;
+                    }
+                }
+
                 const assembled = {
                     id: selectedLessonId,
                     title: data.lesson.title,
                     cover: data.lesson.cover || currentCatalogItem?.cover || `https://sabbath-school.adventech.io/api/v1/images/global/2026-04/${selectedLessonId}/cover.png`,
                     start_date: data.lesson.start_date,
                     end_date: data.lesson.end_date,
-                    days: daysData
+                    days: daysData,
+                    memoryVerse: extractedMemoryVerse || (selectedLessonId === "05" ? BUILTIN_LESSON_5.memoryVerse : ""),
+                    memoryVerseRef: extractedMemoryVerseRef || (selectedLessonId === "05" ? BUILTIN_LESSON_5.memoryVerseRef : "")
                 };
 
                 if (isMounted) {
@@ -1541,14 +1592,29 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    // --- FITUR BERBAGI PELAJARAN SEKOLAH SABAT KE WHATSAPP ---
-    const memoryVerseText = useMemo(() => {
-        if (lessonData?.memoryVerse) return lessonData.memoryVerse;
-        if (selectedLessonId === "05") {
-            return "\"Inilah wahyu Yesus Kristus, yang dikaruniakan Allah kepada-Nya, supaya ditunjukkan-Nya kepada hamba-hamba-Nya apa yang harus segera terjadi. Dan oleh malaikat-Nya yang diutus-Nya, Ia telah menyatakannya kepada hamba-Nya Yohanes.\" (Wahyu 1:1)";
+    // --- FITUR BERBAGI PELAJARAN SEKOLAH SABAT KE WHATSAPP & AYAT HAFALAN PEKAN INI ---
+    const memoryVerseData = useMemo(() => {
+        if (lessonData?.memoryVerse) {
+            return {
+                text: lessonData.memoryVerse,
+                ref: lessonData.memoryVerseRef || ""
+            };
         }
-        return "";
+        if (lessonData?.days && lessonData.days[0]?.content) {
+            const parsed = extractMemoryVerseFromHtml(lessonData.days[0].content);
+            if (parsed.text) return parsed;
+        }
+        if (selectedLessonId === "05") {
+            return {
+                text: BUILTIN_LESSON_5.memoryVerse,
+                ref: BUILTIN_LESSON_5.memoryVerseRef
+            };
+        }
+        return { text: "", ref: "" };
     }, [lessonData, selectedLessonId]);
+
+    const memoryVerseText = memoryVerseData.text;
+    const memoryVerseRef = memoryVerseData.ref;
 
     const [shareWAModal, setShareWAModal] = useState(null); // null | { mode: 'summary'|'memory_verse'|'full', includeNotes: boolean }
     const [copiedWAMsg, setCopiedWAMsg] = useState(false);
@@ -2170,9 +2236,9 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
     // Navigasi langsung ke ayat hafalan di Alkitab Digital
     const handleOpenMemoryVerseInAlkitab = () => {
-        const memoryRef = selectedLessonId === "05" ? "Wahyu 1: 1" : (currentCatalogItem?.memoryVerseRef || "Wahyu 1: 1");
+        const memoryRef = memoryVerseRef || (selectedLessonId === "05" ? "Wahyu 1: 1, 2" : (currentCatalogItem?.memoryVerseRef || "Wahyu 1: 1, 2"));
         const specs = parseCompoundRef(memoryRef);
-        let target = { bookName: "Wahyu", bookId: 66, chapter: 1, verse: "1", returnTab: 'belajar_sekolah_sabat' };
+        let target = { bookName: "Wahyu", bookId: 66, chapter: 1, verse: "1-2", returnTab: 'belajar_sekolah_sabat' };
         if (specs && specs.length > 0) {
             const spec = specs[0];
             target = {
@@ -2638,8 +2704,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             </div>
                         </div>
                         <p className="text-sm sm:text-base italic text-white/95 leading-relaxed font-medium">
-                            {selectedLessonId === "05"
-                                ? "\"Inilah wahyu Yesus Kristus, yang dikaruniakan Allah kepada-Nya, supaya ditunjukkan-Nya kepada hamba-hamba-Nya apa yang harus segera terjadi. Dan oleh malaikat-Nya yang diutus-Nya, Ia telah menyatakannya kepada hamba-Nya Yohanes.\" (Wahyu 1:1)"
+                            {memoryVerseText
+                                ? memoryVerseText
                                 : `Renungkan dan hafalkan ayat firman Tuhan untuk Pekan ${parseInt(selectedLessonId, 10)} ini guna meneguhkan iman dan pengharapan rohani Anda.`}
                         </p>
                     </div>
