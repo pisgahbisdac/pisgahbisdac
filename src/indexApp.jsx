@@ -5644,9 +5644,18 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
         setActiveTab('alkitab');
     };
 
-    const renderItem = (title, desc, isHighlight = false) => {
+    const renderItem = (title, desc, isHighlight = false, extraVerse = null) => {
         const isSong = Boolean(desc && (title.toLowerCase().includes('lagu') || /(?:LS|Lagu Sion)\s*\d+/i.test(desc)));
-        const isVerse = Boolean(desc && title.toLowerCase().includes('ayat') && desc !== '-' && desc !== '...' && desc !== 'Sesuai Khotbah');
+        const hasExtraVerse = Boolean(extraVerse && extraVerse !== '-' && extraVerse !== '...' && extraVerse !== 'Sesuai Khotbah');
+        const isVerse = Boolean(
+            desc &&
+            title.toLowerCase().includes('ayat') &&
+            !title.toLowerCase().includes('doa') &&
+            desc !== '-' &&
+            desc !== '...' &&
+            desc !== 'Sesuai Khotbah' &&
+            !hasExtraVerse
+        );
 
         return (
             <div className={`flex justify-between items-center py-3 px-4 border border-navy-100/60 dark:border-navy-700/60 transition-colors rounded-xl mx-2 my-1.5 ${isHighlight ? 'bg-gold-500/10 shadow-sm border-gold-500/50' : 'hover:bg-navy-50 dark:hover:bg-navy-700/50'}`}>
@@ -5676,6 +5685,21 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
                                 📖 Baca
                             </span>
                         </button>
+                    ) : hasExtraVerse ? (
+                        <div className="flex flex-col items-end gap-1">
+                            <span className={`text-sm break-words font-bold ${isHighlight ? 'text-gold-500' : 'text-navy-900 dark:text-white'}`}>{desc}</span>
+                            <button
+                                type="button"
+                                onClick={() => handleOpenVerse(extraVerse)}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer group text-right justify-end ml-auto"
+                                title={`Buka ${extraVerse} di Alkitab Digital`}
+                            >
+                                <span>{extraVerse}</span>
+                                <span className="text-[9.5px] px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-black border border-emerald-400/40 shrink-0">
+                                    📖 Baca
+                                </span>
+                            </button>
+                        </div>
                     ) : (
                         <span className={`text-sm break-words font-bold ${isHighlight ? 'text-gold-500' : 'text-navy-900 dark:text-white'}`}>{desc}</span>
                     )}
@@ -5763,8 +5787,7 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
                                 <h3 className="hidden lg:flex items-center font-bold text-navy-800 dark:text-gold-400 text-sm uppercase tracking-wider mb-4 px-2 border-b border-navy-100 dark:border-navy-700/50 pb-2"><Icon name="BookOpen" className="w-4 h-4 mr-2" /> Sekolah Sabat</h3>
                                 {renderItem("Pemimpin Acara", getOfficer(activeSabat.sekolahSabat, "Pemimpin Acara"), true)}
                                 {renderItem("Lagu Buka", susunan.ssLaguBuka)}
-                                {renderItem("Ayat Inti", susunan.ssAyatInti || "-")}
-                                {renderItem("Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka") || getOfficer(activeSabat.sekolahSabat, "Doa Buka"))}
+                                {renderItem("Ayat Inti & Doa Buka", getOfficer(activeSabat.sekolahSabat, "Ayat Inti & Doa Buka") || getOfficer(activeSabat.sekolahSabat, "Doa Buka"), false, susunan.ssAyatInti)}
                                 {renderItem("Berita Misi", getOfficer(activeSabat.sekolahSabat, "Berita Misi"))}
                                 {renderItem("Diskusi Sekolah Sabat", "Kelas Dewasa, Kelas Pendalaman Alkitab, Kelas Anak-anak")}
                                 {renderItem("Lagu Tutup", susunan.ssLaguTutup)}
