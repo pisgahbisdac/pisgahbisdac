@@ -522,7 +522,24 @@ function getJadwalDB() {
         if (jsonKey === 'susunan') {
           if (nama === 'Ya' || nama === true) nama = true;
           else if (nama === 'Tidak' || nama === false || nama === '') nama = false;
-          db[tanggal].susunan[tugas] = nama;
+
+          let canonicalKey = tugas;
+          const tLower = String(tugas).toLowerCase().trim();
+          if (tLower === 'sslagutema' || tLower.includes('outro tutup') || tLower.includes('lagu tema ss')) canonicalKey = 'ssLaguTema';
+          else if (tLower === 'klagurespon' || tLower.includes('lagu respon') || tLower.includes('syafaat')) canonicalKey = 'kLaguRespon';
+          else if (tLower === 'klagutema' || tLower.includes('lagu tema khotbah') || tLower.includes('jemaat duduk')) canonicalKey = 'kLaguTema';
+          else if (tLower === 'ssayatinti' || tLower === 'ayat inti ss' || tLower === 'ayat inti (ss)') canonicalKey = 'ssAyatInti';
+          else if (tLower === 'sslagubuka' || tLower.includes('lagu buka ss')) canonicalKey = 'ssLaguBuka';
+          else if (tLower === 'sslagututup' || tLower.includes('lagu tutup ss')) canonicalKey = 'ssLaguTutup';
+          else if (tLower === 'kayatbersahutan' || tLower.includes('ayat bersahutan')) canonicalKey = 'kAyatBersahutan';
+          else if (tLower === 'klagubuka' || tLower.includes('lagu buka khotbah')) canonicalKey = 'kLaguBuka';
+          else if (tLower === 'kayatinti' || tLower.includes('ayat inti khotbah')) canonicalKey = 'kAyatInti';
+          else if (tLower === 'klagututup' || tLower.includes('lagu tutup khotbah')) canonicalKey = 'kLaguTutup';
+
+          db[tanggal].susunan[canonicalKey] = nama;
+          if (canonicalKey !== tugas) {
+            db[tanggal].susunan[tugas] = nama;
+          }
         } else {
           db[tanggal][jsonKey].push({ tugas: tugas, nama: String(nama || '') });
         }
@@ -572,13 +589,38 @@ function saveJadwal(tanggal, tableData) {
 
     let headersModified = false;
     for (const tugas of Object.keys(taskData)) {
-      if (!headers.includes(tugas)) {
+      let found = headers.includes(tugas);
+      if (!found && sheetName === CATEGORY_MAP['Susunan Acara']) {
+        const tLower = String(tugas).toLowerCase().trim();
+        for (let c = 0; c < headers.length; c++) {
+          const hLower = String(headers[c]).toLowerCase().trim();
+          if (
+            (tLower === 'sslagutema' && (hLower.includes('outro tutup') || hLower.includes('lagu tema ss'))) ||
+            (tLower === 'klagurespon' && (hLower.includes('lagu respon') || hLower.includes('syafaat'))) ||
+            (tLower === 'klagutema' && (hLower.includes('lagu tema khotbah') || hLower.includes('jemaat duduk'))) ||
+            (tLower === 'ssayatinti' && hLower.includes('ayat inti ss')) ||
+            (tLower === 'sslagubuka' && hLower.includes('lagu buka ss')) ||
+            (tLower === 'sslagututup' && hLower.includes('lagu tutup ss')) ||
+            (tLower === 'kayatbersahutan' && hLower.includes('ayat bersahutan')) ||
+            (tLower === 'klagubuka' && hLower.includes('lagu buka khotbah')) ||
+            (tLower === 'kayatinti' && hLower.includes('ayat inti khotbah')) ||
+            (tLower === 'klagututup' && hLower.includes('lagu tutup khotbah'))
+          ) {
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found) {
         headers.push(tugas);
         headersModified = true;
       }
     }
 
     if (headersModified) {
+      if (headers.length > sheet.getMaxColumns()) {
+        sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
+      }
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
       sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold");
     }
@@ -587,7 +629,28 @@ function saveJadwal(tanggal, tableData) {
     rowArray[0] = tanggal;
 
     for (const [tugas, nama] of Object.entries(taskData)) {
-      const colIndex = headers.indexOf(tugas);
+      let colIndex = headers.indexOf(tugas);
+      if (colIndex === -1 && sheetName === CATEGORY_MAP['Susunan Acara']) {
+        const tLower = String(tugas).toLowerCase().trim();
+        for (let c = 0; c < headers.length; c++) {
+          const hLower = String(headers[c]).toLowerCase().trim();
+          if (
+            (tLower === 'sslagutema' && (hLower.includes('outro tutup') || hLower.includes('lagu tema ss'))) ||
+            (tLower === 'klagurespon' && (hLower.includes('lagu respon') || hLower.includes('syafaat'))) ||
+            (tLower === 'klagutema' && (hLower.includes('lagu tema khotbah') || hLower.includes('jemaat duduk'))) ||
+            (tLower === 'ssayatinti' && hLower.includes('ayat inti ss')) ||
+            (tLower === 'sslagubuka' && hLower.includes('lagu buka ss')) ||
+            (tLower === 'sslagututup' && hLower.includes('lagu tutup ss')) ||
+            (tLower === 'kayatbersahutan' && hLower.includes('ayat bersahutan')) ||
+            (tLower === 'klagubuka' && hLower.includes('lagu buka khotbah')) ||
+            (tLower === 'kayatinti' && hLower.includes('ayat inti khotbah')) ||
+            (tLower === 'klagututup' && hLower.includes('lagu tutup khotbah'))
+          ) {
+            colIndex = c;
+            break;
+          }
+        }
+      }
       if (colIndex !== -1) {
         rowArray[colIndex] = nama;
       }
@@ -608,6 +671,10 @@ function saveJadwal(tanggal, tableData) {
         rowIndex = i + 1;
         break;
       }
+    }
+
+    if (rowArray.length > sheet.getMaxColumns()) {
+      sheet.insertColumnsAfter(sheet.getMaxColumns(), rowArray.length - sheet.getMaxColumns());
     }
 
     if (rowIndex !== -1) {
