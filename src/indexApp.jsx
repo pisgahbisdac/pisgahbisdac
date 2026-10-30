@@ -20026,15 +20026,7 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                                 </button>
                             </div>
                         ) : (
-                            <div className="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#1C3318]/95 via-navy-900 to-[#1C3318]/95 border border-emerald-500/40 shadow-md flex flex-wrap items-center justify-between gap-2.5 relative">
-                                <button
-                                    type="button"
-                                    onClick={toggleTargetCollapse}
-                                    className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px] font-bold text-white/70 hover:text-white transition cursor-pointer"
-                                    title="Kecilkan Banner Target Hari Ini"
-                                >
-                                    Kecilkan ▴
-                                </button>
+                            <div className="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#1C3318]/95 via-navy-900 to-[#1C3318]/95 border border-emerald-500/40 shadow-md flex flex-wrap items-center justify-between gap-2.5">
                                 <div
                                     onClick={() => {
                                         setAlkitabHomeTab('bible_year');
@@ -20042,7 +20034,7 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                                         setPlanFilterMode('month');
                                         setSelectedPlanMonth(todayPlanItem.month);
                                     }}
-                                    className="flex items-center gap-2.5 min-w-0 cursor-pointer group flex-1 pr-14"
+                                    className="flex items-center gap-2.5 min-w-0 cursor-pointer group flex-1"
                                     title="Buka Target Rencana Baca Hari Ini"
                                 >
                                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0 shadow-xs shadow-emerald-400/50"></span>
@@ -20081,11 +20073,20 @@ const Alkitab = ({ setActiveTab, setHideGlobalBack }) => {
                                             setPlanFilterMode('month');
                                             setSelectedPlanMonth(todayPlanItem.month);
                                         }}
-                                        className="p-1 sm:px-2 sm:py-1 rounded-lg text-gold-400 hover:text-white text-xs font-black transition cursor-pointer flex items-center gap-0.5"
+                                        className="px-2 py-1 rounded-lg text-gold-400 hover:text-white hover:bg-white/10 text-xs font-black transition cursor-pointer flex items-center gap-1"
                                         title="Lihat Kalender Rencana Baca 1 Tahun"
                                     >
-                                        <span className="hidden sm:inline text-[11px]">Rencana</span>
+                                        <span className="text-[11px]">Rencana</span>
                                         <Icon name="ArrowRight" className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={toggleTargetCollapse}
+                                        className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[10px] font-bold text-white/70 hover:text-white transition cursor-pointer shrink-0 flex items-center gap-1"
+                                        title="Kecilkan Banner Target Hari Ini"
+                                    >
+                                        <span>Kecilkan</span>
+                                        <span className="text-[11px]">▴</span>
                                     </button>
                                 </div>
                             </div>
