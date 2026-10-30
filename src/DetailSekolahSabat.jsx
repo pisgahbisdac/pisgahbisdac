@@ -532,6 +532,13 @@ function getValidCachedLesson(lessonId) {
     return null;
 }
 
+// Ikon Resmi WhatsApp (SVG Vektor Tajam & Ringan)
+const WhatsAppIcon = ({ className = "w-4 h-4" }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19.01L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67ZM9.11 7.15C8.94 7.15 8.66 7.22 8.42 7.48C8.18 7.74 7.5 8.38 7.5 9.68C7.5 10.98 8.45 12.23 8.58 12.41C8.71 12.59 10.45 15.28 13.12 16.43C15.34 17.39 15.79 17.2 16.27 17.15C16.75 17.11 17.82 16.52 18.04 15.9C18.26 15.28 18.26 14.75 18.19 14.64C18.12 14.53 17.95 14.47 17.69 14.34C17.43 14.21 16.16 13.58 15.92 13.49C15.69 13.41 15.52 13.37 15.35 13.63C15.18 13.89 14.69 14.47 14.54 14.64C14.39 14.81 14.24 14.83 13.98 14.7C13.72 14.57 12.88 14.29 11.89 13.41C11.11 12.72 10.59 11.86 10.44 11.6C10.29 11.34 10.42 11.2 10.55 11.07C10.67 10.95 10.81 10.77 10.94 10.62C11.07 10.47 11.11 10.36 11.2 10.18C11.29 10.01 11.25 9.86 11.18 9.73C11.11 9.6 10.62 8.4 10.42 7.9C10.22 7.42 10.02 7.48 9.86 7.47C9.71 7.46 9.54 7.46 9.37 7.46C9.2 7.46 9.11 7.15 9.11 7.15Z" />
+    </svg>
+);
+
 export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideGlobalBack }) {
     useEffect(() => {
         if (setHideGlobalBack) setHideGlobalBack(true);
@@ -553,8 +560,29 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         return match ? match.id : "05";
     }, []);
 
-    const [selectedLessonId, setSelectedLessonId] = useState(currentActiveLessonId);
-    const [selectedDayIdx, setSelectedDayIdx] = useState(todayDayIdx);
+    const [selectedLessonId, setSelectedLessonId] = useState(() => {
+        try {
+            const p = new URLSearchParams(window.location.search);
+            const l = p.get('lesson') || p.get('ss_lesson');
+            if (l) {
+                const padded = String(parseInt(l, 10)).padStart(2, '0');
+                if (SS_LESSONS_CATALOG.some(c => c.id === padded)) return padded;
+            }
+        } catch (e) { }
+        return currentActiveLessonId;
+    });
+
+    const [selectedDayIdx, setSelectedDayIdx] = useState(() => {
+        try {
+            const p = new URLSearchParams(window.location.search);
+            const d = p.get('day') || p.get('ss_day');
+            if (d !== null && d !== undefined) {
+                const parsed = parseInt(d, 10);
+                if (!isNaN(parsed) && parsed >= 0 && parsed <= 6) return parsed;
+            }
+        } catch (e) { }
+        return todayDayIdx;
+    });
     const [fontSizeLevel, setFontSizeLevel] = useState(0); // 0: normal, 1: large, 2: extra-large
     const [popupFontSizeLevel, setPopupFontSizeLevel] = useState(() => {
         try {
@@ -1513,6 +1541,165 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
+    // --- FITUR BERBAGI PELAJARAN SEKOLAH SABAT KE WHATSAPP ---
+    const memoryVerseText = useMemo(() => {
+        if (lessonData?.memoryVerse) return lessonData.memoryVerse;
+        if (selectedLessonId === "05") {
+            return "\"Inilah wahyu Yesus Kristus, yang dikaruniakan Allah kepada-Nya, supaya ditunjukkan-Nya kepada hamba-hamba-Nya apa yang harus segera terjadi. Dan oleh malaikat-Nya yang diutus-Nya, Ia telah menyatakannya kepada hamba-Nya Yohanes.\" (Wahyu 1:1)";
+        }
+        return "";
+    }, [lessonData, selectedLessonId]);
+
+    const [shareWAModal, setShareWAModal] = useState(null); // null | { mode: 'summary'|'memory_verse'|'full', includeNotes: boolean }
+    const [copiedWAMsg, setCopiedWAMsg] = useState(false);
+
+    const getFormattedLessonWAMessage = (mode = 'summary', includeNotes = false) => {
+        const lessonNum = parseInt(selectedLessonId, 10) || 5;
+        const lessonTitle = currentCatalogItem?.title || `Pelajaran ${lessonNum}`;
+        const dayLabel = SS_DAY_TABS[selectedDayIdx]?.label || "Hari Ini";
+        const dayDate = currentDay?.date || "";
+        const dayTitle = currentDay?.title || "";
+
+        const cleanMemoryVerse = (memoryVerseText || "").replace(/^["'“”«]+|["'“”»]+$/g, '').trim();
+
+        const shareUrl = typeof window !== 'undefined'
+            ? `${window.location.origin}/?tab=belajar_sekolah_sabat&lesson=${selectedLessonId}&day=${selectedDayIdx}`
+            : `https://pisgahbisdac.app/?tab=belajar_sekolah_sabat&lesson=${selectedLessonId}&day=${selectedDayIdx}`;
+
+        if (mode === 'memory_verse') {
+            let msg = `*AYAT HAFALAN SEKOLAH SABAT*\n`;
+            msg += `📖 *Pelajaran ${lessonNum}:* ${lessonTitle}\n`;
+            if (currentCatalogItem?.dateRange) msg += `🗓️ *Pekan:* ${currentCatalogItem.dateRange}\n`;
+            msg += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+            if (cleanMemoryVerse) {
+                msg += `💡 *Ayat Hafalan:*\n"${cleanMemoryVerse}"\n\n`;
+            }
+            msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+            msg += `📲 *Pelajari Sekolah Sabat di:*\n${shareUrl}\n\n`;
+            msg += `_GMAHK Jemaat Pisgah Batam_`;
+            return msg;
+        }
+
+        let msg = `*SEKOLAH SABAT - GMAHK JEMAAT PISGAH BATAM*\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `📖 *Pelajaran ${lessonNum}:* ${lessonTitle}\n`;
+        msg += `🗓️ *${dayLabel}*, ${dayDate}\n`;
+        msg += `⭐ *${dayTitle}*\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+        if (cleanMemoryVerse) {
+            msg += `💡 *Ayat Hafalan Pekan Ini:*\n"${cleanMemoryVerse}"\n\n`;
+        }
+
+        if (mode === 'full') {
+            const fullBody = parsedBlocks.map(b => b.text).filter(Boolean).join('\n\n');
+            if (fullBody) {
+                msg += `📜 *Bacaan Pelajaran Hari Ini:*\n${fullBody}\n\n`;
+            }
+        } else {
+            // Mode 'summary' (paragraf inti ~600-750 karakter)
+            const textBlocks = parsedBlocks.map(b => b.text).filter(t => t && t.length > 20);
+            let excerpt = "";
+            for (let i = 0; i < textBlocks.length; i++) {
+                const block = textBlocks[i];
+                if (excerpt.length + block.length <= 750) {
+                    excerpt += (excerpt ? "\n\n" : "") + block;
+                } else {
+                    if (!excerpt) {
+                        excerpt = block.slice(0, 500) + "...";
+                    } else {
+                        excerpt += "\n\n...";
+                    }
+                    break;
+                }
+            }
+            if (excerpt) {
+                msg += `📝 *Intisari Renungan:*\n${excerpt}\n\n`;
+            }
+        }
+
+        // Catatan Pribadi Hari Ini jika dicentang
+        if (includeNotes) {
+            const dayNotes = inlineNotes.filter(n => String(n.lessonId) === String(selectedLessonId) && n.dayIdx === selectedDayIdx && n.content && n.content.trim());
+            if (dayNotes.length > 0) {
+                msg += `✍️ *Catatan Renungan Saya:*\n`;
+                dayNotes.forEach(n => {
+                    if (n.selectedText) msg += `📌 _"${n.selectedText}"_\n`;
+                    msg += `${n.content.trim()}\n\n`;
+                });
+            }
+        }
+
+        msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `📲 *Baca selengkapnya & dengarkan audio di:*\n${shareUrl}\n\n`;
+        msg += `_Tuhan memberkati penyelidikan firman kita._`;
+
+        return msg;
+    };
+
+    const handleOpenShareModal = (initialMode = 'summary') => {
+        const hasNotesToday = inlineNotes.some(n => String(n.lessonId) === String(selectedLessonId) && n.dayIdx === selectedDayIdx && n.content && n.content.trim());
+        setShareWAModal({
+            mode: initialMode,
+            includeNotes: hasNotesToday
+        });
+    };
+
+    const handleSendToWhatsApp = () => {
+        if (!shareWAModal) return;
+        const msg = getFormattedLessonWAMessage(shareWAModal.mode, shareWAModal.includeNotes);
+        if (!msg) return;
+
+        if (msg.length > 2500) {
+            try {
+                navigator.clipboard.writeText(msg);
+            } catch (e) { }
+            alert("Pesan cukup panjang. Teks lengkap telah otomatis disalin ke clipboard!\n\nSaat WhatsApp terbuka, cukup tekan Tempel (Paste) di kolom chat.");
+        }
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        setShareWAModal(null);
+    };
+
+    const handleCopyWAMessage = async () => {
+        if (!shareWAModal) return;
+        const msg = getFormattedLessonWAMessage(shareWAModal.mode, shareWAModal.includeNotes);
+        if (!msg) return;
+        try {
+            await navigator.clipboard.writeText(msg);
+            setCopiedWAMsg(true);
+            setTimeout(() => setCopiedWAMsg(false), 2200);
+        } catch (e) { }
+    };
+
+    const handleShareMemoryVerseWA = () => {
+        const msg = getFormattedLessonWAMessage('memory_verse', false);
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    const handleShareSelectedTextWA = (text) => {
+        if (!text) return;
+        const lessonNum = parseInt(selectedLessonId, 10) || 5;
+        const lessonTitle = currentCatalogItem?.title || `Pelajaran ${lessonNum}`;
+        const dayLabel = SS_DAY_TABS[selectedDayIdx]?.label || "";
+        const dayDate = currentDay?.date || "";
+        const dayTitle = currentDay?.title || "";
+
+        const shareUrl = typeof window !== 'undefined'
+            ? `${window.location.origin}/?tab=belajar_sekolah_sabat&lesson=${selectedLessonId}&day=${selectedDayIdx}`
+            : `https://pisgahbisdac.app/?tab=belajar_sekolah_sabat&lesson=${selectedLessonId}&day=${selectedDayIdx}`;
+
+        const msg = `*KUTIPAN SEKOLAH SABAT*\n` +
+            `📖 *Pelajaran ${lessonNum}:* ${lessonTitle}\n` +
+            `🗓️ *${dayLabel}*, ${dayDate} — _${dayTitle}_\n\n` +
+            `"${text.trim()}"\n\n` +
+            `━━━━━━━━━━━━━━━━━━━━━\n` +
+            `📲 _Baca selengkapnya di:_ ${shareUrl}\n` +
+            `_GMAHK Jemaat Pisgah Batam_`;
+
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        setSelectionToolbar(null);
+    };
+
     // 2. Catatan & Stabilo Ayat Alkitab (Sinkron 2-Arah dengan Alkitab Digital)
     const [highlightsMap, setHighlightsMap] = useState(() => {
         try {
@@ -2351,6 +2538,17 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                         )}
                     </button>
 
+                    {/* Tombol Bagikan ke WhatsApp di Bar Atas */}
+                    <button
+                        type="button"
+                        onClick={() => handleOpenShareModal('summary')}
+                        className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-800 dark:text-emerald-300 text-xs font-black transition flex items-center gap-1.5 cursor-pointer border border-emerald-400/40 shrink-0 shadow-2xs active:scale-95"
+                        title="Bagikan Pelajaran Sekolah Sabat ke WhatsApp"
+                    >
+                        <WhatsAppIcon className="w-3.5 h-3.5 fill-emerald-600 dark:fill-emerald-400" />
+                        <span className="hidden sm:inline">Bagi WA</span>
+                    </button>
+
                     <div className="hidden sm:flex items-center bg-white/80 dark:bg-navy-800 rounded-xl p-0.5 border border-navy-200/60 dark:border-navy-700">
                         <button
                             type="button"
@@ -2419,14 +2617,25 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             <span className="text-xs font-black uppercase tracking-wider text-gold-300 flex items-center gap-1.5">
                                 <Sparkles className="w-4 h-4 text-gold-400" /> AYAT HAFALAN PEKAN INI
                             </span>
-                            <button
-                                type="button"
-                                onClick={handleOpenMemoryVerseInAlkitab}
-                                className="px-3 py-1 rounded-xl bg-gold-500 hover:bg-gold-600 text-navy-950 text-xs font-black transition active:scale-95 cursor-pointer shadow-xs flex items-center gap-1"
-                            >
-                                <BookOpen className="w-3.5 h-3.5" />
-                                <span>Buka di Alkitab</span>
-                            </button>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                                <button
+                                    type="button"
+                                    onClick={handleShareMemoryVerseWA}
+                                    className="px-2.5 sm:px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition active:scale-95 cursor-pointer shadow-xs flex items-center gap-1"
+                                    title="Bagikan Ayat Hafalan ke WhatsApp"
+                                >
+                                    <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
+                                    <span>Bagi Ayat WA</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleOpenMemoryVerseInAlkitab}
+                                    className="px-3 py-1 rounded-xl bg-gold-500 hover:bg-gold-600 text-navy-950 text-xs font-black transition active:scale-95 cursor-pointer shadow-xs flex items-center gap-1"
+                                >
+                                    <BookOpen className="w-3.5 h-3.5" />
+                                    <span>Buka di Alkitab</span>
+                                </button>
+                            </div>
                         </div>
                         <p className="text-sm sm:text-base italic text-white/95 leading-relaxed font-medium">
                             {selectedLessonId === "05"
@@ -2568,6 +2777,17 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                                                     <span>🎧 Dengarkan Pelajaran</span>
                                                 </>
                                             )}
+                                        </button>
+
+                                        {/* TOMBOL BAGIKAN KE WHATSAPP */}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenShareModal('summary')}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold text-xs backdrop-blur-md transition cursor-pointer shadow-sm active:scale-95 border border-emerald-400/40"
+                                            title="Bagikan Pelajaran Hari Ini ke WhatsApp"
+                                        >
+                                            <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
+                                            <span>Bagi ke WhatsApp</span>
                                         </button>
                                     </div>
 
@@ -2825,6 +3045,31 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                             </div>
                         </div>
 
+                        {/* KARTU AJAKAN BERBAGI KE WHATSAPP */}
+                        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-teal-500/10 dark:from-emerald-950/30 dark:via-emerald-900/20 dark:to-teal-950/20 border border-emerald-300/40 dark:border-emerald-500/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-600/25">
+                                    <WhatsAppIcon className="w-5 h-5 fill-white" />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-black text-navy-950 dark:text-white">
+                                        Bagikan Renungan ke WhatsApp
+                                    </h4>
+                                    <p className="text-xs text-navy-600 dark:text-gray-300 mt-0.5">
+                                        Kirimkan intisari {SS_DAY_TABS[selectedDayIdx]?.label} dan ayat hafalan ke grup WA jemaat, sahabat, atau keluarga.
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => handleOpenShareModal('summary')}
+                                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-emerald-600/25 active:scale-95 transition shrink-0"
+                            >
+                                <WhatsAppIcon className="w-4 h-4 fill-white" />
+                                <span>Bagikan ke WhatsApp</span>
+                            </button>
+                        </div>
+
                         {/* NAVIGASI HARI SEBELUMNYA / SELANJUTNYA */}
                         <div className="pt-6 border-t border-navy-100 dark:border-navy-800 flex items-center justify-between gap-3 flex-wrap">
                             <button
@@ -2999,12 +3244,158 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
 
                     <button
                         type="button"
+                        onClick={() => handleShareSelectedTextWA(selectionToolbar.text)}
+                        className="px-3 py-2 sm:py-1.5 rounded-xl bg-emerald-600/80 hover:bg-emerald-600 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer transition active:scale-95 shrink-0"
+                        title="Bagikan Kalimat ini ke WhatsApp"
+                    >
+                        <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
+                        <span className="whitespace-nowrap">WA</span>
+                    </button>
+
+                    <button
+                        type="button"
                         onClick={() => setSelectionToolbar(null)}
                         className="p-2 sm:p-1.5 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white cursor-pointer transition shrink-0"
                         title="Tutup"
                     >
                         <X className="w-4 h-4" />
                     </button>
+                </div>
+            )}
+
+            {/* MODAL BAGIKAN KE WHATSAPP */}
+            {shareWAModal && (
+                <div
+                    className="fixed inset-0 z-[140] flex items-center justify-center bg-navy-950/80 backdrop-blur-md p-4 animate-fade-in"
+                    onClick={() => setShareWAModal(null)}
+                >
+                    <div
+                        className="rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl animate-scale-up border-2 border-emerald-400/50 bg-white dark:bg-navy-900 flex flex-col space-y-4 max-h-[92vh] overflow-y-auto"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header Modal */}
+                        <div className="flex items-center justify-between pb-3 border-b border-navy-100 dark:border-navy-800">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg shrink-0">
+                                    <WhatsAppIcon className="w-5 h-5 fill-emerald-600 dark:fill-emerald-400" />
+                                </div>
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-navy-900 dark:text-white text-base truncate">
+                                        Bagikan ke WhatsApp
+                                    </h3>
+                                    <p className="text-[10.5px] text-emerald-600 dark:text-emerald-400 font-extrabold uppercase tracking-wider truncate">
+                                        Pelajaran {parseInt(selectedLessonId, 10)} • {SS_DAY_TABS[selectedDayIdx]?.label}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShareWAModal(null)}
+                                className="p-1 rounded-lg text-navy-400 hover:text-navy-700 dark:hover:text-white cursor-pointer"
+                                title="Tutup"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Pilihan Format Pesan */}
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-navy-700 dark:text-gray-300">
+                                Pilih Format Pesan:
+                            </label>
+                            <div className="grid grid-cols-3 gap-1.5 p-1 bg-navy-50 dark:bg-navy-950 rounded-2xl border border-navy-100 dark:border-navy-800 text-xs font-bold">
+                                <button
+                                    type="button"
+                                    onClick={() => setShareWAModal(prev => ({ ...prev, mode: 'summary' }))}
+                                    className={`py-2 px-1.5 rounded-xl transition text-center cursor-pointer text-[11px] sm:text-xs ${shareWAModal.mode === 'summary'
+                                        ? 'bg-emerald-600 text-white shadow-xs font-black'
+                                        : 'text-navy-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-navy-800'
+                                    }`}
+                                >
+                                    Intisari & Ayat
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShareWAModal(prev => ({ ...prev, mode: 'memory_verse' }))}
+                                    className={`py-2 px-1.5 rounded-xl transition text-center cursor-pointer text-[11px] sm:text-xs ${shareWAModal.mode === 'memory_verse'
+                                        ? 'bg-emerald-600 text-white shadow-xs font-black'
+                                        : 'text-navy-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-navy-800'
+                                    }`}
+                                >
+                                    Ayat Hafalan
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShareWAModal(prev => ({ ...prev, mode: 'full' }))}
+                                    className={`py-2 px-1.5 rounded-xl transition text-center cursor-pointer text-[11px] sm:text-xs ${shareWAModal.mode === 'full'
+                                        ? 'bg-emerald-600 text-white shadow-xs font-black'
+                                        : 'text-navy-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-navy-800'
+                                    }`}
+                                >
+                                    Teks Lengkap
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Opsi Sertakan Catatan Pribadi (jika ada catatan hari ini) */}
+                        {inlineNotes.some(n => String(n.lessonId) === String(selectedLessonId) && n.dayIdx === selectedDayIdx && n.content && n.content.trim()) && shareWAModal.mode !== 'memory_verse' && (
+                            <label className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/10 dark:bg-navy-950 border border-amber-300/40 dark:border-navy-800 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={shareWAModal.includeNotes}
+                                    onChange={(e) => setShareWAModal(prev => ({ ...prev, includeNotes: e.target.checked }))}
+                                    className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                                />
+                                <span className="text-xs font-bold text-navy-800 dark:text-gray-200">
+                                    Sertakan catatan renungan pribadi saya hari ini
+                                </span>
+                            </label>
+                        )}
+
+                        {/* Preview Box Pesan WhatsApp */}
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between text-xs font-bold text-navy-600 dark:text-gray-400">
+                                <span>Preview Teks WhatsApp:</span>
+                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-black">
+                                    Siap Dikirim
+                                </span>
+                            </div>
+                            <div className="p-3.5 rounded-2xl bg-[#0B141A] text-[#E9EDEF] font-mono text-[11.5px] leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap select-all border border-emerald-500/30 shadow-inner">
+                                {getFormattedLessonWAMessage(shareWAModal.mode, shareWAModal.includeNotes)}
+                            </div>
+                        </div>
+
+                        {/* Tombol Aksi */}
+                        <div className="flex items-center gap-2 pt-2 border-t border-navy-100 dark:border-navy-800 flex-wrap sm:flex-nowrap">
+                            <button
+                                type="button"
+                                onClick={handleSendToWhatsApp}
+                                className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition cursor-pointer active:scale-95"
+                            >
+                                <WhatsAppIcon className="w-5 h-5 fill-white" />
+                                <span>Buka WhatsApp</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handleCopyWAMessage}
+                                className="py-3 px-4 rounded-xl bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 dark:hover:bg-navy-700 text-navy-800 dark:text-gray-200 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-95 shrink-0"
+                                title="Salin Teks Pesan"
+                            >
+                                {copiedWAMsg ? (
+                                    <>
+                                        <Check className="w-4 h-4 text-emerald-500 stroke-[3]" />
+                                        <span className="text-emerald-600 dark:text-emerald-400 font-black">Tersalin!</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Copy className="w-4 h-4" />
+                                        <span>Salin Teks</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 
