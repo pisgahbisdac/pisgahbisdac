@@ -5811,7 +5811,7 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
                                             type="button"
                                             onClick={() => handleOpenSong(susunan.ssLaguTema || "LS 168")}
                                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-navy-800 text-amber-700 dark:text-gold-400 hover:bg-amber-100 dark:hover:bg-navy-700 border border-amber-300/60 dark:border-navy-600 transition cursor-pointer font-bold text-xs shadow-2xs"
-                                            title={`Buka ${susunan.ssLaguTema || "LS 168 Kita Memiliki Pengharapan"} di Lagu Sion`}
+                                            title={`Buka Outro Tutup: ${susunan.ssLaguTema || "LS 168 Kita Memiliki Pengharapan"} di Lagu Sion`}
                                         >
                                             <span>🎵 "{susunan.ssLaguTema || "LS 168 Kita Memiliki Pengharapan"}"</span>
                                             <span className="text-[10px] font-black text-amber-600 dark:text-gold-300">Buka &rarr;</span>
@@ -15714,12 +15714,12 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                         </div>
                                                                         <div>
                                                                             <div className="flex items-center justify-between mb-1">
-                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Lagu Tema SS (Tombol Bawah)</label>
+                                                                                <label className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Outro Tutup Sekolah Sabat</label>
                                                                                 <button
                                                                                     type="button"
-                                                                                    onClick={() => openSongPicker('ssLaguTema', 'Pilih Lagu Tema Sekolah Sabat')}
+                                                                                    onClick={() => openSongPicker('ssLaguTema', 'Pilih Outro Tutup Sekolah Sabat')}
                                                                                     className="inline-flex items-center gap-1 text-[11px] font-black text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-md transition cursor-pointer border border-amber-300/60"
-                                                                                    title="Pilih langsung dari 525 Lagu Sion"
+                                                                                    title="Pilih langsung dari Lagu Sion"
                                                                                 >
                                                                                     <span>🎵</span>
                                                                                     <span>Pilih Lagu</span>
@@ -15735,7 +15735,7 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                                 />
                                                                                 <button
                                                                                     type="button"
-                                                                                    onClick={() => openSongPicker('ssLaguTema', 'Pilih Lagu Tema Sekolah Sabat')}
+                                                                                    onClick={() => openSongPicker('ssLaguTema', 'Pilih Outro Tutup Sekolah Sabat')}
                                                                                     className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-gold-50 text-gold-700 hover:text-navy-900 border border-gold-300/60 rounded-lg shadow-2xs transition cursor-pointer"
                                                                                 >
                                                                                     Pilih ▾
