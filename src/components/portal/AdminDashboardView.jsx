@@ -6374,10 +6374,10 @@ export const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwa
                                                                                         <button
                                                                                             type="button"
                                                                                             onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Roti & Anggur)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
-                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-colors shadow-2xs active:scale-95 cursor-pointer"
                                                                                             title={`Kirim Pengingat WA ke ${p.nama}`}
                                                                                         >
-                                                                                            <Icon name="WhatsApp" className="w-4 h-4" />
+                                                                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                                                                         </button>
                                                                                     )}
                                                                                 </div>
@@ -6395,10 +6395,10 @@ export const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwa
                                                                                         <button
                                                                                             type="button"
                                                                                             onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Basuh Kaki)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
-                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-colors shadow-2xs active:scale-95 cursor-pointer"
                                                                                             title={`Kirim Pengingat WA ke ${p.nama}`}
                                                                                         >
-                                                                                            <Icon name="WhatsApp" className="w-4 h-4" />
+                                                                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                                                                         </button>
                                                                                     )}
                                                                                 </div>
@@ -6416,10 +6416,10 @@ export const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwa
                                                                                         <button
                                                                                             type="button"
                                                                                             onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Pelayan Perjamuan)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
-                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-colors shadow-2xs active:scale-95 cursor-pointer"
                                                                                             title={`Kirim Pengingat WA ke ${p.nama}`}
                                                                                         >
-                                                                                            <Icon name="WhatsApp" className="w-4 h-4" />
+                                                                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                                                                         </button>
                                                                                     )}
                                                                                 </div>
@@ -6437,10 +6437,10 @@ export const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwa
                                                                                         <button
                                                                                             type="button"
                                                                                             onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Pembersihan Alat)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
-                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-colors shadow-2xs active:scale-95 cursor-pointer"
                                                                                             title={`Kirim Pengingat WA ke ${p.nama}`}
                                                                                         >
-                                                                                            <Icon name="WhatsApp" className="w-4 h-4" />
+                                                                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                                                                         </button>
                                                                                     )}
                                                                                 </div>
@@ -6503,10 +6503,10 @@ export const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwa
                                                                                                 waktu: waktuLabelMap[subTab] || '',
                                                                                                 dataPejabat
                                                                                             })}
-                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-colors shadow-2xs active:scale-95 cursor-pointer"
                                                                                             title={`Kirim Pengingat WA ke ${p.nama}`}
                                                                                         >
-                                                                                            <Icon name="WhatsApp" className="w-4 h-4" />
+                                                                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                                                                         </button>
                                                                                     )}
                                                                                 </div>

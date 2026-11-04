@@ -4763,9 +4763,9 @@ export const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = []
                                                 dataPejabat
                                             })}
                                             title={`Kirim Pengingat WhatsApp ke ${item.nama}`}
-                                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-xs font-extrabold transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
+                                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-black transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
                                         >
-                                            <Icon name="WhatsApp" className="w-3.5 h-3.5" />
+                                            <Icon name="WhatsApp" className="w-3.5 h-3.5 text-white" />
                                             <span>WA</span>
                                         </button>
                                     </div>

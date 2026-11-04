@@ -2860,7 +2860,7 @@ const VerseImageCardModal = ({ isOpen, onClose, reference = '', verseText = '', 
                                 disabled={isSharing}
                                 className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-700/20 flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer"
                             >
-                                <i className="fa-brands fa-whatsapp text-base"></i>
+                                <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                 <span>{isSharing ? 'Menyiapkan Gambar...' : 'Kirim Gambar ke WhatsApp'}</span>
                             </button>
 
@@ -3097,7 +3097,7 @@ const DailyVerseWidget = ({ setActiveTab }) => {
                         onClick={handleShareWA}
                         className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-95 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-700/20 cursor-pointer"
                     >
-                        <i className="fa-brands fa-whatsapp text-sm"></i>
+                        <Icon name="WhatsApp" className="w-3.5 h-3.5 text-white" />
                         <span>Kirim WA</span>
                     </button>
                 </div>
@@ -3360,9 +3360,9 @@ const OfficerAttendanceModal = ({ modalData, onClose, dataPejabat = [] }) => {
                         <button
                             type="button"
                             onClick={() => handleSave(true)}
-                            className="w-full py-2.5 px-4 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/40 font-extrabold text-xs sm:text-sm transition cursor-pointer flex items-center justify-center gap-2"
+                            className="w-full py-2.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white font-extrabold text-xs sm:text-sm transition cursor-pointer flex items-center justify-center gap-2 shadow-xs active:scale-98"
                         >
-                            <i className="fa-brands fa-whatsapp text-base"></i>
+                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                             <span>Simpan & Kabari Sekretaris via WA</span>
                         </button>
                         {modalData.existing && (
@@ -3913,7 +3913,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                         onClick={() => handleSendPrivateToPastorWA(submitSuccessMsg.prayer)}
                         className="px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-black flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs"
                     >
-                        <i className="fa-brands fa-whatsapp"></i>
+                        <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                         <span>Teruskan Langsung ke WA Gembala/Majelis</span>
                     </button>
                 </div>
@@ -4678,9 +4678,9 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => 
                                                 dataPejabat
                                             })}
                                             title={`Kirim Pengingat WhatsApp ke ${item.nama}`}
-                                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-xs font-extrabold transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
+                                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-black transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
                                         >
-                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                            <Icon name="WhatsApp" className="w-3.5 h-3.5 text-white" />
                                             <span>WA</span>
                                         </button>
                                     </div>
@@ -6914,9 +6914,9 @@ const renderPerjamuanGroup = (title, members, dateStr = '', dataPejabat = [], at
                                         });
                                     }}
                                     title={`Kirim Pengingat WA ke ${m.nama}`}
-                                    className="w-7 h-7 rounded-lg bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer border border-[#25D366]/30"
+                                    className="w-7 h-7 rounded-lg bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer shadow-xs"
                                 >
-                                    <i className="fa-brands fa-whatsapp text-sm"></i>
+                                    <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                 </button>
                             )}
                         </div>
@@ -7152,9 +7152,9 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                                     dataPejabat
                                 })}
                                 title={`Kirim Pengingat WhatsApp ke ${p.nama}`}
-                                className="w-7 h-7 rounded-lg bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer border border-[#25D366]/30"
+                                className="w-7 h-7 rounded-lg bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer shadow-xs"
                             >
-                                <i className="fa-brands fa-whatsapp text-sm"></i>
+                                <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                             </button>
                         )}
                     </div>
@@ -16793,10 +16793,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                                         <button
                                                                                             type="button"
                                                                                             onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Roti & Anggur)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
-                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-colors shadow-2xs active:scale-95 cursor-pointer"
                                                                                             title={`Kirim Pengingat WA ke ${p.nama}`}
                                                                                         >
-                                                                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                                                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                                                                         </button>
                                                                                     )}
                                                                                 </div>
@@ -16814,10 +16814,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                                         <button
                                                                                             type="button"
                                                                                             onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Basuh Kaki)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
-                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-colors shadow-2xs active:scale-95 cursor-pointer"
                                                                                             title={`Kirim Pengingat WA ke ${p.nama}`}
                                                                                         >
-                                                                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                                                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                                                                         </button>
                                                                                     )}
                                                                                 </div>
@@ -16835,10 +16835,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                                         <button
                                                                                             type="button"
                                                                                             onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Pelayan Perjamuan)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
-                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-colors shadow-2xs active:scale-95 cursor-pointer"
                                                                                             title={`Kirim Pengingat WA ke ${p.nama}`}
                                                                                         >
-                                                                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                                                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                                                                         </button>
                                                                                     )}
                                                                                 </div>
@@ -16856,10 +16856,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                                         <button
                                                                                             type="button"
                                                                                             onClick={() => sendWhatsAppOfficerReminder({ nama: p.nama, tugas: p.tugas, sesi: 'Ibadah Perjamuan Kudus (Pembersihan Alat)', dateStr: date, waktu: '09:00 - 12:00 WIB', dataPejabat })}
-                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-colors shadow-2xs active:scale-95 cursor-pointer"
                                                                                             title={`Kirim Pengingat WA ke ${p.nama}`}
                                                                                         >
-                                                                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                                                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                                                                         </button>
                                                                                     )}
                                                                                 </div>
@@ -16922,10 +16922,10 @@ const AdminDashboard = ({ dataPejabat, setDataPejabat, jadwalDB, setJadwalDB, ad
                                                                                                 waktu: waktuLabelMap[subTab] || '',
                                                                                                 dataPejabat
                                                                                             })}
-                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition-colors shadow-2xs"
+                                                                                            className="w-9 h-9 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-colors shadow-2xs active:scale-95 cursor-pointer"
                                                                                             title={`Kirim Pengingat WA ke ${p.nama}`}
                                                                                         >
-                                                                                            <i className="fa-brands fa-whatsapp text-sm"></i>
+                                                                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                                                                         </button>
                                                                                     )}
                                                                                 </div>
@@ -23494,7 +23494,7 @@ const FloatingQuickActions = ({ isSyncing, setSyncTrigger, setShowSyncNotif, set
                 }}
                 title="Hubungi Kami"
             >
-                <i className="fa-brands fa-whatsapp text-[#25D366] text-2xl transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(37,211,102,0.4)]"></i>
+                <Icon name="WhatsApp" className="w-6 h-6 text-[#25D366] transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(37,211,102,0.4)]" />
             </button>
 
             {/* Floating Scroll-to-Top Button */}
