@@ -5220,11 +5220,10 @@ export const SongPreviewModal = ({ isOpen, onClose, song, onOpenFull }) => {
                         <button
                             type="button"
                             onClick={() => playPitch(startingNote.freq, startingNote.note)}
-                            className={`px-3 py-1 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 ${
-                                activePlayingNote === startingNote.note
+                            className={`px-3 py-1 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 ${activePlayingNote === startingNote.note
                                     ? 'bg-amber-600 text-white animate-pulse'
                                     : 'bg-amber-500/20 hover:bg-amber-500 text-amber-900 dark:text-gold-300 hover:text-white border border-amber-500/30'
-                            }`}
+                                }`}
                             title={`Bunyikan nada ${startingNote.note}`}
                         >
                             <span>🔊 {activePlayingNote === startingNote.note ? 'Membunyikan...' : `Bunyikan Nada (${startingNote.note})`}</span>
@@ -5238,19 +5237,17 @@ export const SongPreviewModal = ({ isOpen, onClose, song, onOpenFull }) => {
                         parsedVerses.map((verse, idx) => (
                             <div
                                 key={idx}
-                                className={`p-4 rounded-2xl border transition-all ${
-                                    verse.type === 'chorus'
+                                className={`p-4 rounded-2xl border transition-all ${verse.type === 'chorus'
                                         ? 'bg-amber-500/10 dark:bg-amber-950/30 border-amber-500/30'
                                         : 'bg-[#F7F9F3] dark:bg-navy-950/60 border-[#E2E8D8]/60 dark:border-navy-800/60'
-                                }`}
+                                    }`}
                             >
                                 {verse.label && (
                                     <div className="flex items-center justify-center mb-2">
-                                        <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
-                                            verse.type === 'chorus'
+                                        <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${verse.type === 'chorus'
                                                 ? 'bg-amber-500/25 text-amber-900 dark:text-gold-300 border border-amber-500/30'
                                                 : 'bg-navy-900/10 text-navy-800 dark:bg-white/10 dark:text-gray-300'
-                                        }`}>
+                                            }`}>
                                             {verse.label}
                                         </span>
                                     </div>
@@ -5259,11 +5256,10 @@ export const SongPreviewModal = ({ isOpen, onClose, song, onOpenFull }) => {
                                     {verse.lines.map((line, lIdx) => (
                                         <p
                                             key={lIdx}
-                                            className={`text-sm sm:text-base leading-relaxed ${
-                                                verse.type === 'chorus'
+                                            className={`text-sm sm:text-base leading-relaxed ${verse.type === 'chorus'
                                                     ? 'font-bold text-amber-950 dark:text-amber-100'
                                                     : 'font-medium text-navy-900 dark:text-gray-100'
-                                            }`}
+                                                }`}
                                         >
                                             {line}
                                         </p>
@@ -5395,9 +5391,8 @@ export const LobbyTvModal = ({ isOpen, onClose, activeSabat, sabatYMD, formatInd
                         <button
                             type="button"
                             onClick={() => setIsAutoScroll(prev => !prev)}
-                            className={`px-3 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-sm ${
-                                isAutoScroll ? 'bg-gold-500 text-navy-950 font-black' : 'bg-navy-800 text-gray-300 hover:text-white border border-navy-700'
-                            }`}
+                            className={`px-3 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-sm ${isAutoScroll ? 'bg-gold-500 text-navy-950 font-black' : 'bg-navy-800 text-gray-300 hover:text-white border border-navy-700'
+                                }`}
                             title="Spasi untuk toggle Auto-Scroll"
                         >
                             <Icon name={isAutoScroll ? 'Pause' : 'Play'} className="w-4 h-4" />
@@ -5408,9 +5403,9 @@ export const LobbyTvModal = ({ isOpen, onClose, activeSabat, sabatYMD, formatInd
                             type="button"
                             onClick={() => {
                                 if (!document.fullscreenElement) {
-                                    document.documentElement.requestFullscreen().catch(() => {});
+                                    document.documentElement.requestFullscreen().catch(() => { });
                                 } else {
-                                    document.exitFullscreen().catch(() => {});
+                                    document.exitFullscreen().catch(() => { });
                                 }
                             }}
                             className="w-9 h-9 rounded-xl bg-navy-800 hover:bg-navy-700 text-gray-300 hover:text-white flex items-center justify-center transition border border-navy-700 cursor-pointer"
