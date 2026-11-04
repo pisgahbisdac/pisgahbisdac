@@ -4172,8 +4172,8 @@ export const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) =
                     </button>
                 </div>
             ) : (
-                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-4 ${compact ? 'max-h-[420px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start' : ''}`}>
-                    {(compact ? publicPrayers : publicPrayers.slice(0, 6)).map(item => {
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[580px] sm:max-h-[620px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
+                    {publicPrayers.map(item => {
                         const catObj = PRAYER_CATEGORIES.find(c => c.id === item.category) || PRAYER_CATEGORIES[0];
                         const hasPrayed = prayedIds.includes(item.id);
                         return (
@@ -4482,7 +4482,7 @@ export const BirthdayAndCalendarWidget = () => {
                             Belum ada agenda kalender kegiatan pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[540px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[580px] sm:max-h-[620px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
                             {filteredCalendar.map(ev => {
                                 const evMonth = extractEventMonth(ev);
                                 const isThisMonth = evMonth === currentMonth;
@@ -4552,7 +4552,7 @@ export const BirthdayAndCalendarWidget = () => {
                         Belum ada data ulang tahun jemaat pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                     </div>
                 ) : (
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[540px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 max-h-[580px] sm:max-h-[620px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
                         {sortedBirthdays.map(b => {
                             const monthName = BIBLE_YEAR_MONTH_NAMES[(b.birthMonth || 1) - 1] || '';
                             const bMonth = Number(b.birthMonth);
@@ -4563,15 +4563,15 @@ export const BirthdayAndCalendarWidget = () => {
                             return (
                                 <div
                                     key={b.id}
-                                    className={`p-4 rounded-2xl border flex flex-col justify-between gap-3 transition ${isToday ? 'bg-gradient-to-br from-amber-100/90 via-amber-50 to-white dark:from-gold-500/20 dark:via-navy-900 dark:to-navy-950 border-amber-400 dark:border-gold-400 shadow-md ring-2 ring-amber-400/40' : 'bg-[#F7F9F3] dark:bg-navy-950/70 border-[#E2E8D8] dark:border-navy-800 hover:border-[#4A7045] dark:hover:border-gold-500/50'}`}
+                                    className={`p-3 sm:p-3.5 rounded-2xl border flex flex-col justify-between gap-2.5 transition ${isToday ? 'bg-gradient-to-br from-amber-100/90 via-amber-50 to-white dark:from-gold-500/20 dark:via-navy-900 dark:to-navy-950 border-amber-400 dark:border-gold-400 shadow-md ring-2 ring-amber-400/40' : 'bg-[#F7F9F3] dark:bg-navy-950/70 border-[#E2E8D8] dark:border-navy-800 hover:border-[#4A7045] dark:hover:border-gold-500/50'}`}
                                 >
                                     <div>
-                                        <div className="flex items-center justify-between gap-2 mb-2">
-                                            <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isToday ? 'bg-amber-500 text-white shadow-xs' : 'bg-gold-500/20 text-amber-800 dark:text-gold-300'}`}>
+                                        <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                                            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${isToday ? 'bg-amber-500 text-white shadow-xs' : 'bg-gold-500/20 text-amber-800 dark:text-gold-300'}`}>
                                                 🎂 {b.birthDay} {monthName}
                                             </span>
                                             {isToday ? (
-                                                <span className="text-[9.5px] font-black uppercase px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs animate-pulse">
+                                                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs animate-pulse">
                                                     🎉 Hari Ini!
                                                 </span>
                                             ) : isThisMonth ? (
@@ -4588,17 +4588,17 @@ export const BirthdayAndCalendarWidget = () => {
                                                 </span>
                                             )}
                                         </div>
-                                        <h4 className="text-sm sm:text-base font-black text-[#2C3F21] dark:text-white">
+                                        <h4 className="text-sm font-black text-[#2C3F21] dark:text-white truncate">
                                             {b.nama}
                                         </h4>
-                                        <p className="text-xs text-[#596B4D] dark:text-gray-400 font-semibold mt-0.5">
+                                        <p className="text-[11px] text-[#596B4D] dark:text-gray-400 font-semibold mt-0.5 truncate">
                                             {b.kategori || 'Anggota Jemaat'}
                                         </p>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => handleSendBirthdayWA(b)}
-                                        className="w-full py-2 px-3 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-xs font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                                        className="w-full py-1.5 px-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                                     >
                                         <Icon name="WhatsApp" className="w-3.5 h-3.5" />
                                         <span>🎉 Kirim Ucapan WA</span>
