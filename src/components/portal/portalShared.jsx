@@ -604,7 +604,7 @@ export const HomeCard = ({
 }) => {
     return (
         <div className={`relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group ${containerClassName}`}>
-            <div>
+            <div className="flex-1 flex flex-col min-h-0">
                 {/* Header Kartu */}
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 pb-4 border-b border-[#E2E8D8] dark:border-navy-800">
                     <div className="min-w-0 flex-1">
@@ -640,7 +640,7 @@ export const HomeCard = ({
                 </div>
 
                 {/* Konten Isi */}
-                <div className={`mt-4 ${className}`}>
+                <div className={`mt-4 flex-1 flex flex-col min-h-0 ${className}`}>
                     {children}
                 </div>
             </div>
@@ -3976,14 +3976,14 @@ export const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) =
         <HomeCard
             badgeText="🙏 Persekutuan Doa Rabu & Pastoral"
             title="Kotak & Dinding Pokok Doa Jemaat"
-            subtitle="Sampaikan pokok doa atau pergumulan Anda untuk didoakan bersama pada Ibadah Rabu Malam atau secara khusus (privat) oleh Pendeta & Majelis."
+            subtitle="Pokok doa jemaat untuk Ibadah Rabu Malam atau secara khusus (privat) oleh Pendeta & Majelis."
             containerClassName="h-full"
             headerRightContent={(
                 <div className="flex flex-wrap items-center gap-2 shrink-0">
                     <button
                         type="button"
                         onClick={() => setIsFormOpen(prev => !prev)}
-                        className="px-4 py-2.5 rounded-xl bg-[#4A7045] hover:bg-[#3A5836] dark:bg-gold-500 dark:hover:bg-gold-400 text-white dark:text-navy-950 font-black text-xs sm:text-sm shadow-md transition flex items-center gap-2 cursor-pointer active:scale-95"
+                        className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-[#4A7045] hover:bg-[#3A5836] dark:bg-gold-500 dark:hover:bg-gold-400 text-white dark:text-navy-950 font-black text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 sm:gap-2 cursor-pointer active:scale-95"
                     >
                         <Icon name={isFormOpen ? "X" : "Plus"} className="w-4 h-4" />
                         <span>{isFormOpen ? 'Tutup Form' : '+ Kirim Pokok Doa'}</span>
@@ -3991,15 +3991,15 @@ export const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) =
                     <button
                         type="button"
                         onClick={handleShareWednesdayRecapWA}
-                        className="px-3.5 py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        className="px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95"
                         title="Bagikan Daftar Pokok Doa ke Grup WA Ibadah Rabu"
                     >
                         <Icon name="WhatsApp" className="w-4 h-4" />
-                        <span>Rekap WA Rabu</span>
+                        <span>Rekap WA</span>
                     </button>
                 </div>
             )}
-            footerLeft="Persekutuan Doa Rabu & Pastoral"
+            footerLeft={<span>Persekutuan Doa Rabu Malam &bull; 19:30 WIB</span>}
             footerRight={<span className="font-bold text-[#4A7045] dark:text-gold-400">{publicPrayers.length} Pokok Doa Aktif</span>}
         >
 
@@ -4425,21 +4425,22 @@ export const BirthdayAndCalendarWidget = () => {
         <HomeCard
             badgeIcon="Calendar"
             badgeText="Agenda & Perhatian Jemaat"
-            title="Kalender Kegiatan Tahunan & Ulang Tahun Jemaat"
+            title="Kalender Kegiatan & Ulang Tahun"
+            subtitle="Agenda program kegiatan jemaat dan ucapan syukur hari ulang tahun anggota."
             containerClassName="h-full"
             headerRightContent={(
                 <div className="flex items-center bg-[#F4F7EF] dark:bg-navy-950 p-1 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 self-start md:self-auto">
                     <button
                         type="button"
                         onClick={() => setActiveMode('calendar')}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'calendar' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-[#596B4D] dark:text-navy-300'}`}
+                        className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'calendar' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-[#596B4D] dark:text-navy-300'}`}
                     >
-                        <span>📅 Kalender Tahunan ({threeMonthsCalendar.length})</span>
+                        <span>📅 Kalender ({threeMonthsCalendar.length})</span>
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveMode('birthday')}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'birthday' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-[#596B4D] dark:text-navy-300'}`}
+                        className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'birthday' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-[#596B4D] dark:text-navy-300'}`}
                     >
                         <span>🎂 Ulang Tahun ({threeMonthsBirthdays.length})</span>
                     </button>
@@ -4481,7 +4482,7 @@ export const BirthdayAndCalendarWidget = () => {
                             Belum ada agenda kalender kegiatan pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[420px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[540px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
                             {filteredCalendar.map(ev => {
                                 const evMonth = extractEventMonth(ev);
                                 const isThisMonth = evMonth === currentMonth;
@@ -4551,7 +4552,7 @@ export const BirthdayAndCalendarWidget = () => {
                         Belum ada data ulang tahun jemaat pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                     </div>
                 ) : (
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[420px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[540px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
                         {sortedBirthdays.map(b => {
                             const monthName = BIBLE_YEAR_MONTH_NAMES[(b.birthMonth || 1) - 1] || '';
                             const bMonth = Number(b.birthMonth);
