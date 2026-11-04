@@ -4198,7 +4198,7 @@ const saveAnnualCalendar = (list, syncToBackend = false, token = '') => {
 
 const BirthdayAndCalendarWidget = () => {
     const [activeMode, setActiveMode] = React.useState('calendar'); // 'calendar' | 'birthday'
-    const [quarterFilter, setQuarterFilter] = React.useState('all');
+    const [monthFilter, setMonthFilter] = React.useState('all'); // 'all' | 'prev' | 'current' | 'next'
     const [birthdays, setBirthdays] = React.useState(() => loadMemberBirthdays());
     const [calendarItems, setCalendarItems] = React.useState(() => loadAnnualCalendar());
 
@@ -4215,20 +4215,80 @@ const BirthdayAndCalendarWidget = () => {
         };
     }, []);
 
-    const currentMonth = new Date().getMonth() + 1;
+    const todayDate = new Date();
+    const currentMonth = todayDate.getMonth() + 1;
+    const currentDay = todayDate.getDate();
+    const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+    const allowedMonths = React.useMemo(() => new Set([prevMonth, currentMonth, nextMonth]), [prevMonth, currentMonth, nextMonth]);
+
+    const getMonthOrderRank = React.useCallback((m) => {
+        const num = Number(m);
+        if (num === currentMonth) return 0; // Bulan Ini paling atas
+        if (num === nextMonth) return 1;    // Bulan Depan urutan ke-2
+        if (num === prevMonth) return 2;    // Bulan Lalu urutan ke-3
+        return 3;
+    }, [currentMonth, nextMonth, prevMonth]);
+
+    const extractEventMonth = (ev) => {
+        if (!ev || !ev.dateYMD) return 0;
+        const parts = String(ev.dateYMD).trim().split(/[-/]/);
+        if (parts.length >= 2) {
+            return parts[0].length === 4 ? (parseInt(parts[1], 10) || 0) : (parseInt(parts[1], 10) || 0);
+        }
+        return 0;
+    };
+
+    // Hanya ambil Ulang Tahun dari 3 bulan (1 bulan terakhir, bulan ini, 1 bulan berikutnya)
+    const threeMonthsBirthdays = React.useMemo(() => {
+        return birthdays.filter(b => allowedMonths.has(Number(b.birthMonth)));
+    }, [birthdays, allowedMonths]);
+
     const sortedBirthdays = React.useMemo(() => {
-        return [...birthdays].sort((a, b) => {
-            const aDiff = ((a.birthMonth - currentMonth + 12) % 12) * 31 + (a.birthDay || 1);
-            const bDiff = ((b.birthMonth - currentMonth + 12) % 12) * 31 + (b.birthDay || 1);
-            return aDiff - bDiff;
-        });
-    }, [birthdays, currentMonth]);
+        return [...threeMonthsBirthdays]
+            .filter(b => {
+                const m = Number(b.birthMonth);
+                if (monthFilter === 'prev') return m === prevMonth;
+                if (monthFilter === 'current') return m === currentMonth;
+                if (monthFilter === 'next') return m === nextMonth;
+                return true;
+            })
+            .sort((a, b) => {
+                const isTodayA = Number(a.birthMonth) === currentMonth && Number(a.birthDay) === currentDay;
+                const isTodayB = Number(b.birthMonth) === currentMonth && Number(b.birthDay) === currentDay;
+                if (isTodayA && !isTodayB) return -1;
+                if (!isTodayA && isTodayB) return 1;
+
+                const rankA = getMonthOrderRank(a.birthMonth);
+                const rankB = getMonthOrderRank(b.birthMonth);
+                if (rankA !== rankB) return rankA - rankB;
+                return (Number(a.birthDay) || 1) - (Number(b.birthDay) || 1);
+            });
+    }, [threeMonthsBirthdays, monthFilter, prevMonth, currentMonth, nextMonth, currentDay, getMonthOrderRank]);
+
+    // Hanya ambil Kalender Tahunan dari 3 bulan (1 bulan terakhir, bulan ini, 1 bulan berikutnya)
+    const threeMonthsCalendar = React.useMemo(() => {
+        return calendarItems.filter(item => allowedMonths.has(extractEventMonth(item)));
+    }, [calendarItems, allowedMonths]);
 
     const filteredCalendar = React.useMemo(() => {
-        return [...calendarItems]
-            .filter(item => quarterFilter === 'all' || String(item.quarter) === String(quarterFilter))
-            .sort((a, b) => String(a.dateYMD || '').localeCompare(String(b.dateYMD || '')));
-    }, [calendarItems, quarterFilter]);
+        return [...threeMonthsCalendar]
+            .filter(item => {
+                const m = extractEventMonth(item);
+                if (monthFilter === 'prev') return m === prevMonth;
+                if (monthFilter === 'current') return m === currentMonth;
+                if (monthFilter === 'next') return m === nextMonth;
+                return true;
+            })
+            .sort((a, b) => {
+                const mA = extractEventMonth(a);
+                const mB = extractEventMonth(b);
+                const rankA = getMonthOrderRank(mA);
+                const rankB = getMonthOrderRank(mB);
+                if (rankA !== rankB) return rankA - rankB;
+                return String(a.dateYMD || '').localeCompare(String(b.dateYMD || ''));
+            });
+    }, [threeMonthsCalendar, monthFilter, prevMonth, currentMonth, nextMonth, getMonthOrderRank]);
 
     const handleSendBirthdayWA = (b) => {
         const monthLabel = BIBLE_YEAR_MONTH_NAMES[(b.birthMonth || 1) - 1] || '';
@@ -4256,130 +4316,168 @@ const BirthdayAndCalendarWidget = () => {
     };
 
     return (
-        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-start h-full">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#E2E8D8] dark:border-navy-800">
-                <div>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D19B45]/15 text-[#9A6B1A] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-[#D19B45]/30">
-                        <Icon name="Calendar" className="w-3.5 h-3.5" /> Agenda & Perhatian Jemaat
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight">
-                        Kalender Kegiatan Tahunan & Ulang Tahun Jemaat
-                    </h3>
-                </div>
-
-                {/* Switcher Tab: Kalender Kegiatan vs Ulang Tahun */}
+        <HomeCard
+            badgeIcon="Calendar"
+            badgeText="Agenda & Perhatian Jemaat"
+            title="Kalender Kegiatan Tahunan & Ulang Tahun Jemaat"
+            containerClassName="h-full"
+            headerRightContent={(
                 <div className="flex items-center bg-[#F4F7EF] dark:bg-navy-950 p-1 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 self-start md:self-auto">
                     <button
                         type="button"
                         onClick={() => setActiveMode('calendar')}
                         className={`px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'calendar' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-[#596B4D] dark:text-navy-300'}`}
                     >
-                        <span>📅 Kalender Tahunan ({calendarItems.length})</span>
+                        <span>📅 Kalender Tahunan ({threeMonthsCalendar.length})</span>
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveMode('birthday')}
                         className={`px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'birthday' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-[#596B4D] dark:text-navy-300'}`}
                     >
-                        <span>🎂 Ulang Tahun ({birthdays.length})</span>
+                        <span>🎂 Ulang Tahun ({threeMonthsBirthdays.length})</span>
                     </button>
                 </div>
+            )}
+            footerLeft={<span>Rentang: {BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]} – {BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}</span>}
+            footerRight={(
+                <span className="font-bold text-[#4A7045] dark:text-gold-400">
+                    {activeMode === 'calendar' ? `${filteredCalendar.length} Kegiatan` : `${sortedBirthdays.length} Jemaat`}
+                </span>
+            )}
+        >
+
+            {/* Filter 3 Bulan (1 Bulan Terakhir, Bulan Ini, 1 Bulan Berikutnya) */}
+            <div className="mt-4">
+                <ScrollableFilterBar>
+                    {[
+                        { id: 'all', label: `3 Bulan (${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]})` },
+                        { id: 'prev', label: `Bulan Lalu (${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]})` },
+                        { id: 'current', label: `⭐ Bulan Ini (${BIBLE_YEAR_MONTH_NAMES[currentMonth - 1]})` },
+                        { id: 'next', label: `Bulan Depan (${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]})` }
+                    ].map(f => (
+                        <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => setMonthFilter(f.id)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${monthFilter === f.id ? 'bg-[#4A7045] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
+                        >
+                            {f.label}
+                        </button>
+                    ))}
+                </ScrollableFilterBar>
             </div>
 
             {activeMode === 'calendar' ? (
-                <div className="mt-4 space-y-4">
-                    {/* Filter Triwulan */}
-                    <ScrollableFilterBar>
-                        {[
-                            { id: 'all', label: 'Semua Triwulan' },
-                            { id: '1', label: 'Triwulan I (Jan–Mar)' },
-                            { id: '2', label: 'Triwulan II (Apr–Jun)' },
-                            { id: '3', label: 'Triwulan III (Jul–Sep)' },
-                            { id: '4', label: 'Triwulan IV (Okt–Des)' }
-                        ].map(q => (
-                            <button
-                                key={q.id}
-                                type="button"
-                                onClick={() => setQuarterFilter(q.id)}
-                                className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${quarterFilter === q.id ? 'bg-[#4A7045] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
-                            >
-                                {q.label}
-                            </button>
-                        ))}
-                    </ScrollableFilterBar>
-
+                <div className="mt-4 flex-1 flex flex-col">
                     {filteredCalendar.length === 0 ? (
-                        <div className="p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold">
-                            Belum ada agenda kalender kegiatan pada periode ini.
+                        <div className="p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold flex-1 flex items-center justify-center">
+                            Belum ada agenda kalender kegiatan pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            {filteredCalendar.map(ev => (
-                                <div
-                                    key={ev.id}
-                                    className="p-4 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/70 border border-[#E2E8D8] dark:border-navy-800 flex flex-col justify-between gap-3 hover:border-[#4A7045] dark:hover:border-gold-500/50 transition"
-                                >
-                                    <div>
-                                        <div className="flex items-center justify-between gap-2 mb-1.5">
-                                            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#4A7045]/15 text-[#2C3F21] dark:bg-gold-500/15 dark:text-gold-400">
-                                                TW {ev.quarter || 1} • {ev.category}
-                                            </span>
-                                            <span className="text-[11px] font-bold text-[#9A6B1A] dark:text-gold-300">
-                                                {formatIndoDateShort(ev.dateYMD)}
-                                            </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[420px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
+                            {filteredCalendar.map(ev => {
+                                const evMonth = extractEventMonth(ev);
+                                const isThisMonth = evMonth === currentMonth;
+                                const isNextMonth = evMonth === nextMonth;
+                                return (
+                                    <div
+                                        key={ev.id}
+                                        className="p-4 rounded-2xl border flex flex-col justify-between gap-3 transition bg-[#F7F9F3] dark:bg-navy-950/70 border-[#E2E8D8] dark:border-navy-800 hover:border-[#4A7045] dark:hover:border-gold-500/50"
+                                    >
+                                        <div>
+                                            <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#4A7045]/15 text-[#2C3F21] dark:bg-gold-500/15 dark:text-gold-400">
+                                                        TW {ev.quarter || 1} • {ev.category}
+                                                    </span>
+                                                    {isThisMonth ? (
+                                                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                                                            Bulan Ini
+                                                        </span>
+                                                    ) : isNextMonth ? (
+                                                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-700 dark:text-sky-300">
+                                                            Bulan Depan
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-gray-200 dark:bg-navy-800 text-gray-600 dark:text-gray-400">
+                                                            Bulan Lalu
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <span className="text-[11px] font-bold text-[#9A6B1A] dark:text-gold-300">
+                                                    {formatIndoDateShort(ev.dateYMD)}
+                                                </span>
+                                            </div>
+                                            <h4 className="text-sm sm:text-base font-black text-[#2C3F21] dark:text-white leading-snug">
+                                                {ev.title}
+                                            </h4>
+                                            {ev.desc && (
+                                                <p className="text-xs text-[#596B4D] dark:text-gray-400 mt-1 line-clamp-2">
+                                                    {ev.desc}
+                                                </p>
+                                            )}
                                         </div>
-                                        <h4 className="text-sm sm:text-base font-black text-[#2C3F21] dark:text-white leading-snug">
-                                            {ev.title}
-                                        </h4>
-                                        {ev.desc && (
-                                            <p className="text-xs text-[#596B4D] dark:text-gray-400 mt-1 line-clamp-2">
-                                                {ev.desc}
-                                            </p>
-                                        )}
+                                        <div className="pt-2.5 border-t border-[#E2E8D8]/80 dark:border-navy-800 flex items-center justify-between gap-2">
+                                            <span className="text-[11px] text-[#596B4D] dark:text-gray-400 truncate flex items-center gap-1">
+                                                <Icon name="MapPin" className="w-3 h-3 text-[#D19B45] shrink-0" />
+                                                <span className="truncate">{ev.location || 'GMAHK Pisgah'}</span>
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleAddCalendarItemToGCal(ev)}
+                                                className="px-3 py-1.5 rounded-xl bg-white dark:bg-navy-800 hover:bg-[#4A7045] hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 text-[11px] font-extrabold shrink-0 transition cursor-pointer flex items-center gap-1"
+                                                title="Simpan ke Google Calendar HP"
+                                            >
+                                                <Icon name="CalendarPlus" className="w-3.5 h-3.5" />
+                                                <span>+ Kalender HP</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="pt-2.5 border-t border-[#E2E8D8]/80 dark:border-navy-800 flex items-center justify-between gap-2">
-                                        <span className="text-[11px] text-[#596B4D] dark:text-gray-400 truncate flex items-center gap-1">
-                                            <Icon name="MapPin" className="w-3 h-3 text-[#D19B45] shrink-0" />
-                                            <span className="truncate">{ev.location || 'GMAHK Pisgah'}</span>
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleAddCalendarItemToGCal(ev)}
-                                            className="px-3 py-1.5 rounded-xl bg-white dark:bg-navy-800 hover:bg-[#4A7045] hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 text-[11px] font-extrabold shrink-0 transition cursor-pointer flex items-center gap-1"
-                                            title="Simpan ke Google Calendar HP"
-                                        >
-                                            <Icon name="CalendarPlus" className="w-3.5 h-3.5" />
-                                            <span>+ Kalender HP</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>
             ) : (
                 sortedBirthdays.length === 0 ? (
-                    <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold">
-                        Belum ada data ulang tahun jemaat yang ditampilkan.
+                    <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold flex-1 flex items-center justify-center">
+                        Belum ada data ulang tahun jemaat pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                     </div>
                 ) : (
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[420px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
                         {sortedBirthdays.map(b => {
                             const monthName = BIBLE_YEAR_MONTH_NAMES[(b.birthMonth || 1) - 1] || '';
-                            const isThisMonth = Number(b.birthMonth) === currentMonth;
+                            const bMonth = Number(b.birthMonth);
+                            const bDay = Number(b.birthDay);
+                            const isToday = bMonth === currentMonth && bDay === currentDay;
+                            const isThisMonth = bMonth === currentMonth;
+                            const isNextMonth = bMonth === nextMonth;
                             return (
                                 <div
                                     key={b.id}
-                                    className={`p-4 rounded-2xl border flex flex-col justify-between gap-3 transition ${isThisMonth ? 'bg-gradient-to-br from-amber-50/90 to-white dark:from-gold-500/10 dark:to-navy-950 border-gold-400 shadow-sm' : 'bg-[#F7F9F3] dark:bg-navy-950/70 border-[#E2E8D8] dark:border-navy-800'}`}
+                                    className={`p-4 rounded-2xl border flex flex-col justify-between gap-3 transition ${isToday ? 'bg-gradient-to-br from-amber-100/90 via-amber-50 to-white dark:from-gold-500/20 dark:via-navy-900 dark:to-navy-950 border-amber-400 dark:border-gold-400 shadow-md ring-2 ring-amber-400/40' : 'bg-[#F7F9F3] dark:bg-navy-950/70 border-[#E2E8D8] dark:border-navy-800 hover:border-[#4A7045] dark:hover:border-gold-500/50'}`}
                                 >
                                     <div>
                                         <div className="flex items-center justify-between gap-2 mb-2">
-                                            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-gold-500/20 text-amber-800 dark:text-gold-300">
+                                            <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isToday ? 'bg-amber-500 text-white shadow-xs' : 'bg-gold-500/20 text-amber-800 dark:text-gold-300'}`}>
                                                 🎂 {b.birthDay} {monthName}
                                             </span>
-                                            {isThisMonth && (
+                                            {isToday ? (
+                                                <span className="text-[9.5px] font-black uppercase px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs animate-pulse">
+                                                    🎉 Hari Ini!
+                                                </span>
+                                            ) : isThisMonth ? (
                                                 <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-white">
                                                     Bulan Ini
+                                                </span>
+                                            ) : isNextMonth ? (
+                                                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-700 dark:text-sky-300">
+                                                    Bulan Depan
+                                                </span>
+                                            ) : (
+                                                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-gray-200 dark:bg-navy-800 text-gray-600 dark:text-gray-400">
+                                                    Bulan Lalu
                                                 </span>
                                             )}
                                         </div>
@@ -4395,7 +4493,7 @@ const BirthdayAndCalendarWidget = () => {
                                         onClick={() => handleSendBirthdayWA(b)}
                                         className="w-full py-2 px-3 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-xs font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer"
                                     >
-                                        <i className="fa-brands fa-whatsapp"></i>
+                                        <Icon name="WhatsApp" className="w-3.5 h-3.5" />
                                         <span>🎉 Kirim Ucapan WA</span>
                                     </button>
                                 </div>
@@ -4404,83 +4502,14 @@ const BirthdayAndCalendarWidget = () => {
                     </div>
                 )
             )}
-        </div>
+
+        </HomeCard>
     );
 };
 
 // ============================================================
 // WIDGET 3: CARI TUGAS PELAYANAN SAYA (+ KONFIRMASI KEHADIRAN)
 // ============================================================
-
-const shareSabbathDutyRecapToWhatsApp = ({ activeSabat, sabatYMD, jadwalDB = {} }) => {
-    const today = new Date();
-    let targetDate = sabatYMD || (activeSabat?.date) || '';
-    if (!targetDate && jadwalDB && typeof jadwalDB === 'object') {
-        const dates = Object.keys(jadwalDB).sort();
-        targetDate = dates.find(d => {
-            const dt = new Date(d + 'T00:00:00');
-            return dt >= today && dt.getDay() === 6;
-        }) || dates[0] || '';
-    }
-
-    const sData = activeSabat || (targetDate && jadwalDB[targetDate]) || {};
-    const dateFormatted = targetDate ? formatIndoDate(targetDate) : 'Sabat Ini';
-
-    let msg = `*📋 REKAP JADWAL PETUGAS IBADAH SABAT*\n`;
-    msg += `*GMAHK Jemaat Pisgah BISDAC - Batam*\n`;
-    msg += `🗓️ *${dateFormatted}*\n\n`;
-
-    // 1. Sekolah Sabat
-    msg += `🏫 *SEKOLAH SABAT (09:15 WIB)*\n`;
-    const ssList = Array.isArray(sData.sekolahSabat) ? sData.sekolahSabat : [];
-    if (ssList.length > 0) {
-        ssList.forEach(p => {
-            if (p.nama && p.tugas) msg += `• ${p.tugas}: *${p.nama}*\n`;
-        });
-    } else {
-        msg += `• Petugas terjadwal sesuai pengumuman\n`;
-    }
-    msg += `\n`;
-
-    // 2. Kebaktian Khotbah
-    msg += `🕊️ *KEBAKTIAN KHOTBAH (10:30 WIB)*\n`;
-    const khotbahList = Array.isArray(sData.khotbah) ? sData.khotbah : [];
-    if (khotbahList.length > 0) {
-        khotbahList.forEach(p => {
-            if (p.nama && p.tugas) msg += `• ${p.tugas}: *${p.nama}*\n`;
-        });
-    } else {
-        msg += `• Petugas terjadwal sesuai susunan acara\n`;
-    }
-    msg += `\n`;
-
-    // 3. Pelayanan Musik
-    const musikList = Array.isArray(sData.musik) ? sData.musik : [];
-    if (musikList.length > 0) {
-        msg += `🎶 *PELAYANAN MUSIK*\n`;
-        musikList.forEach(p => {
-            if (p.nama && p.tugas) msg += `• ${p.tugas}: *${p.nama}*\n`;
-        });
-        msg += `\n`;
-    }
-
-    // 4. Pelayanan Diakon
-    const diakonList = Array.isArray(sData.diakon) ? sData.diakon : [];
-    if (diakonList.length > 0) {
-        msg += `🤝 *PELAYANAN DIAKON & DIAKONES*\n`;
-        diakonList.forEach(p => {
-            if (p.nama && p.tugas) msg += `• ${p.tugas}: *${p.nama}*\n`;
-        });
-        msg += `\n`;
-    }
-
-    msg += `_Catatan: Mohon seluruh petugas dapat hadir 15 menit lebih awal untuk doa konsistori bersama._\n\n`;
-    msg += `📱 *Kertas Acara & Warta Digital:*\nhttps://pisgahbisdac.app\n\n`;
-    msg += `Tuhan Yesus memberkati pelayanan kita bersama! 🙏`;
-
-    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
-    window.open(waUrl, '_blank');
-};
 
 const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => {
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -4891,6 +4920,8 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
         return () => clearInterval(timer);
     }, [displayImages.length, isHeroHovered, isHeroPaused]);
 
+    const [isPengumumanExpanded, setIsPengumumanExpanded] = React.useState(false);
+
     const isPengumumanReallyEmpty = () => {
         if (!pengumuman || !pengumuman.isi) return true;
         const tempDiv = document.createElement('div');
@@ -4898,6 +4929,20 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
         const text = tempDiv.textContent || tempDiv.innerText || '';
         return text.trim() === '';
     };
+
+    const isPengumumanLong = React.useMemo(() => {
+        if (!pengumuman || !pengumuman.isi) return false;
+        try {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = pengumuman.isi;
+            const plainText = (tempDiv.textContent || tempDiv.innerText || '').trim();
+            const breakCount = (pengumuman.isi.match(/<br|<p|<\/p|<li|\n/gi) || []).length;
+            // Dianggap panjang hanya jika teks > 220 karakter ATAU memiliki lebih dari 4 baris/paragraf
+            return plainText.length > 220 || breakCount > 4;
+        } catch (e) {
+            return false;
+        }
+    }, [pengumuman]);
 
     const featureItems = [
         { id: 'sekolah_sabat', label: 'Sekolah Sabat', icon: 'BookOpen' },
@@ -5116,8 +5161,67 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                 {/* UNIFIED HOME SECTIONS CONTAINER: CONSISTENT SPACING & MATCHING MODERN CARDS */}
                 <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-6 md:mt-8 space-y-6 relative z-20">
-                    {/* BANNER AJAKAN PASANG APLIKASI PWA RESMI */}
-                    <PwaInstallBanner onOpenGuide={() => setShowManualInstall && setShowManualInstall(true)} />
+                    {/* BARIS TERATAS: PENGUMUMAN & BANNER PASANG PWA (2 KOLOM JIKA PENGUMUMAN ADA, 1 KOLOM PENUH JIKA TIDAK ADA) */}
+                    <div className={`grid grid-cols-1 ${!isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
+                        {(!isPengumumanReallyEmpty()) && (
+                            <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group h-full">
+                                <div>
+                                    <div className="flex items-center justify-between gap-3 mb-2">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
+                                            <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman Jemaat
+                                        </span>
+                                        <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                                            Pekan Ini
+                                        </span>
+                                    </div>
+
+                                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight mb-4">
+                                        {pengumuman.header || "Pengumuman Pekan Ini"}
+                                    </h3>
+
+                                    <div className="relative">
+                                        <div
+                                            className={`bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed font-medium transition-all duration-300 ${isPengumumanLong ? (isPengumumanExpanded ? 'max-h-[500px] overflow-y-auto custom-scrollbar' : 'max-h-[140px] overflow-hidden') : ''}`}
+                                            dangerouslySetInnerHTML={{ __html: pengumuman.isi }}
+                                        ></div>
+                                        {isPengumumanLong && !isPengumumanExpanded && (
+                                            <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#F7F9F3] dark:from-navy-950 to-transparent pointer-events-none rounded-b-2xl"></div>
+                                        )}
+                                    </div>
+
+                                    {isPengumumanLong && (
+                                        <div className="mt-3 flex justify-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsPengumumanExpanded(prev => !prev)}
+                                                className="px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/25 text-[#2C3F21] dark:text-gold-400 font-extrabold text-xs transition flex items-center gap-1.5 cursor-pointer border border-[#4A7045]/30 dark:border-gold-500/40"
+                                            >
+                                                <span>{isPengumumanExpanded ? 'Tutup Pengumuman' : 'Baca Selengkapnya'}</span>
+                                                <Icon name={isPengumumanExpanded ? 'ChevronUp' : 'ChevronDown'} className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="pt-3 mt-4 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between text-[11px] text-[#596B4D] dark:text-gray-400">
+                                    <span>GMAHK Jemaat Pisgah BISDAC</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveTab('warta')}
+                                        className="font-bold text-[#4A7045] dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                    >
+                                        <span>Buka Portal Warta</span>
+                                        <Icon name="ChevronRight" className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* BANNER AJAKAN PASANG APLIKASI PWA RESMI (OTOMATIS 1 KOLOM PENUH BILA PENGUMUMAN TIDAK ADA) */}
+                        <div className="h-full flex flex-col justify-between">
+                            <PwaInstallBanner onOpenGuide={() => setShowManualInstall && setShowManualInstall(true)} />
+                        </div>
+                    </div>
 
                     {/* ROW 1: HITUNG MUNDUR SABAT & AYAT HARIAN */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
@@ -5376,42 +5480,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         <BirthdayAndCalendarWidget />
                     </div>
 
-                    {/* ROW 5: KOTAK PENGUMUMAN JEMAAT */}
-                    {(!isPengumumanReallyEmpty()) && (
-                        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
-                            <div>
-                                <div className="flex items-center justify-between gap-3 mb-2">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
-                                        <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman Jemaat
-                                    </span>
-                                    <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
-                                        Pekan Ini
-                                    </span>
-                                </div>
 
-                                <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight mb-4">
-                                    {pengumuman.header || "Pengumuman Pekan Ini"}
-                                </h3>
-
-                                <div
-                                    className="bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed overflow-y-auto custom-scrollbar font-medium min-h-[160px] max-h-[320px]"
-                                    dangerouslySetInnerHTML={{ __html: pengumuman.isi }}
-                                ></div>
-                            </div>
-
-                            <div className="pt-3 mt-3 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between text-[11px] text-[#596B4D] dark:text-gray-400">
-                                <span>GMAHK Jemaat Pisgah BISDAC</span>
-                                <button
-                                    type="button"
-                                    onClick={() => setActiveTab('warta')}
-                                    className="font-bold text-[#4A7045] dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
-                                >
-                                    <span>Buka Portal Warta</span>
-                                    <Icon name="ChevronRight" className="w-3 h-3" />
-                                </button>
-                            </div>
-                        </div>
-                    )}
 
 
                     {/* ROW 5: WARTA JEMAAT, PUSTAKA & VIDEO */}
