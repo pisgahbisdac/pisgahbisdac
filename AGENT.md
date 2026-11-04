@@ -36,7 +36,15 @@ File `README.md` di root proyek memuat dokumentasi struktur awal yang **sebagian
 Proyek ini di-build menggunakan **Vite 5** sebagai Multi-Page Application (MPA) dengan 6 input HTML di `vite.config.js`:
 
 ### 3.1. Portal Utama Jemaat (`index.html`)
-- **Alur File**: `index.html` → `src/index.jsx` → `src/indexApp.jsx` (+ `src/DetailSekolahSabat.jsx`)
+- **Alur File**: `index.html` → `src/index.jsx` → `src/indexApp.jsx` + modul *lazy-loaded* di `src/components/portal/`:
+  - `src/components/portal/portalShared.jsx` (Utilitas, konstanta, ikon SVG, dan widget bersama)
+  - `src/components/portal/AdminDashboardView.jsx` (Dashboard Admin, Editor Warta Fullscreen, Kelola Jadwal/Buku/Lagu)
+  - `src/components/portal/AlkitabView.jsx` (Alkitab Digital 66 Kitab, Rencana Baca 365 Hari, Stabilo & Catatan)
+  - `src/components/portal/LaguSionView.jsx` (525 Lagu Sion, Pemutar Musik, Lirik, Numpad)
+  - `src/components/portal/WartaView.jsx` (Halaman Warta Jemaat & Galeri Dokumentasi Publik)
+  - `src/components/portal/BelajarViews.jsx` (`Belajar`, `DetailAlkitab`, `Detail28Dasar`, `DetailEGW`, `Detailperpustakaan`)
+  - `src/DetailSekolahSabat.jsx` (Pelajaran Sekolah Sabat Harian)
+  - `src/utils/supabasePortalAdapter.js` (Adapter Dual-Database Supabase + Google Apps Script untuk Portal Utama)
 - **Framework**: React 19 + Tailwind CSS (`src/index.css`) + `lucide-react`
 - **Fitur Utama**:
   - Beranda, Jadwal Pembawa Acara, Susunan Ibadah, Warta Gereja & Buletin Sabat, Live/Video Terbaru.
@@ -45,7 +53,7 @@ Proyek ini di-build menggunakan **Vite 5** sebagai Multi-Page Application (MPA) 
   - **Pelajaran Sekolah Sabat Harian** (`src/DetailSekolahSabat.jsx`): bacaan 7 hari, popup ayat Alkitab interaktif, highlight warna ayat, catatan & refleksi harian jemaat yang tersinkronisasi 2 arah dengan Alkitab Digital.
   - **Pustaka Digital / Buku Roh Nubuat (EGW)** dengan sampul SVG dinamis (`getSvgBookCover`).
   - Informasi Persembahan / Kalkulator Perpuluhan, pintasan Cek Transaksi (mengarahkan ke `laporan.html`), dan Dashboard Admin.
-- **Backend**: Google Apps Script (`GAS_API_URL` di `src/indexApp.jsx`) + caching lokal (`localStorage` & Service Worker).
+- **Backend**: Dual-Database **Supabase** (`src/utils/supabasePortalAdapter.js`, baca instan `<150ms` via `portal_main_blob`, `portal_warta_blob`, `portal_pastoral_blob`, `portal_books_blob`) + **Google Apps Script** (`GAS_API_URL`) + caching lokal (`localStorage` & Service Worker).
 
 ### 3.2. Sistem Kehadiran & Sekolah Sabat (`hadir.html`)
 - **Alur File**: `hadir.html` → `src/hadir.jsx` → `src/hadirApp.jsx`
@@ -80,7 +88,7 @@ Proyek ini di-build menggunakan **Vite 5** sebagai Multi-Page Application (MPA) 
 - **Alur File**: Mandiri di dalam `pembangunan.html` (memuat `/src/index.css` dan blok `<script>` inline).
 - **Framework**: Vanilla JavaScript Inline + Tailwind CSS (tema *Luxury Serif* `Cormorant Garamond` + `Inter`, warna `navy` & `gold`).
 - **Fitur Utama**: Statistik realisasi dana pembangunan, komitmen jemaat, & target dana (tersinkronisasi dengan pengaturan laporan keuangan), salin rekening donasi, form unggah bukti transfer donasi, tahapan/portofolio pembangunan, berita pembangunan, daftar panitia, dan panel Admin verifikasi donasi.
-- **Backend**: Google Apps Script (`SCRIPT_URL` di `pembangunan.html`) dengan *auto-sync* setiap 30 detik.
+- **Backend**: Dual-Database **Supabase REST** (`pembangunan_main_blob` di tabel `config`, baca instan `<150ms`) + **Google Apps Script** (`SCRIPT_URL` di `pembangunan.html`) dengan *auto-sync* setiap 30 detik & cache `localStorage`.
 
 ### 3.5. Sistem Manajemen Inventaris Gereja (`inventaris.html`)
 - **Alur File**: `inventaris.html` → `src/inventarisEntry.js` → `src/inventaris/main.js` + `src/inventaris/supabaseAdapter.js`

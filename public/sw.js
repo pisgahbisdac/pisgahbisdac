@@ -7,13 +7,18 @@
 // 4. Bypass untuk API dinamis Google Apps Script & Supabase.
 // ============================================================
 
-const STATIC_CACHE = 'pisgah-static-v6.7';
+const STATIC_CACHE = 'pisgah-static-v7.0';
 const DATA_CACHE = 'pisgah-spiritual-v2.0';
 
-// Aset Inti Aplikasi yang langsung di-cache saat instalasi
+// Aset Inti Aplikasi (Seluruh 6 Halaman MPA) yang langsung di-cache saat instalasi
 const CORE_ASSETS = [
   './',
   './index.html',
+  './hadir.html',
+  './laporan.html',
+  './pembangunan.html',
+  './inventaris.html',
+  './worship-presenter.html',
   './manifest.json',
   './lagu_sion.json',
   './passage.json',
@@ -144,7 +149,11 @@ self.addEventListener('fetch', (e) => {
         })
         .catch(async () => {
           // Hanya jika benar-benar offline (tanpa sinyal internet), baru gunakan fallback cache
-          const cached = (await caches.match(e.request)) || (await caches.match('./index.html')) || (await caches.match('./'));
+          const cached =
+            (await caches.match(e.request)) ||
+            (await caches.match(e.request, { ignoreSearch: true })) ||
+            (await caches.match('./index.html')) ||
+            (await caches.match('./'));
           if (cached) return cached;
           return new Response('Aplikasi GMAHK Pisgah sedang dibuka dalam mode offline.', {
             status: 503,

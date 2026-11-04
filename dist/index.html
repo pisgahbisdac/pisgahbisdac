@@ -18,7 +18,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 
     <style>
@@ -80,14 +79,17 @@
 
 
     <!-- HAPUS SCRIPT LUCIDE KARENA ANDA SUDAH MEMILIKI KOMPONEN ICON CUSTOM (Mengurangi beban download) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-        crossorigin="anonymous" defer></script>
-    <!-- Library untuk konversi HEIC/HEIF ke format standard -->
-    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script type="module" crossorigin src="/assets/main-CUbouVdu.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="modulepreload" crossorigin href="/assets/vendor-react-DUpOGUT8.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-BoDEtIoT.css">
+    <!-- OPTIMASI PERFORMA:
+         - html2pdf.js tidak lagi dimuat dari CDN; portal memakai import('html2pdf.js') secara dinamis saat cetak PDF.
+         - heic2any (~1,3 MB) kini dimuat on-demand hanya ketika admin mengunggah foto HEIC/HEIF
+           (lihat loadHeic2any() di src/components/portal/AdminDashboardView.jsx). -->
+
+  <script type="module" crossorigin src="/assets/main-X7EDryz3.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/index-B8sBel3z.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-react-ByBz4OXm.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-supabase-MbRB0llW.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-lucide-gGfR6qGh.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-CzZKIeP-.css">
 </head>
 
 <body

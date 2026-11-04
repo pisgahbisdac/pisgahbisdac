@@ -17,11 +17,11 @@ function safeguardIndexApp() {
             const stats = fs.statSync(filePath);
             if (stats.size === 0) {
               console.warn('\n⚠️ [Vite Safeguard] src/indexApp.jsx kosong (0 bytes). Memulihkan dari src/indexApp.jsx.bak...');
-              if (fs.existsSync(bakPath) && fs.statSync(bakPath).size > 1000000) {
+              if (fs.existsSync(bakPath) && fs.statSync(bakPath).size > 50000) {
                 fs.copyFileSync(bakPath, filePath);
                 return fs.readFileSync(filePath, 'utf-8');
               }
-            } else if (stats.size > 1000000) {
+            } else if (stats.size > 50000) {
               // Otomatis sinkronisasi backup saat berkas normal
               fs.copyFileSync(filePath, bakPath);
             }
@@ -52,14 +52,15 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
+            // lucide-react harus dicek lebih dulu karena namanya juga mengandung kata 'react'
+            if (id.includes('lucide-react')) {
+              return 'vendor-lucide';
+            }
             if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
               return 'vendor-react';
             }
             if (id.includes('@supabase')) {
               return 'vendor-supabase';
-            }
-            if (id.includes('lucide-react')) {
-              return 'vendor-lucide';
             }
             if (id.includes('html2pdf') || id.includes('jspdf') || id.includes('html2canvas')) {
               return 'vendor-pdf';

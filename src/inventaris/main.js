@@ -5,7 +5,8 @@ import {
   deleteInventoryFromSupabase,
   fetchInventoryServicesFromSupabase,
   saveInventoryServiceToSupabase,
-  migrateInventarisGASToSupabase
+  migrateInventarisGASToSupabase,
+  loginInventoryViaSupabase
 } from './supabaseAdapter.js';
 
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbwfBsZNTUD-3Ss-eV6Vk7g3x1FbSBpMIjzGuZcxYkV2dQhj9Nw82YJNNsfoZ5nlSz7mnw/exec';
@@ -116,6 +117,22 @@ function fmtDate(d) {
 // API CALLS (SEAMLESS FALLBACK & DUAL BACKUP)
 // ==========================================
 async function apiGet(action, params = {}) {
+  // 0. Instant Login via Supabase if online
+  if (action === 'login') {
+    if (isSupabaseOnline) {
+      try {
+        const sbLogin = await loginInventoryViaSupabase(params.username, params.password);
+        if (sbLogin.success) return sbLogin;
+        if (sbLogin.message && sbLogin.message.includes('Password salah')) {
+          throw new Error(sbLogin.message);
+        }
+      } catch (err) {
+        if (err.message && err.message.includes('Password salah')) throw err;
+        console.warn('Supabase login fallback to GAS:', err.message);
+      }
+    }
+  }
+
   // 1. Primary Read from Supabase if online
   if (action === 'getInventory') {
     if (isSupabaseOnline) {
@@ -178,12 +195,17 @@ async function apiPost(action, dataObj) {
       try {
         const sbRes = await saveInventoryToSupabase(dataObj);
         if (sbRes.success) {
+          if (!dataObj.id && sbRes.id) dataObj.id = sbRes.id;
           // Dual Backup: Sync ke Google Sheets di background tanpa memblokir user
           postToGas().catch(err => console.warn('Background Dual Backup save to GAS failed:', err));
           return sbRes;
         }
+        if (sbRes.message && (sbRes.message.includes('Akses ditolak') || sbRes.message.includes('Sesi Admin'))) {
+          throw new Error(sbRes.message);
+        }
         console.warn('Supabase save failed, falling back to GAS:', sbRes.message);
       } catch (err) {
+        if (err.message && (err.message.includes('Akses ditolak') || err.message.includes('Sesi Admin'))) throw err;
         console.warn('Supabase save error, falling back to GAS:', err);
       }
       updateDbStatusBadge('fallback', 'Google Sheets Cadangan');
@@ -200,7 +222,11 @@ async function apiPost(action, dataObj) {
           postToGas().catch(err => console.warn('Background Dual Backup delete to GAS failed:', err));
           return sbRes;
         }
+        if (sbRes.message && (sbRes.message.includes('Akses ditolak') || sbRes.message.includes('Sesi Admin'))) {
+          throw new Error(sbRes.message);
+        }
       } catch (err) {
+        if (err.message && (err.message.includes('Akses ditolak') || err.message.includes('Sesi Admin'))) throw err;
         console.warn('Supabase delete error, falling back to GAS:', err);
       }
       updateDbStatusBadge('fallback', 'Google Sheets Cadangan');
@@ -217,7 +243,11 @@ async function apiPost(action, dataObj) {
           postToGas().catch(err => console.warn('Background Dual Backup service to GAS failed:', err));
           return sbRes;
         }
+        if (sbRes.message && (sbRes.message.includes('Akses ditolak') || sbRes.message.includes('Sesi Admin'))) {
+          throw new Error(sbRes.message);
+        }
       } catch (err) {
+        if (err.message && (err.message.includes('Akses ditolak') || err.message.includes('Sesi Admin'))) throw err;
         console.warn('Supabase service error, falling back to GAS:', err);
       }
     }
@@ -1418,6 +1448,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         localStorage.setItem('BISDAC_role', role);
         localStorage.setItem('BISDAC_name', name);
+        localStorage.setItem('BISDAC_user', JSON.stringify({
+          username: (data.user && data.user.username) || u,
+          role,
+          nama: name
+        }));
       }
     } catch (err) {
       showCustomAlert(err.message, 'error');
@@ -1444,6 +1479,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('BISDAC_token');
     localStorage.removeItem('BISDAC_role');
     localStorage.removeItem('BISDAC_name');
+    localStorage.removeItem('BISDAC_user');
     checkAuth();
     renderGrid(inventoryData); // Rerender to hide values
     document.getElementById('logoutModal').style.display = 'none';

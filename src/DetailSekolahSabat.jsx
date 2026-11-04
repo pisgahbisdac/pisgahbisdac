@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { BookOpen, ArrowLeft, Calendar, ChevronRight, ChevronLeft, ChevronDown, ExternalLink, Sparkles, X, Copy, Check, FileText, Edit, Edit3, Trash2, Share2, Bookmark, Search, Save, Play, Pause, Volume2, CheckCircle, Square, SkipForward, SkipBack } from "lucide-react";
+import { saveUserStudySync, loadUserStudySync } from "./utils/supabasePortalAdapter";
 
 // ============================================================
 // MODUL PELAJARAN SEKOLAH SABAT HARIAN (ADVENTIST SABBATH SCHOOL)
@@ -699,6 +700,8 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         return currentActiveLessonId;
     });
 
+    const activeTabButtonRef = useRef(null);
+
     const [selectedDayIdx, setSelectedDayIdx] = useState(() => {
         try {
             const p = new URLSearchParams(window.location.search);
@@ -710,6 +713,17 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
         } catch (e) { }
         return todayDayIdx;
     });
+
+    // Auto-scroll horizontal tab ke hari aktif agar langsung terlihat di mobile
+    useEffect(() => {
+        if (activeTabButtonRef.current) {
+            activeTabButtonRef.current.scrollIntoView({
+                behavior: 'smooth',
+                inline: 'center',
+                block: 'nearest'
+            });
+        }
+    }, [selectedDayIdx]);
     const [fontSizeLevel, setFontSizeLevel] = useState(0); // 0: normal, 1: large, 2: extra-large
     const [popupFontSizeLevel, setPopupFontSizeLevel] = useState(() => {
         try {
@@ -2093,6 +2107,115 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
     const [notesActiveTab, setNotesActiveTab] = useState("daily"); // "daily" | "verses"
     const [notesSearchQuery, setNotesSearchQuery] = useState("");
 
+    // --- FITUR SINKRONISASI CLOUD JEMAAT (TAHAP 5A: CATATAN SEKOLAH SABAT & ALKITAB) ---
+    const [isCloudSyncOpen, setIsCloudSyncOpen] = useState(false);
+    const [cloudSyncCode, setCloudSyncCode] = useState(() => {
+        try {
+            return localStorage.getItem("PISGAH_STUDY_SYNC_CODE") || "";
+        } catch (e) {
+            return "";
+        }
+    });
+    const [cloudSyncStatus, setCloudSyncStatus] = useState({ loading: false, type: "", message: "" });
+
+    useEffect(() => {
+        const handleExternalReadProg = () => {
+            try {
+                const raw = localStorage.getItem("PISGAH_SS_READ_PROGRESS");
+                if (raw) setReadProgress(JSON.parse(raw));
+            } catch (e) { }
+        };
+        window.addEventListener("ss-read-progress-changed", handleExternalReadProg);
+        window.addEventListener("storage", handleExternalReadProg);
+        return () => {
+            window.removeEventListener("ss-read-progress-changed", handleExternalReadProg);
+            window.removeEventListener("storage", handleExternalReadProg);
+        };
+    }, []);
+
+    const handleCloudSave = async () => {
+        const clean = (cloudSyncCode || "").trim();
+        if (clean.length < 4) {
+            setCloudSyncStatus({ loading: false, type: "error", message: "Masukkan minimal 4 karakter (contoh: Nomor HP atau Kode Unik Anda)." });
+            return;
+        }
+        setCloudSyncStatus({ loading: true, type: "info", message: "Menyimpan catatan Sekolah Sabat & Alkitab ke Cloud Supabase..." });
+        try {
+            localStorage.setItem("PISGAH_STUDY_SYNC_CODE", clean);
+            const bibleYearDone = JSON.parse(localStorage.getItem("PISGAH_BIBLE_YEAR_DONE") || "[]");
+            await saveUserStudySync(clean, {
+                highlightsMap,
+                bibleYearDone,
+                ssInlineNotes: inlineNotes,
+                ssReadProgress: readProgress
+            });
+            setCloudSyncStatus({
+                loading: false,
+                type: "success",
+                message: `Berhasil disimpan ke Cloud! (${inlineNotes.length} Catatan Pelajaran, ${Object.keys(highlightsMap || {}).length} Stabilo/Catatan Ayat)`
+            });
+        } catch (err) {
+            setCloudSyncStatus({ loading: false, type: "error", message: err.message || "Gagal menyimpan ke Cloud." });
+        }
+    };
+
+    const handleCloudLoad = async () => {
+        const clean = (cloudSyncCode || "").trim();
+        if (clean.length < 4) {
+            setCloudSyncStatus({ loading: false, type: "error", message: "Masukkan minimal 4 karakter Kode Sinkronisasi Anda." });
+            return;
+        }
+        setCloudSyncStatus({ loading: true, type: "info", message: "Mengambil data dari Cloud Supabase..." });
+        try {
+            localStorage.setItem("PISGAH_STUDY_SYNC_CODE", clean);
+            const cloudData = await loadUserStudySync(clean);
+            if (!cloudData) {
+                setCloudSyncStatus({ loading: false, type: "error", message: "Data belum ditemukan untuk kode tersebut. Silakan klik 'Simpan ke Cloud' terlebih dahulu." });
+                return;
+            }
+
+            // Merge Sabbath School Inline Notes
+            let mergedSSNotes = [...inlineNotes];
+            if (Array.isArray(cloudData.ssInlineNotes)) {
+                const noteMap = new Map();
+                inlineNotes.forEach(n => { if (n && n.id) noteMap.set(n.id, n); });
+                cloudData.ssInlineNotes.forEach(n => { if (n && n.id) noteMap.set(n.id, n); });
+                mergedSSNotes = Array.from(noteMap.values());
+                saveInlineNotesToStorage(mergedSSNotes);
+            }
+
+            // Merge Sabbath School Read Progress
+            if (cloudData.ssReadProgress && typeof cloudData.ssReadProgress === "object") {
+                const mergedProg = { ...readProgress, ...cloudData.ssReadProgress };
+                setReadProgress(mergedProg);
+                localStorage.setItem("PISGAH_SS_READ_PROGRESS", JSON.stringify(mergedProg));
+                window.dispatchEvent(new CustomEvent("ss-read-progress-changed", { detail: mergedProg }));
+            }
+
+            // Merge Bible Highlights & Verse Notes
+            const mergedHighlights = { ...highlightsMap, ...(cloudData.highlightsMap || {}) };
+            setHighlightsMap(mergedHighlights);
+            localStorage.setItem("PISGAH_ALKITAB_HIGHLIGHTS", JSON.stringify(mergedHighlights));
+            window.dispatchEvent(new CustomEvent("alkitab-highlights-changed", { detail: mergedHighlights }));
+
+            // Merge Bible Year 365 Plan
+            if (Array.isArray(cloudData.bibleYearDone)) {
+                const localBY = JSON.parse(localStorage.getItem("PISGAH_BIBLE_YEAR_DONE") || "[]");
+                const mergedBY = Array.from(new Set([...localBY, ...cloudData.bibleYearDone]));
+                localStorage.setItem("PISGAH_BIBLE_YEAR_DONE", JSON.stringify(mergedBY));
+                window.dispatchEvent(new CustomEvent("bible-year-changed", { detail: mergedBY }));
+            }
+
+            setCloudSyncStatus({
+                loading: false,
+                type: "success",
+                message: `Sinkronisasi Berhasil! (${mergedSSNotes.length} Catatan Pelajaran & ${Object.keys(mergedHighlights).length} Stabilo/Catatan Ayat aktif)`
+            });
+        } catch (err) {
+            setCloudSyncStatus({ loading: false, type: "error", message: err.message || "Gagal memuat dari Cloud." });
+        }
+    };
+
     const dailyNotesList = useMemo(() => {
         return [...inlineNotes].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
     }, [inlineNotes]);
@@ -2811,6 +2934,17 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                         )}
                     </button>
 
+                    {/* Tombol Cloud Sync Jemaat */}
+                    <button
+                        type="button"
+                        onClick={() => { setCloudSyncStatus({ loading: false, type: "", message: "" }); setIsCloudSyncOpen(true); }}
+                        className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-800 dark:text-sky-300 text-xs font-black transition flex items-center gap-1.5 cursor-pointer border border-sky-400/40 shrink-0 shadow-2xs active:scale-95"
+                        title="Sinkronkan Catatan Sekolah Sabat & Stabilo Alkitab ke Cloud"
+                    >
+                        <span>☁️</span>
+                        <span className="hidden md:inline">Cloud Sync</span>
+                    </button>
+
                     {/* Tombol Bagikan ke WhatsApp di Bar Atas */}
                     <button
                         type="button"
@@ -2964,6 +3098,7 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                         return (
                             <button
                                 key={tab.idx}
+                                ref={isActive ? activeTabButtonRef : null}
                                 onClick={() => setSelectedDayIdx(tab.idx)}
                                 className={`px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex flex-col items-center justify-center shrink-0 cursor-pointer min-w-[5.5rem] sm:min-w-[6.5rem] relative ${isActive
                                     ? "bg-navy-900 dark:bg-gold-500 text-gold-400 dark:text-navy-950 shadow-md scale-102 font-extrabold"
@@ -4376,16 +4511,112 @@ export default function DetailSekolahSabat({ setActiveTab, dataPejabat, setHideG
                         </div>
 
                         {/* Footer Modal Koleksi */}
-                        <div className="p-3 sm:p-4 border-t border-navy-100 dark:border-navy-800 bg-navy-50/50 dark:bg-navy-950/50 flex items-center justify-between shrink-0">
+                        <div className="p-3 sm:p-4 border-t border-navy-100 dark:border-navy-800 bg-navy-50/50 dark:bg-navy-950/50 flex items-center justify-between gap-2 flex-wrap shrink-0">
                             <span className="text-[11px] text-navy-500 dark:text-gray-400 font-medium">
-                                💡 Catatan tersimpan secara lokal di perangkat Anda (Offline & Aman)
+                                💡 Catatan tersimpan di perangkat Anda & dapat disinkronkan ke Cloud
                             </span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => { setIsNotesCollectionOpen(false); setCloudSyncStatus({ loading: false, type: "", message: "" }); setIsCloudSyncOpen(true); }}
+                                    className="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-black cursor-pointer flex items-center gap-1.5 shadow-xs transition active:scale-95"
+                                >
+                                    <span>☁️</span>
+                                    <span>Cloud Sync</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsNotesCollectionOpen(false)}
+                                    className="px-4 py-2 rounded-xl bg-navy-200 dark:bg-navy-800 text-navy-800 dark:text-white text-xs font-bold cursor-pointer hover:bg-navy-300"
+                                >
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL SINKRONISASI CLOUD CATATAN SEKOLAH SABAT & ALKITAB (TAHAP 5A) */}
+            {isCloudSyncOpen && (
+                <div
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-navy-950/80 backdrop-blur-md p-4 animate-fade-in"
+                    onClick={() => setIsCloudSyncOpen(false)}
+                >
+                    <div
+                        className="rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl animate-scale-up border-2 border-sky-400/50 dark:border-gold-500/40 bg-white dark:bg-navy-900 flex flex-col space-y-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between pb-3 border-b border-navy-100 dark:border-navy-800">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-10 h-10 rounded-2xl bg-sky-500/15 dark:bg-gold-500/20 text-sky-600 dark:text-gold-400 flex items-center justify-center text-lg font-black shrink-0">
+                                    ☁️
+                                </div>
+                                <div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-sky-600 dark:text-gold-400 block">
+                                        Cloud Sync Jemaat (Supabase)
+                                    </span>
+                                    <h3 className="text-base font-black text-navy-900 dark:text-white">
+                                        Sinkronisasi Catatan & Stabilo
+                                    </h3>
+                                </div>
+                            </div>
                             <button
                                 type="button"
-                                onClick={() => setIsNotesCollectionOpen(false)}
-                                className="px-4 py-2 rounded-xl bg-navy-200 dark:bg-navy-800 text-navy-800 dark:text-white text-xs font-bold cursor-pointer hover:bg-navy-300"
+                                onClick={() => setIsCloudSyncOpen(false)}
+                                className="p-1.5 rounded-xl text-navy-400 hover:text-red-500 cursor-pointer"
                             >
-                                Tutup
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <p className="text-xs text-navy-600 dark:text-gray-300 leading-relaxed">
+                            Simpan dan pulihkan seluruh <b>Catatan Pelajaran Sekolah Sabat</b>, <b>Progress Bacaan Harian</b>, serta <b>Stabilo & Catatan Ayat Alkitab</b> Anda lintas HP/Laptop menggunakan Kode Unik atau Nomor HP Anda.
+                        </p>
+
+                        <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-navy-700 dark:text-gray-200 block mb-1.5">
+                                Kode Sinkronisasi / Nomor HP Anda:
+                            </label>
+                            <input
+                                type="text"
+                                value={cloudSyncCode}
+                                onChange={(e) => setCloudSyncCode(e.target.value)}
+                                placeholder="Contoh: 08123456789 atau budi2026"
+                                className="w-full px-3.5 py-2.5 rounded-xl bg-navy-50 dark:bg-navy-950 border border-navy-200 dark:border-navy-700 text-sm font-bold text-navy-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500"
+                            />
+                        </div>
+
+                        {cloudSyncStatus.message && (
+                            <div className={`p-3 rounded-xl text-xs font-bold border ${
+                                cloudSyncStatus.type === "success"
+                                    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700"
+                                    : cloudSyncStatus.type === "error"
+                                        ? "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700"
+                                        : "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-700"
+                            }`}>
+                                {cloudSyncStatus.message}
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-2.5 pt-2">
+                            <button
+                                type="button"
+                                disabled={cloudSyncStatus.loading}
+                                onClick={handleCloudSave}
+                                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#4A7045] to-emerald-600 dark:from-amber-500 dark:to-gold-500 text-white dark:text-navy-950 font-black text-xs shadow-md transition cursor-pointer active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                            >
+                                <span>☁️⬆️</span>
+                                <span>Simpan ke Cloud</span>
+                            </button>
+                            <button
+                                type="button"
+                                disabled={cloudSyncStatus.loading}
+                                onClick={handleCloudLoad}
+                                className="py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-black text-xs shadow-md transition cursor-pointer active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                            >
+                                <span>☁️⬇️</span>
+                                <span>Muat dari Cloud</span>
                             </button>
                         </div>
                     </div>

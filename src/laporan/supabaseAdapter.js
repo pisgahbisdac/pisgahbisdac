@@ -12,7 +12,12 @@ export async function supabaseGet(action, params = {}) {
         return { success: true, message: 'pong' };
 
       case 'getConfig': {
-        const { data, error } = await supabase.from('config').select('*');
+        const { data, error } = await supabase
+          .from('config')
+          .select('*')
+          .not('key', 'like', 'portal_%')
+          .not('key', 'like', 'pembangunan_%')
+          .not('key', 'like', 'user_sync_%');
         if (error) throw error;
         const config = {};
         if (data) data.forEach(c => config[c.key] = c.value);
@@ -81,7 +86,9 @@ export async function supabaseGet(action, params = {}) {
       }
 
       case 'getUsers': {
-        const { data, error } = await supabase.from('users').select('*');
+        const verified = await verifyActiveSupabaseUser();
+        const isCallerAdmin = verified.valid && (verified.role || '').split(',').map(r => r.trim()).includes('Admin');
+        const { data, error } = await supabase.from('users').select(isCallerAdmin ? '*' : 'username, role, nama, active');
         if (error) throw error;
         return { success: true, data: data || [] };
       }
@@ -133,12 +140,109 @@ async function getNextSeqNum(table, prefix, year, month) {
   return nextNum;
 }
 
+let _verifiedUserCache = { username: null, role: null, nama: null, ts: 0 };
+
+/**
+ * Validasi sesi pengguna langsung ke tabel `users` di Supabase
+ * untuk mencegah manipulasi role di localStorage (DevTools).
+ */
+export async function verifyActiveSupabaseUser() {
+  try {
+    let parsedUser = {};
+    const userStr = localStorage.getItem('BISDAC_user');
+    if (userStr) {
+      try { parsedUser = JSON.parse(userStr); } catch (_) {}
+    }
+    if (!parsedUser.username) {
+      const tokenStr = localStorage.getItem('BISDAC_token');
+      if (tokenStr) {
+        try { parsedUser = JSON.parse(atob(tokenStr)); } catch (_) {}
+      }
+    }
+    const candidateUsername = (parsedUser.username || '').trim();
+    if (!candidateUsername) {
+      return { valid: false, username: 'Anonymous', role: 'Viewer', message: 'Sesi login tidak ditemukan. Silakan login kembali.' };
+    }
+
+    const now = Date.now();
+    if (
+      _verifiedUserCache.username &&
+      _verifiedUserCache.username.toLowerCase() === candidateUsername.toLowerCase() &&
+      now - _verifiedUserCache.ts < 15000
+    ) {
+      return { valid: true, username: _verifiedUserCache.username, role: _verifiedUserCache.role, nama: _verifiedUserCache.nama };
+    }
+
+    // Prioritaskan RPC server-side (SECURITY DEFINER) bila tersedia
+    let verifiedRow = null;
+    const { data: rpcData, error: rpcError } = await supabase.rpc('verify_bisdac_user', {
+      p_username: candidateUsername,
+      p_password: null
+    });
+    if (!rpcError && Array.isArray(rpcData) && rpcData.length > 0 && rpcData[0].verified) {
+      verifiedRow = rpcData[0];
+    } else if (rpcError) {
+      const { data, error } = await supabase
+        .from('users')
+        .select('username, role, nama, active')
+        .ilike('username', candidateUsername)
+        .eq('active', true)
+        .single();
+      if (!error && data) verifiedRow = data;
+    }
+
+    if (!verifiedRow) {
+      return { valid: false, username: candidateUsername, role: 'Viewer', message: 'Akun pengguna tidak aktif atau tidak terdaftar di Supabase.' };
+    }
+
+    _verifiedUserCache = {
+      username: verifiedRow.username,
+      role: verifiedRow.role || 'Viewer',
+      nama: verifiedRow.nama || verifiedRow.username,
+      ts: now
+    };
+    return { valid: true, username: verifiedRow.username, role: verifiedRow.role || 'Viewer', nama: verifiedRow.nama || verifiedRow.username };
+  } catch (err) {
+    console.warn('verifyActiveSupabaseUser warning:', err);
+    return { valid: false, username: 'System', role: 'Viewer', message: 'Gagal memverifikasi sesi pengguna.' };
+  }
+}
+
 export async function supabasePost(action, payload = {}) {
   try {
-    const userStr = localStorage.getItem('BISDAC_user');
-    const user = userStr ? JSON.parse(userStr) : {};
-    const username = user.username || 'System';
-    const role = user.role || 'Viewer';
+    if (action === 'login') {
+      // Gunakan RPC server-side terlebih dahulu agar perbandingan password dilakukan di PostgreSQL
+      const { data: rpcRows, error: rpcErr } = await supabase.rpc('verify_bisdac_user', {
+        p_username: payload.username || '',
+        p_password: payload.password || ''
+      });
+      if (!rpcErr && Array.isArray(rpcRows)) {
+        if (rpcRows.length === 0) return { success: false, message: 'Username salah atau dinonaktifkan.' };
+        const row = rpcRows[0];
+        if (!row.verified) return { success: false, message: 'Password salah.' };
+        const token = btoa(JSON.stringify({ username: row.username, role: row.role, nama: row.nama, iat: Date.now() }));
+        _verifiedUserCache = { username: row.username, role: row.role || 'Viewer', nama: row.nama || row.username, ts: Date.now() };
+        writeLog(row.username, 'LOGIN', 'Login via Supabase RPC');
+        return { success: true, token, user: { username: row.username, role: row.role, nama: row.nama } };
+      }
+
+      const { data, error } = await supabase.from('users').select('*').ilike('username', payload.username).eq('active', true).single();
+      if (error || !data) return { success: false, message: 'Username salah atau dinonaktifkan.' };
+      if (data.password !== payload.password) return { success: false, message: 'Password salah.' };
+      const token = btoa(JSON.stringify({ username: data.username, role: data.role, nama: data.nama, iat: Date.now() }));
+      _verifiedUserCache = { username: data.username, role: data.role || 'Viewer', nama: data.nama || data.username, ts: Date.now() };
+      writeLog(data.username, 'LOGIN', 'Login via Supabase');
+      return { success: true, token, user: { username: data.username, role: data.role, nama: data.nama } };
+    }
+
+    // Validasi role pengguna langsung terhadap database Supabase sebelum operasi tulis (Write Hardening)
+    const verified = await verifyActiveSupabaseUser();
+    if (!verified.valid) {
+      return { success: false, message: verified.message || 'Sesi tidak valid. Silakan login ulang.' };
+    }
+
+    const username = verified.username;
+    const role = verified.role;
 
     // Helper functions for checking auth
     const userRoles = role ? role.split(',').map(r => r.trim()) : [];
@@ -147,14 +251,6 @@ export async function supabasePost(action, payload = {}) {
     const canInputTx = isBendaharaOrAdmin || userRoles.includes('Operator');
 
     switch (action) {
-      case 'login': {
-        const { data, error } = await supabase.from('users').select('*').ilike('username', payload.username).eq('active', true).single();
-        if (error || !data) return { success: false, message: 'Username salah atau dinonaktifkan.' };
-        if (data.password !== payload.password) return { success: false, message: 'Password salah.' };
-        const token = btoa(JSON.stringify({ username: data.username, role: data.role, nama: data.nama }));
-        writeLog(data.username, 'LOGIN', 'Login via Supabase');
-        return { success: true, token, user: { username: data.username, role: data.role, nama: data.nama } };
-      }
 
       case 'saveIncome': {
         if (!canInputTx) return { success: false, message: 'Akses ditolak.' };
@@ -336,6 +432,7 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'saveDepartment': {
+        if (!isBendaharaOrAdmin) return { success: false, message: 'Akses ditolak. Hanya Admin atau Bendahara.' };
         if (payload.id) {
           let { data, error } = await supabase.from('departments').update({ name: payload.name }).eq('id', payload.id).select();
           if (error || !data || data.length === 0) {
@@ -353,6 +450,7 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'deleteDepartment': {
+        if (!isBendaharaOrAdmin) return { success: false, message: 'Akses ditolak. Hanya Admin atau Bendahara.' };
         let { error } = await supabase.from('departments').delete().eq('id', payload.id || payload.name);
         if (error) {
           await supabase.from('departments').delete().eq('name', payload.name || payload.id);
@@ -362,6 +460,7 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'saveUnit': {
+        if (!isBendaharaOrAdmin) return { success: false, message: 'Akses ditolak. Hanya Admin atau Bendahara.' };
         if (payload.isUpdate && (payload.id || payload.oldName)) {
           let updated = false;
 
@@ -435,6 +534,7 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'deleteUnit': {
+        if (!isBendaharaOrAdmin) return { success: false, message: 'Akses ditolak. Hanya Admin atau Bendahara.' };
         let query = supabase.from('units');
         if (payload.id) {
           const { error } = await query.delete().eq('id', payload.id);
@@ -448,6 +548,7 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'saveIncomeType': {
+        if (!isBendaharaOrAdmin) return { success: false, message: 'Akses ditolak. Hanya Admin atau Bendahara.' };
         if (payload.isUpdate) {
           await supabase.from('income_types').update({
             name: payload.name, pct_daerah: payload.pct_daerah, pct_jemaat: payload.pct_jemaat, pct_bangun: payload.pct_bangun
@@ -463,12 +564,14 @@ export async function supabasePost(action, payload = {}) {
       }
 
       case 'deleteIncomeType': {
+        if (!isBendaharaOrAdmin) return { success: false, message: 'Akses ditolak. Hanya Admin atau Bendahara.' };
         await supabase.from('income_types').delete().eq('name', payload.name);
         writeLog(username, 'DELETE_INCOME_TYPE', `Hapus kategori: ${payload.name}`);
         return { success: true, message: 'Jenis pemasukan dihapus.' };
       }
 
       case 'approveTransaction': {
+        if (!isAdmin) return { success: false, message: 'Akses ditolak. Hanya Pendeta, Ketua Jemaat, atau Admin yang berhak menyetujui transaksi.' };
         const table = payload.type === 'income' ? 'income' : 'expense';
         const targetId = payload.transaction_id || payload.id;
         if (!targetId) return { success: false, message: 'ID transaksi tidak valid.' };
@@ -789,7 +892,7 @@ export async function backupSupabaseToGAS(gasUrl, onProgress = () => { }) {
       supabase.from('units').select('*').order('id', { ascending: true }),
       supabase.from('income_types').select('*').order('id', { ascending: true }),
       supabase.from('initial_balances').select('*'),
-      supabase.from('app_config').select('*')
+      supabase.from('config').select('*').not('key', 'like', 'portal_%').not('key', 'like', 'pembangunan_%').not('key', 'like', 'user_sync_%')
     ]);
 
     const departments = deptRes.data || [];
