@@ -48,7 +48,12 @@ Proyek ini di-build menggunakan **Vite 5** sebagai Multi-Page Application (MPA) 
   - Beranda, Jadwal Pembawa Acara, Susunan Ibadah, Warta Gereja & Buletin Sabat, Live/Video Terbaru.
   - **Alkitab Digital 66 Kitab** (membaca JSON statis offline dari `public/alkitab/1.json` s/d `66.json`).
   - **Lagu Sion (525 Lagu)** (membaca JSON statis offline dari `public/lagu_sion.json` dengan pemutar audio/musik & lirik).
-  - **Pelajaran Sekolah Sabat Harian** (`src/DetailSekolahSabat.jsx`): bacaan 7 hari, popup ayat Alkitab interaktif, highlight warna ayat, catatan & refleksi harian jemaat yang tersinkronisasi 2 arah dengan Alkitab Digital.
+  - **Pintasan Putar Lagu Sion Instan** (`SongPreviewModal` di Susunan Ibadah untuk memutar lagu langsung via modal tanpa pindah halaman).
+  - **Mode Layar TV Lobi / Smart TV** (`LobbyTvModal` kiosk view fullscreen dengan auto-scroll lambat untuk monitor lobi).
+  - **Pengingat Masuk Sabat (Sunset Notification)**: Notifikasi browser/PWA lokal 30–60 menit sebelum matahari terbenam Batam.
+  - **Pelajaran Sekolah Sabat Harian** (`src/DetailSekolahSabat.jsx`): deteksi & auto-scroll hari berjalan (Minggu–Sabat), bacaan 7 hari, popup ayat Alkitab interaktif, highlight warna ayat, catatan & refleksi harian jemaat yang tersinkronisasi 2 arah dengan Alkitab Digital.
+  - **Ekspor Jadwal Pelayanan ke WhatsApp**: Kirim ringkasan penugasan pribadi per jemaat (`shareMyScheduleToWhatsApp`) dan rekapitulasi seluruh majelis/petugas Sabat (`shareSabbathDutyRecapToWhatsApp`).
+  - **Harmonisasi Widget Beranda**: Auto-expand pengumuman saat banner PWA ditutup, Kotak Doa & Kalender/Ultah jemaat simetris berbasis `HomeCard` fleksibel dengan scrollbar halus (`max-h-[580px] sm:max-h-[620px]`).
   - **Pustaka Digital / Buku Roh Nubuat (EGW)** dengan sampul SVG dinamis (`getSvgBookCover`).
   - Informasi Persembahan / Kalkulator Perpuluhan, pintasan Cek Transaksi (mengarahkan ke `laporan.html`), dan Dashboard Admin.
 - **Backend**: Dual-Database **Supabase** (`src/utils/supabasePortalAdapter.js`, baca instan `<150ms` via `portal_main_blob`, `portal_warta_blob`, `portal_pastoral_blob`, `portal_books_blob`) + **Google Apps Script** (`GAS_API_URL`) + caching lokal (`localStorage` & Service Worker).
@@ -138,6 +143,13 @@ Proyek ini di-build menggunakan **Vite 5** sebagai Multi-Page Application (MPA) 
    - Gunakan Bahasa Indonesia yang baik, sopan, dan sesuai konteks Gereja Masehi Advent Hari Ketujuh (GMAHK), seperti: *Sabat*, *Sekolah Sabat*, *Perpuluhan*, *Persembahan Terpadu*, *Warta Jemaat*, *Roh Nubuat*, *Lagu Sion*, *Ketua Jemaat*, *Bendahara Jemaat*.
 6. **Gunakan Modal & Toast Kustom**:
    - Utamakan penggunaan komponen modal konfirmasi dan *toast notification* kustom yang sudah tersedia di masing-masing halaman (`customConfirm` / `showToast` / `triggerConfirm` / `showCustomConfirm`) daripada `alert()` atau `confirm()` bawaan browser.
+7. **Konvensi Ikon & Pantangan FontAwesome**:
+   - **JANGAN** menggunakan class FontAwesome eksternal seperti `<i className="fa-brands fa-whatsapp"></i>` atau `<i className="fa-...">` karena pustaka CDN/font FontAwesome tidak dimuat di HTML aplikasi.
+   - Selalu gunakan komponen ikon SVG bawaan `<Icon name="WhatsApp" ...>` atau ikon dari `lucide-react`.
+   - Gunakan warna solid brand resmi (mis. WhatsApp: `bg-[#25D366]` hover `hover:bg-[#1ebe5d]` dengan teks/ikon putih `text-white`) agar tampak kontras, tajam, dan tidak pudar.
+8. **Stacking Context & Peletakan Modal Pop-up (`createPortal`)**:
+   - Seluruh modal pop-up independen (seperti `SistemGerejaModal`, `SongPreviewModal`, `LobbyTvModal`) **wajib** dirender melalui `createPortal(..., document.body)` dengan kelas `z-[9999]` agar terbebas dari jebakan *stacking context* kartu beranda (`relative z-10/z-20`).
+   - Pastikan modal ditempatkan di dalam komponen yang mendeklarasikan state-nya (misalnya `SongPreviewModal` dan `LobbyTvModal` di dalam komponen `SusunanIbadah`, bukan di komponen lain seperti `Persembahan`).
 
 ---
 
