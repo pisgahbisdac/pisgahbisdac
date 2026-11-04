@@ -606,8 +606,8 @@ export const HomeCard = ({
         <div className={`relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group ${containerClassName}`}>
             <div>
                 {/* Header Kartu */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-[#E2E8D8] dark:border-navy-800">
-                    <div>
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 pb-4 border-b border-[#E2E8D8] dark:border-navy-800">
+                    <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
                             {badgeText && (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
@@ -633,7 +633,7 @@ export const HomeCard = ({
                         )}
                     </div>
                     {headerRightContent && (
-                        <div className="self-start md:self-auto shrink-0">
+                        <div className="self-start xl:self-auto shrink-0 w-full xl:w-auto">
                             {headerRightContent}
                         </div>
                     )}
@@ -4670,7 +4670,7 @@ export const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = []
             title="Cari & Konfirmasi Tugas Pelayanan Saya"
             subtitle="Cek jadwal penugasan Anda pada kebaktian mendatang dan lakukan konfirmasi kesiapan hadir langsung dari sini."
             headerRightContent={(
-                <div className="flex items-center gap-2.5 w-full lg:w-auto shrink-0 flex-wrap sm:flex-nowrap">
+                <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
                     <button
                         type="button"
                         onClick={() => shareSabbathDutyRecapToWhatsApp({ jadwalDB })}
@@ -4680,15 +4680,15 @@ export const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = []
                         <Icon name="WhatsApp" className="w-4 h-4" />
                         <span>WA</span>
                     </button>
-                    <div className="relative w-full sm:w-60 md:w-64">
+                    <div className="relative flex-1 sm:w-60 md:w-64 max-w-full">
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Cari nama pelayan (misal: Sarah)..."
-                            className="w-full bg-[#F4F7EF] dark:bg-navy-950 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-white rounded-2xl px-4 py-2.5 sm:py-3 pl-11 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#4A7045] dark:focus:ring-gold-500 transition shadow-inner placeholder-[#596B4D]/60 dark:placeholder-gray-500"
+                            className="w-full box-border bg-[#F4F7EF] dark:bg-navy-950 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-white rounded-2xl px-4 py-2.5 sm:py-3 pl-11 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#4A7045] dark:focus:ring-gold-500 transition shadow-inner placeholder-[#596B4D]/60 dark:placeholder-gray-500"
                         />
-                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#596B4D] dark:text-gray-400">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#596B4D] dark:text-gray-400 pointer-events-none">
                             <Icon name="Search" className="w-4 h-4" />
                         </div>
                         {searchQuery && (

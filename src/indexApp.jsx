@@ -7,7 +7,7 @@ import { UniversalSearchModal } from './components/portal/UniversalSearchModal';
 import { StoryShareModal } from './components/portal/StoryShareModal';
 import { generateStoryImage } from './utils/storyImageGenerator';
 import { checkAndTriggerSabbathReminder, requestNotificationPermission } from './utils/sabbathReminderService';
-import { SongPreviewModal, LobbyTvModal } from './components/portal/portalShared';
+import { SongPreviewModal, LobbyTvModal, HomeCard } from './components/portal/portalShared';
 
 // searchlaporan: redirect ke laporan.html (Cek Transaksi)
 
@@ -4561,7 +4561,7 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => 
     return (
         <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700">
             <OfficerAttendanceModal modalData={attendanceModal} onClose={() => setAttendanceModal(null)} dataPejabat={dataPejabat} />
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5">
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-5">
                 <div className="min-w-0 flex-1">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-[#4A7045]/20 dark:border-gold-500/30">
                         <Icon name="Users" className="w-3.5 h-3.5" /> Pelayanan Jemaat
@@ -4569,12 +4569,12 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => 
                     <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight">
                         Cari & Konfirmasi Tugas Pelayanan Saya
                     </h3>
-                    <p className="text-xs md:text-sm text-[#596B4D] dark:text-gray-400 mt-1">
+                    <p className="text-xs md:text-sm text-[#596B4D] dark:text-gray-400 mt-1 max-w-2xl">
                         Cek jadwal penugasan Anda pada kebaktian mendatang dan lakukan konfirmasi kesiapan hadir langsung dari sini.
                     </p>
                 </div>
 
-                <div className="flex items-center gap-2.5 w-full lg:w-auto shrink-0 flex-wrap sm:flex-nowrap">
+                <div className="flex items-center gap-2.5 w-full xl:w-auto shrink-0">
                     <button
                         type="button"
                         onClick={() => shareSabbathDutyRecapToWhatsApp({ jadwalDB })}
@@ -4584,15 +4584,15 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => 
                         <Icon name="WhatsApp" className="w-4 h-4" />
                         <span>WA</span>
                     </button>
-                    <div className="relative w-full sm:w-60 md:w-64">
+                    <div className="relative flex-1 sm:w-60 md:w-64 max-w-full">
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Cari nama pelayan (misal: Sarah)..."
-                            className="w-full bg-[#F4F7EF] dark:bg-navy-950 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-white rounded-2xl px-4 py-2.5 sm:py-3 pl-11 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#4A7045] dark:focus:ring-gold-500 transition shadow-inner placeholder-[#596B4D]/60 dark:placeholder-gray-500"
+                            className="w-full box-border bg-[#F4F7EF] dark:bg-navy-950 border border-[#E2E8D8] dark:border-navy-700 text-[#2C3F21] dark:text-white rounded-2xl px-4 py-2.5 sm:py-3 pl-11 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#4A7045] dark:focus:ring-gold-500 transition shadow-inner placeholder-[#596B4D]/60 dark:placeholder-gray-500"
                         />
-                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#596B4D] dark:text-gray-400">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#596B4D] dark:text-gray-400 pointer-events-none">
                             <Icon name="Search" className="w-4 h-4" />
                         </div>
                         {searchQuery && (
