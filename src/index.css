@@ -330,6 +330,34 @@ html.dark .warta-content th {
   animation: fadeIn 0.4s ease-out;
 }
 
+@keyframes modalPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeInFast {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-modal-pop {
+  animation: modalPopIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-fast {
+  animation: fadeInFast 0.15s ease-out forwards;
+}
+
 .welcome-box-gradient {
   background: linear-gradient(135deg, rgba(231, 174, 48, 0.2) 0%, rgba(255, 255, 255, 0.8) 100%);
   border: 1px solid rgba(255, 255, 255, 0.6);

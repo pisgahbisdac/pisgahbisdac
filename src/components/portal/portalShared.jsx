@@ -4864,10 +4864,10 @@ export const SistemGerejaModal = ({ isOpen, onClose }) => {
     ];
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
-            <div onClick={onClose} className="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm" />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto animate-fade-in-fast">
+            <div onClick={onClose} className="fixed inset-0 bg-black/60 dark:bg-black/75 transition-opacity" />
 
-            <div className="relative w-full max-w-lg bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col my-auto">
+            <div className="relative w-full max-w-lg bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col my-auto animate-modal-pop">
                 <div className="p-4 sm:p-5 border-b border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between bg-[#F7F9F3] dark:bg-navy-950">
                     <div className="flex items-center gap-2.5">
                         <span className="w-9 h-9 rounded-xl bg-[#4A7045]/15 dark:bg-gold-500/15 text-[#4A7045] dark:text-gold-400 flex items-center justify-center font-black">
@@ -5169,10 +5169,10 @@ export const SongPreviewModal = ({ isOpen, onClose, song, onOpenFull }) => {
     }, [song]);
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 animate-fade-in">
-            <div onClick={onClose} className="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm" />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 animate-fade-in-fast">
+            <div onClick={onClose} className="fixed inset-0 bg-black/60 dark:bg-black/75 transition-opacity" />
 
-            <div className="relative w-full max-w-lg max-h-[90vh] bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col my-auto">
+            <div className="relative w-full max-w-lg max-h-[90vh] bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col my-auto animate-modal-pop">
                 {/* Header */}
                 <div className="p-4 sm:p-5 border-b border-[#E2E8D8] dark:border-navy-800 bg-[#F7F9F3] dark:bg-navy-950 flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0">
