@@ -865,7 +865,7 @@ const ManualInstallModal = ({ isOpen, onClose }) => {
 };
 
 // Banner PWA Kaya Informasi di Halaman Depan
-const PwaInstallBanner = ({ onOpenGuide }) => {
+const PwaInstallBanner = ({ onOpenGuide, onDismiss }) => {
     const [isDismissed, setIsDismissed] = React.useState(() => {
         try {
             const val = localStorage.getItem('pisgah_pwa_banner_dismissed_until');
@@ -887,6 +887,7 @@ const PwaInstallBanner = ({ onOpenGuide }) => {
             localStorage.setItem('pisgah_pwa_banner_dismissed_until', String(Date.now() + 7 * 24 * 60 * 60 * 1000));
         } catch (e) { }
         setIsDismissed(true);
+        if (onDismiss) onDismiss();
     };
 
     return (
@@ -4944,6 +4945,24 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
         }
     }, [pengumuman]);
 
+    const isPwaStandaloneOrDismissed = () => {
+        try {
+            if (typeof window === 'undefined') return true;
+            const isStandalone = Boolean(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+                window.navigator.standalone === true;
+            if (isStandalone) return true;
+            const val = localStorage.getItem('pisgah_pwa_banner_dismissed_until');
+            if (val && Number(val) > Date.now()) return true;
+            return false;
+        } catch (e) {
+            return false;
+        }
+    };
+    const [isPwaDismissed, setIsPwaDismissed] = React.useState(() => isPwaStandaloneOrDismissed());
+    const hasPengumuman = !isPengumumanReallyEmpty();
+    const hasPwaBanner = !isPwaDismissed;
+    const hasTopRow = hasPengumuman || hasPwaBanner;
+
     const featureItems = [
         { id: 'sekolah_sabat', label: 'Sekolah Sabat', icon: 'BookOpen' },
         { id: 'lagu_sion', label: 'Lagu Sion', icon: 'Music' },
@@ -5161,67 +5180,74 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                 {/* UNIFIED HOME SECTIONS CONTAINER: CONSISTENT SPACING & MATCHING MODERN CARDS */}
                 <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-6 md:mt-8 space-y-6 relative z-20">
-                    {/* BARIS TERATAS: PENGUMUMAN & BANNER PASANG PWA (2 KOLOM JIKA PENGUMUMAN ADA, 1 KOLOM PENUH JIKA TIDAK ADA) */}
-                    <div className={`grid grid-cols-1 ${!isPengumumanReallyEmpty() ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
-                        {(!isPengumumanReallyEmpty()) && (
-                            <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group h-full">
-                                <div>
-                                    <div className="flex items-center justify-between gap-3 mb-2">
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
-                                            <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman Jemaat
-                                        </span>
-                                        <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
-                                            Pekan Ini
-                                        </span>
-                                    </div>
+                    {/* BARIS TERATAS: PENGUMUMAN & BANNER PASANG PWA (2 KOLOM JIKA KEDUANYA ADA, 1 KOLOM PENUH JIKA HANYA 1 YANG ADA) */}
+                    {hasTopRow && (
+                        <div className={`grid grid-cols-1 ${hasPengumuman && hasPwaBanner ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
+                            {hasPengumuman && (
+                                <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group h-full">
+                                    <div>
+                                        <div className="flex items-center justify-between gap-3 mb-2">
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
+                                                <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman Jemaat
+                                            </span>
+                                            <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                                                Pekan Ini
+                                            </span>
+                                        </div>
 
-                                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight mb-4">
-                                        {pengumuman.header || "Pengumuman Pekan Ini"}
-                                    </h3>
+                                        <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight mb-4">
+                                            {pengumuman.header || "Pengumuman Pekan Ini"}
+                                        </h3>
 
-                                    <div className="relative">
-                                        <div
-                                            className={`bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed font-medium transition-all duration-300 ${isPengumumanLong ? (isPengumumanExpanded ? 'max-h-[500px] overflow-y-auto custom-scrollbar' : 'max-h-[140px] overflow-hidden') : ''}`}
-                                            dangerouslySetInnerHTML={{ __html: pengumuman.isi }}
-                                        ></div>
-                                        {isPengumumanLong && !isPengumumanExpanded && (
-                                            <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#F7F9F3] dark:from-navy-950 to-transparent pointer-events-none rounded-b-2xl"></div>
+                                        <div className="relative">
+                                            <div
+                                                className={`bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed font-medium transition-all duration-300 ${isPengumumanLong ? (isPengumumanExpanded ? 'max-h-[500px] overflow-y-auto custom-scrollbar' : 'max-h-[140px] overflow-hidden') : ''}`}
+                                                dangerouslySetInnerHTML={{ __html: pengumuman.isi }}
+                                            ></div>
+                                            {isPengumumanLong && !isPengumumanExpanded && (
+                                                <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#F7F9F3] dark:from-navy-950 to-transparent pointer-events-none rounded-b-2xl"></div>
+                                            )}
+                                        </div>
+
+                                        {isPengumumanLong && (
+                                            <div className="mt-3 flex justify-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsPengumumanExpanded(prev => !prev)}
+                                                    className="px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/25 text-[#2C3F21] dark:text-gold-400 font-extrabold text-xs transition flex items-center gap-1.5 cursor-pointer border border-[#4A7045]/30 dark:border-gold-500/40"
+                                                >
+                                                    <span>{isPengumumanExpanded ? 'Tutup Pengumuman' : 'Baca Selengkapnya'}</span>
+                                                    <Icon name={isPengumumanExpanded ? 'ChevronUp' : 'ChevronDown'} className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
 
-                                    {isPengumumanLong && (
-                                        <div className="mt-3 flex justify-center">
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsPengumumanExpanded(prev => !prev)}
-                                                className="px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/25 text-[#2C3F21] dark:text-gold-400 font-extrabold text-xs transition flex items-center gap-1.5 cursor-pointer border border-[#4A7045]/30 dark:border-gold-500/40"
-                                            >
-                                                <span>{isPengumumanExpanded ? 'Tutup Pengumuman' : 'Baca Selengkapnya'}</span>
-                                                <Icon name={isPengumumanExpanded ? 'ChevronUp' : 'ChevronDown'} className="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
-                                    )}
+                                    <div className="pt-3 mt-4 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between text-[11px] text-[#596B4D] dark:text-gray-400">
+                                        <span>GMAHK Jemaat Pisgah BISDAC</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setActiveTab('warta')}
+                                            className="font-bold text-[#4A7045] dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                        >
+                                            <span>Buka Portal Warta</span>
+                                            <Icon name="ChevronRight" className="w-3 h-3" />
+                                        </button>
+                                    </div>
                                 </div>
+                            )}
 
-                                <div className="pt-3 mt-4 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between text-[11px] text-[#596B4D] dark:text-gray-400">
-                                    <span>GMAHK Jemaat Pisgah BISDAC</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setActiveTab('warta')}
-                                        className="font-bold text-[#4A7045] dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
-                                    >
-                                        <span>Buka Portal Warta</span>
-                                        <Icon name="ChevronRight" className="w-3 h-3" />
-                                    </button>
+                            {/* BANNER AJAKAN PASANG APLIKASI PWA RESMI (OTOMATIS 1 KOLOM PENUH BILA PENGUMUMAN TIDAK ADA) */}
+                            {hasPwaBanner && (
+                                <div className="h-full flex flex-col justify-between">
+                                    <PwaInstallBanner
+                                        onOpenGuide={() => setShowManualInstall && setShowManualInstall(true)}
+                                        onDismiss={() => setIsPwaDismissed(true)}
+                                    />
                                 </div>
-                            </div>
-                        )}
-
-                        {/* BANNER AJAKAN PASANG APLIKASI PWA RESMI (OTOMATIS 1 KOLOM PENUH BILA PENGUMUMAN TIDAK ADA) */}
-                        <div className="h-full flex flex-col justify-between">
-                            <PwaInstallBanner onOpenGuide={() => setShowManualInstall && setShowManualInstall(true)} />
+                            )}
                         </div>
-                    </div>
+                    )}
 
                     {/* ROW 1: HITUNG MUNDUR SABAT & AYAT HARIAN */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
@@ -5878,6 +5904,7 @@ const IbadahNavHeader = ({ activeSubTab, setActiveTab }) => {
 
 const SistemGerejaModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
+    if (typeof document === 'undefined') return null;
 
     const systems = [
         {
@@ -5914,11 +5941,11 @@ const SistemGerejaModal = ({ isOpen, onClose }) => {
         }
     ];
 
-    return (
-        <div className="fixed inset-0 z-[520] flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
             <div onClick={onClose} className="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm" />
 
-            <div className="relative w-full max-w-lg bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col">
+            <div className="relative w-full max-w-lg bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col my-auto">
                 <div className="p-4 sm:p-5 border-b border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between bg-[#F7F9F3] dark:bg-navy-950">
                     <div className="flex items-center gap-2.5">
                         <div className="w-10 h-10 rounded-2xl bg-[#4A7045]/15 dark:bg-gold-500/20 text-[#4A7045] dark:text-gold-400 flex items-center justify-center">
@@ -5972,7 +5999,8 @@ const SistemGerejaModal = ({ isOpen, onClose }) => {
                     </p>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

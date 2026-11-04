@@ -4825,6 +4825,7 @@ export const IbadahNavHeader = ({ activeSubTab, setActiveTab }) => {
 
 export const SistemGerejaModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
+    if (typeof document === 'undefined') return null;
 
     const systems = [
         {
@@ -4861,11 +4862,11 @@ export const SistemGerejaModal = ({ isOpen, onClose }) => {
         }
     ];
 
-    return (
-        <div className="fixed inset-0 z-[520] flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
             <div onClick={onClose} className="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm" />
 
-            <div className="relative w-full max-w-lg bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col">
+            <div className="relative w-full max-w-lg bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col my-auto">
                 <div className="p-4 sm:p-5 border-b border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between bg-[#F7F9F3] dark:bg-navy-950">
                     <div className="flex items-center gap-2.5">
                         <span className="w-9 h-9 rounded-xl bg-[#4A7045]/15 dark:bg-gold-500/15 text-[#4A7045] dark:text-gold-400 flex items-center justify-center font-black">
@@ -4917,7 +4918,8 @@ export const SistemGerejaModal = ({ isOpen, onClose }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
@@ -5165,11 +5167,11 @@ export const SongPreviewModal = ({ isOpen, onClose, song, onOpenFull }) => {
         return [];
     }, [song]);
 
-    return (
-        <div className="fixed inset-0 z-[550] flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 animate-fade-in">
             <div onClick={onClose} className="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm" />
 
-            <div className="relative w-full max-w-lg max-h-[90vh] bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col">
+            <div className="relative w-full max-w-lg max-h-[90vh] bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col my-auto">
                 {/* Header */}
                 <div className="p-4 sm:p-5 border-b border-[#E2E8D8] dark:border-navy-800 bg-[#F7F9F3] dark:bg-navy-950 flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0">
@@ -5297,13 +5299,15 @@ export const SongPreviewModal = ({ isOpen, onClose, song, onOpenFull }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
 // --- MODAL LAYAR TV LOBI KIOSK VIEW UNTUK KERTAS ACARA ---
 export const LobbyTvModal = ({ isOpen, onClose, activeSabat, sabatYMD, formatIndoDate = (d) => d }) => {
     if (!isOpen) return null;
+    if (typeof document === 'undefined') return null;
 
     const [currentTime, setCurrentTime] = React.useState(new Date());
     const [isAutoScroll, setIsAutoScroll] = React.useState(false);
@@ -5355,8 +5359,8 @@ export const LobbyTvModal = ({ isOpen, onClose, activeSabat, sabatYMD, formatInd
 
     const timeString = currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-    return (
-        <div className="fixed inset-0 z-[600] bg-[#070E1A] text-white flex flex-col overflow-hidden animate-fade-in select-none">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] bg-[#070E1A] text-white flex flex-col overflow-hidden animate-fade-in select-none">
             {/* TOP BAR / HEADER KIOSK */}
             <header className="px-6 py-4 bg-[#0B1728]/95 border-b border-gold-500/30 flex items-center justify-between shadow-xl backdrop-blur-md shrink-0">
                 <div className="flex items-center gap-4">
@@ -5530,6 +5534,7 @@ export const LobbyTvModal = ({ isOpen, onClose, activeSabat, sabatYMD, formatInd
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
