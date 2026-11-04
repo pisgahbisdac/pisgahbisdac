@@ -6315,6 +6315,27 @@ const SusunanIbadah = ({ setActiveTab, activeSabat, sabatYMD, laguSionDb = [], s
                     </div>
                 </div>
             </div>
+
+            {/* Modal Preview Lagu Sion Instan */}
+            <SongPreviewModal
+                isOpen={Boolean(previewSong)}
+                onClose={() => setPreviewSong(null)}
+                song={previewSong}
+                onOpenFull={(s) => {
+                    setLaguSionInitialSong(s);
+                    setLaguSionSubTab('lyrics');
+                    setActiveTab('lagu_sion');
+                }}
+            />
+
+            {/* Modal Layar TV Lobi Kiosk View */}
+            <LobbyTvModal
+                isOpen={isLobbyTvOpen}
+                onClose={() => setIsLobbyTvOpen(false)}
+                activeSabat={activeSabat}
+                sabatYMD={sabatYMD}
+                formatIndoDate={formatIndoDate}
+            />
         </div>
     );
 };
@@ -7742,27 +7763,6 @@ const Persembahan = ({ dataPejabat, daftarRekening }) => {
                     </div>
                 </div>
             )}
-
-            {/* Modal Preview Lagu Sion Instan */}
-            <SongPreviewModal
-                isOpen={Boolean(previewSong)}
-                onClose={() => setPreviewSong(null)}
-                song={previewSong}
-                onOpenFull={(s) => {
-                    setLaguSionInitialSong(s);
-                    setLaguSionSubTab('lyrics');
-                    setActiveTab('lagu_sion');
-                }}
-            />
-
-            {/* Modal Layar TV Lobi Kiosk View */}
-            <LobbyTvModal
-                isOpen={isLobbyTvOpen}
-                onClose={() => setIsLobbyTvOpen(false)}
-                activeSabat={activeSabat}
-                sabatYMD={sabatYMD}
-                formatIndoDate={formatIndoDate}
-            />
         </div>
     );
 };
