@@ -1444,10 +1444,10 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                                         <button
                                             type="button"
                                             onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
-                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-[#25D366]/30 hover:bg-[#25D366]/50 backdrop-blur-md text-white border border-[#25D366]/40 transition-all active:scale-95 shadow-sm"
+                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white transition-all active:scale-95 shadow-xs"
                                             title="Bagikan Acara ke WhatsApp"
                                         >
-                                            <Icon name="Share" className="w-3.5 h-3.5 mr-1.5 text-emerald-300" />
+                                            <Icon name="WhatsApp" className="w-3.5 h-3.5 mr-1.5 text-white" />
                                             Bagikan WA
                                         </button>
                                     </div>
@@ -5406,26 +5406,27 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         </p>
 
                                         {/* Quick Actions: Google Calendar & WhatsApp & Slide Indicator */}
-                                        <div className="flex items-center justify-between gap-2 mt-3 pt-0.5 flex-wrap">
-                                            <div className="flex items-center gap-2">
+                                        <div className="mt-4 pt-1 space-y-2.5">
+                                            {/* Action Buttons Grid: 3 Clean Uniform Cards */}
+                                            <div className="grid grid-cols-3 gap-2 w-full">
                                                 <a
                                                     href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="inline-flex items-center text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 transition-all active:scale-95 shadow-sm"
+                                                    className="h-9 sm:h-10 px-1.5 sm:px-2.5 rounded-xl bg-white/20 hover:bg-white/30 active:scale-95 text-white border border-white/25 backdrop-blur-md flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-xs group/btn cursor-pointer"
                                                     title="Simpan Acara ke Google Calendar"
                                                 >
-                                                    <Icon name="Calendar" className="w-3 h-3 mr-1 text-gold-300" />
-                                                    + Kalender
+                                                    <Icon name="Calendar" className="w-3.5 h-3.5 shrink-0 text-gold-300 group-hover/btn:scale-110 transition-transform" />
+                                                    <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap truncate">+ Kalender</span>
                                                 </a>
                                                 <button
                                                     type="button"
                                                     onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
-                                                    className="inline-flex items-center text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-[#25D366]/30 hover:bg-[#25D366]/50 backdrop-blur-md text-white border border-[#25D366]/40 transition-all active:scale-95 shadow-sm"
+                                                    className="h-9 sm:h-10 px-1.5 sm:px-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] active:scale-95 text-white flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-xs cursor-pointer group/btn"
                                                     title="Bagikan Acara ke WhatsApp"
                                                 >
-                                                    <Icon name="Share" className="w-3 h-3 mr-1 text-emerald-300" />
-                                                    Bagikan WA
+                                                    <Icon name="WhatsApp" className="w-3.5 h-3.5 shrink-0 text-white group-hover/btn:scale-110 transition-transform" />
+                                                    <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap truncate">Bagikan WA</span>
                                                 </button>
                                                 <button
                                                     type="button"
@@ -5445,25 +5446,28 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                                             console.error('Error generating story image:', e);
                                                         }
                                                     }}
-                                                    className="inline-flex items-center text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-gold-500/30 hover:bg-gold-500/50 backdrop-blur-md text-gold-200 border border-gold-400/40 transition-all active:scale-95 shadow-sm cursor-pointer"
+                                                    className="h-9 sm:h-10 px-1.5 sm:px-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-[#D19B45] hover:from-gold-400 hover:to-gold-500 active:scale-95 text-navy-950 font-black flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-xs cursor-pointer group/btn"
                                                     title="Buat Kartu Gambar HD untuk Status WhatsApp & Story IG"
                                                 >
-                                                    <Icon name="Camera" className="w-3 h-3 mr-1 text-gold-300" />
-                                                    📸 Status WA
+                                                    <Icon name="Camera" className="w-3.5 h-3.5 shrink-0 text-navy-950 group-hover/btn:scale-110 transition-transform" />
+                                                    <span className="text-[11px] sm:text-xs font-black whitespace-nowrap truncate">Status WA</span>
                                                 </button>
                                             </div>
 
+                                            {/* Centered Slide Dots Indicator */}
                                             {eventsToDisplay.length > 1 && (
-                                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/15 shadow-sm shrink-0">
-                                                    {eventsToDisplay.map((_, idx) => (
-                                                        <button
-                                                            key={idx}
-                                                            type="button"
-                                                            onClick={() => setCurrentEventIdx(idx)}
-                                                            className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-5 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
-                                                            aria-label={`Ke acara ${idx + 1}`}
-                                                        />
-                                                    ))}
+                                                <div className="flex items-center justify-center pt-0.5">
+                                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/15 shadow-sm">
+                                                        {eventsToDisplay.map((_, idx) => (
+                                                            <button
+                                                                key={idx}
+                                                                type="button"
+                                                                onClick={() => setCurrentEventIdx(idx)}
+                                                                className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-5 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
+                                                                aria-label={`Ke acara ${idx + 1}`}
+                                                            />
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>

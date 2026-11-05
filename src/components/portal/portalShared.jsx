@@ -1529,10 +1529,10 @@ export const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleN
                                         <button
                                             type="button"
                                             onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
-                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-[#25D366]/30 hover:bg-[#25D366]/50 backdrop-blur-md text-white border border-[#25D366]/40 transition-all active:scale-95 shadow-sm"
+                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white transition-all active:scale-95 shadow-xs"
                                             title="Bagikan Acara ke WhatsApp"
                                         >
-                                            <Icon name="Share" className="w-3.5 h-3.5 mr-1.5 text-emerald-300" />
+                                            <Icon name="WhatsApp" className="w-3.5 h-3.5 mr-1.5 text-white" />
                                             Bagikan WA
                                         </button>
                                     </div>

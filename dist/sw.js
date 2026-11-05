@@ -7,7 +7,7 @@
 // 4. Bypass untuk API dinamis Google Apps Script & Supabase.
 // ============================================================
 
-const STATIC_CACHE = 'pisgah-static-v8.2';
+const STATIC_CACHE = 'pisgah-static-v8.3';
 const DATA_CACHE = 'pisgah-spiritual-v2.0';
 
 // Aset Inti Aplikasi (Seluruh 6 Halaman MPA) yang langsung di-cache saat instalasi
