@@ -47,11 +47,11 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
-  <script type="module" crossorigin src="/assets/hadir-BqiSaAAv.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/index-DHpLgaxp.js">
+  <script type="module" crossorigin src="/assets/hadir-BUivvKE3.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/index-Dy83K81g.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-react-ByBz4OXm.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-supabase-MbRB0llW.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-BZXuqXyk.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-DWC1f9My.css">
 </head>
 
 <body
@@ -77,7 +77,99 @@
         </div>
     </div>
 
-    <div id="root"></div>
+    <div id="root">
+        <!-- Skullet First-Paint Skeleton Preloader: Menampilkan layout wireframe presensi jemaat instan -->
+        <div class="min-h-screen p-4 sm:p-6 md:p-8 flex flex-col max-w-7xl mx-auto transition-colors duration-300">
+            <style>
+                @keyframes sk-hadir-shimmer {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
+                }
+                @keyframes sk-hadir-pulse {
+                    0%, 100% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(0.95); opacity: 0.75; }
+                }
+                .sk-h-bone {
+                    position: relative;
+                    overflow: hidden;
+                    background: rgba(226, 232, 240, 0.75);
+                    border-radius: 12px;
+                }
+                .sk-h-bone::after {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    transform: translateX(-100%);
+                    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+                    animation: sk-hadir-shimmer 1.8s ease-in-out infinite;
+                }
+                @media (prefers-color-scheme: dark) {
+                    .sk-h-bone { background: rgba(30, 41, 59, 0.65); }
+                    .sk-h-bone::after {
+                        background: linear-gradient(90deg, transparent 0%, rgba(197, 168, 128, 0.15) 50%, transparent 100%);
+                    }
+                }
+                .dark .sk-h-bone { background: rgba(30, 41, 59, 0.65); }
+                .dark .sk-h-bone::after {
+                    background: linear-gradient(90deg, transparent 0%, rgba(197, 168, 128, 0.15) 50%, transparent 100%);
+                }
+            </style>
+
+            <!-- 1. Header Bar Wireframe -->
+            <div class="flex items-center justify-between pb-6 border-b border-slate-200/70 dark:border-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <div style="width: 44px; height: 44px;" class="sk-h-bone rounded-2xl flex items-center justify-center shrink-0">
+                        <img src="./icons/PisgahColor.png" style="width: 28px; height: 28px; animation: sk-hadir-pulse 2s ease-in-out infinite;" alt="Logo GMAHK">
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="sk-h-bone" style="width: 200px; height: 18px;"></div>
+                        <div class="sk-h-bone" style="width: 130px; height: 12px;"></div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="sk-h-bone" style="width: 100px; height: 36px; border-radius: 9999px;"></div>
+                </div>
+            </div>
+
+            <!-- 2. Stat Cards Row Wireframe -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 my-6">
+                <div class="p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-2">
+                    <div class="sk-h-bone" style="width: 70px; height: 12px;"></div>
+                    <div class="sk-h-bone" style="width: 50px; height: 26px;"></div>
+                </div>
+                <div class="p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-2">
+                    <div class="sk-h-bone" style="width: 80px; height: 12px;"></div>
+                    <div class="sk-h-bone" style="width: 50px; height: 26px;"></div>
+                </div>
+                <div class="p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-2">
+                    <div class="sk-h-bone" style="width: 75px; height: 12px;"></div>
+                    <div class="sk-h-bone" style="width: 50px; height: 26px;"></div>
+                </div>
+                <div class="p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-2">
+                    <div class="sk-h-bone" style="width: 90px; height: 12px;"></div>
+                    <div class="sk-h-bone" style="width: 50px; height: 26px;"></div>
+                </div>
+            </div>
+
+            <!-- 3. Presensi Table Wireframe -->
+            <div class="p-5 rounded-3xl border border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-3.5 flex-1">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div class="sk-h-bone" style="width: 160px; height: 18px;"></div>
+                    <div class="flex gap-2">
+                        <div class="sk-h-bone" style="width: 70px; height: 30px; border-radius: 9999px;"></div>
+                        <div class="sk-h-bone" style="width: 70px; height: 30px; border-radius: 9999px;"></div>
+                    </div>
+                </div>
+                <div class="space-y-2.5 pt-1">
+                    <div class="sk-h-bone" style="width: 100%; height: 50px;"></div>
+                    <div class="sk-h-bone" style="width: 100%; height: 50px;"></div>
+                    <div class="sk-h-bone" style="width: 100%; height: 50px;"></div>
+                    <div class="sk-h-bone" style="width: 100%; height: 50px;"></div>
+                    <div class="sk-h-bone" style="width: 100%; height: 50px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- SESUDAH -->
 

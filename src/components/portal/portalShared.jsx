@@ -4158,7 +4158,11 @@ export const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) =
             </div>
 
             {/* Daftar Kartu Pokok Doa Publik */}
-            {publicPrayers.length === 0 ? (
+            {prayers.length === 0 ? (
+                <div className="mt-4 flex-1">
+                    <SkulletPrayerRows count={4} />
+                </div>
+            ) : publicPrayers.length === 0 ? (
                 <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 bg-[#F7F9F3]/60 dark:bg-navy-950/40 flex-1 flex flex-col items-center justify-center">
                     <p className="text-xs sm:text-sm font-bold text-[#596B4D] dark:text-gray-400">
                         Belum ada pokok doa publik untuk kategori ini.
@@ -4335,6 +4339,91 @@ export const saveAnnualCalendar = (list, syncToBackend = false, token = '') => {
     } catch (e) { }
 };
 
+// ============================================================
+// SKULLET SKELETON COMPONENTS (Portal & General MPA)
+// ============================================================
+export const SkulletBone = ({ className = '', children, ...props }) => (
+    <div className={`skullet-bone ${className}`} {...props}>
+        {children}
+    </div>
+);
+
+export const SkulletText = ({ className = '', width = '100%', height = '14px', ...props }) => (
+    <div
+        className={`skullet-bone skullet-text ${className}`}
+        style={{ width, height, ...props.style }}
+        {...props}
+    />
+);
+
+export const SkulletScheduleRows = ({ count = 6 }) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
+        {Array.from({ length: count }).map((_, idx) => (
+            <div
+                key={idx}
+                className="p-3.5 sm:p-4 rounded-2xl border border-slate-200/70 dark:border-navy-800 bg-[#F7F9F3]/60 dark:bg-navy-950/50 flex items-center justify-between gap-3"
+            >
+                <div className="space-y-2 flex-1">
+                    <SkulletText width="38%" height="11px" className="rounded-full" />
+                    <SkulletText width="65%" height="15px" className="rounded-lg" />
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                    <div className="skullet-bone w-20 h-7 rounded-xl" />
+                    <div className="skullet-bone w-7 h-7 rounded-xl hidden sm:block" />
+                </div>
+            </div>
+        ))}
+    </div>
+);
+
+export const SkulletBirthdayRows = ({ count = 6 }) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+        {Array.from({ length: count }).map((_, idx) => (
+            <div
+                key={idx}
+                className="p-3 sm:p-3.5 rounded-2xl border border-slate-200/70 dark:border-navy-800 bg-[#F7F9F3]/60 dark:bg-navy-950/50 flex flex-col justify-between gap-2.5"
+            >
+                <div className="flex items-center justify-between gap-2">
+                    <div className="skullet-bone w-24 h-5 rounded-full" />
+                    <div className="skullet-bone w-16 h-4 rounded-full" />
+                </div>
+                <div className="space-y-1.5 py-1">
+                    <div className="skullet-bone w-4/5 h-4 rounded-md" />
+                    <div className="skullet-bone w-1/2 h-3 rounded-md" />
+                </div>
+                <div className="pt-2 border-t border-slate-100 dark:border-navy-800/80 flex items-center justify-between">
+                    <div className="skullet-bone w-20 h-3 rounded" />
+                    <div className="skullet-bone w-28 h-7 rounded-xl" />
+                </div>
+            </div>
+        ))}
+    </div>
+);
+
+export const SkulletPrayerRows = ({ count = 4 }) => (
+    <div className="space-y-3">
+        {Array.from({ length: count }).map((_, idx) => (
+            <div
+                key={idx}
+                className="p-4 rounded-2xl border border-slate-200/70 dark:border-navy-800 bg-[#F7F9F3]/60 dark:bg-navy-950/50 space-y-3"
+            >
+                <div className="flex items-center justify-between">
+                    <div className="skullet-bone w-24 h-5 rounded-full" />
+                    <div className="skullet-bone w-16 h-3 rounded" />
+                </div>
+                <div className="space-y-1.5">
+                    <div className="skullet-bone w-full h-3.5 rounded" />
+                    <div className="skullet-bone w-3/4 h-3.5 rounded" />
+                </div>
+                <div className="pt-2 border-t border-slate-100 dark:border-navy-800 flex justify-between items-center">
+                    <div className="skullet-bone w-28 h-3 rounded" />
+                    <div className="skullet-bone w-32 h-7 rounded-xl" />
+                </div>
+            </div>
+        ))}
+    </div>
+);
+
 export const BirthdayAndCalendarWidget = () => {
     const [activeMode, setActiveMode] = React.useState('calendar'); // 'calendar' | 'birthday'
     const [monthFilter, setMonthFilter] = React.useState('all'); // 'all' | 'prev' | 'current' | 'next'
@@ -4510,7 +4599,11 @@ export const BirthdayAndCalendarWidget = () => {
 
             {activeMode === 'calendar' ? (
                 <div className="mt-4 flex-1 flex flex-col">
-                    {filteredCalendar.length === 0 ? (
+                    {calendarItems.length === 0 ? (
+                        <div className="flex-1">
+                            <SkulletBirthdayRows count={4} />
+                        </div>
+                    ) : filteredCalendar.length === 0 ? (
                         <div className="p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold flex-1 flex items-center justify-center">
                             Belum ada agenda kalender kegiatan pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                         </div>
@@ -4580,7 +4673,11 @@ export const BirthdayAndCalendarWidget = () => {
                     )}
                 </div>
             ) : (
-                sortedBirthdays.length === 0 ? (
+                birthdays.length === 0 ? (
+                    <div className="mt-4 flex-1">
+                        <SkulletBirthdayRows count={4} />
+                    </div>
+                ) : sortedBirthdays.length === 0 ? (
                     <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold flex-1 flex items-center justify-center">
                         Belum ada data ulang tahun jemaat pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                     </div>

@@ -4342,6 +4342,75 @@ body.page-pembangunan {
   animation: ambient-glow 10s ease-in-out infinite;
 }
 
+/* ============================================================
+   SKULLET SHIMMER & SKELETON LOADING ENGINE
+   ============================================================ */
+@keyframes skullet-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skullet-bone {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(226, 232, 240, 0.75);
+  border-radius: 0.75rem;
+}
+
+.dark .skullet-bone,
+[data-theme="dark"] .skullet-bone {
+  background-color: rgba(30, 41, 59, 0.7);
+}
+
+.skullet-bone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 100%
+  );
+  animation: skullet-shimmer 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.dark .skullet-bone::after,
+[data-theme="dark"] .skullet-bone::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(197, 168, 128, 0.16) 50%,
+    transparent 100%
+  );
+}
+
+.skullet-text {
+  height: 1rem;
+  border-radius: 0.375rem;
+}
+
+.skullet-pill {
+  border-radius: 9999px;
+}
+
+.skullet-card {
+  border-radius: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #E2E8D8;
+}
+
+.dark .skullet-card,
+[data-theme="dark"] .skullet-card {
+  background: rgba(11, 26, 48, 0.6);
+  border-color: rgba(30, 58, 95, 0.6);
+}
+
 /* ======== GLASSMORPHISM & BORDERS ======== */
 .glass-dark {
   background: rgba(11, 26, 48, 0.75);

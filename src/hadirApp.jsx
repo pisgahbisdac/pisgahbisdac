@@ -1196,7 +1196,19 @@ function App() {
                                         <span className="flex items-center gap-2"><i className="fa-solid fa-cake-candles text-amber-500 dark:text-amber-400"></i> Ulang Tahun Bulan Ini</span>
                                         <span className="text-[10px] bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">{new Date().toLocaleString('id-ID', { month: 'long' })}</span>
                                     </h4>
-                                    {ultahBulanIni.length === 0 ? (
+                                    {jemaat.length === 0 ? (
+                                        <div className="space-y-3">
+                                            {[1, 2, 3].map(n => (
+                                                <div key={n} className="p-3.5 rounded-xl border border-slate-100 dark:border-white/5 flex items-center gap-3">
+                                                    <div className="skullet-bone w-10 h-10 rounded-xl shrink-0"></div>
+                                                    <div className="space-y-1.5 flex-1">
+                                                        <div className="skullet-bone w-36 h-4 rounded"></div>
+                                                        <div className="skullet-bone w-24 h-3 rounded"></div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : ultahBulanIni.length === 0 ? (
                                         <div className="text-center py-12 text-slate-500 space-y-2"><i className="fa-solid fa-calendar-minus text-3xl text-slate-300 dark:text-slate-600 mb-1"></i><p className="text-xs">Tidak ada yang berulang tahun bulan ini.</p></div>
                                     ) : (
                                         <div className="space-y-3 max-h-[250px] md:max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
@@ -1229,7 +1241,19 @@ function App() {
                                         <span className="flex items-center gap-2"><i className="fa-solid fa-calendar-week text-slate-500 dark:text-slate-400"></i> Ulang Tahun Bulan Lalu</span>
                                         <span className="text-[10px] bg-slate-100 dark:bg-slate-600/20 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg font-black uppercase tracking-wider">{new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleString('id-ID', { month: 'short' })}</span>
                                     </h4>
-                                    {ultahBulanLalu.length === 0 ? (
+                                    {jemaat.length === 0 ? (
+                                        <div className="space-y-3">
+                                            {[1, 2, 3].map(n => (
+                                                <div key={n} className="p-3.5 rounded-xl border border-slate-100 dark:border-white/5 flex items-center gap-3">
+                                                    <div className="skullet-bone w-10 h-10 rounded-xl shrink-0"></div>
+                                                    <div className="space-y-1.5 flex-1">
+                                                        <div className="skullet-bone w-36 h-4 rounded"></div>
+                                                        <div className="skullet-bone w-24 h-3 rounded"></div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : ultahBulanLalu.length === 0 ? (
                                         <div className="text-center py-12 text-slate-500 space-y-2"><i className="fa-solid fa-calendar-minus text-3xl text-slate-300 dark:text-slate-600 mb-1"></i><p className="text-xs">Tidak ada yang berulang tahun pada bulan lalu.</p></div>
                                     ) : (
                                         <div className="space-y-3 max-h-[250px] md:max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
@@ -1629,16 +1653,31 @@ function App() {
                                                 </div>
                                             </div>
                                             <div className="divide-y divide-slate-100 dark:divide-white/5 max-h-[60vh] overflow-y-auto no-scrollbar bg-white dark:bg-[#0b1120]">
-                                                {jemaat.filter(j => j.subKelasNama === (currentUserRole === "user" ? loggedInUser.subKelasNama : selectedSubKelasNama)).map(j => (
-                                                    <div key={j.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors gap-4 sm:gap-2">
-                                                        <span className="font-bold text-slate-900 dark:text-white text-base md:text-sm flex-1 pr-4 leading-snug">{j.nama}</span>
-                                                        <div className="flex gap-2 shrink-0 bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl md:bg-transparent md:p-0">
-                                                            <button onClick={() => handleAbsenChange(j.nama, "Hadir")} className={`flex-1 sm:flex-none px-6 sm:px-5 md:px-5 py-3.5 md:py-2.5 rounded-xl text-sm font-black transition-all duration-300 active:scale-95 ${absenDraft[j.nama] === "Hadir" ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.6)] scale-[1.05]" : "bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"}`}>Hadir</button>
-                                                            <button onClick={() => handleAbsenChange(j.nama, "Alpa")} className={`flex-1 sm:flex-none px-6 sm:px-5 md:px-5 py-3.5 md:py-2.5 rounded-xl text-sm font-black transition-all duration-300 active:scale-95 ${absenDraft[j.nama] === "Alpa" ? "bg-gradient-to-r from-rose-400 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.6)] scale-[1.05]" : "bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"}`}>Alpa</button>
-                                                        </div>
+                                                {jemaat.length === 0 ? (
+                                                    <div className="divide-y divide-slate-100 dark:divide-white/5 p-4 space-y-3">
+                                                        {[1, 2, 3, 4, 5].map(n => (
+                                                            <div key={n} className="flex items-center justify-between py-3 gap-4">
+                                                                <div className="skullet-bone h-4 w-44 rounded-md"></div>
+                                                                <div className="flex gap-2">
+                                                                    <div className="skullet-bone h-9 w-20 rounded-xl"></div>
+                                                                    <div className="skullet-bone h-9 w-20 rounded-xl"></div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                ))}
-                                                {jemaat.filter(j => j.subKelasNama === (currentUserRole === "user" ? loggedInUser.subKelasNama : selectedSubKelasNama)).length === 0 && <p className="text-slate-500 text-center py-12 text-sm">Tidak ada anggota terdaftar di kelas ini.</p>}
+                                                ) : jemaat.filter(j => j.subKelasNama === (currentUserRole === "user" ? loggedInUser.subKelasNama : selectedSubKelasNama)).length === 0 ? (
+                                                    <p className="text-slate-500 text-center py-12 text-sm">Tidak ada anggota terdaftar di kelas ini.</p>
+                                                ) : (
+                                                    jemaat.filter(j => j.subKelasNama === (currentUserRole === "user" ? loggedInUser.subKelasNama : selectedSubKelasNama)).map(j => (
+                                                        <div key={j.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors gap-4 sm:gap-2">
+                                                            <span className="font-bold text-slate-900 dark:text-white text-base md:text-sm flex-1 pr-4 leading-snug">{j.nama}</span>
+                                                            <div className="flex gap-2 shrink-0 bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl md:bg-transparent md:p-0">
+                                                                <button onClick={() => handleAbsenChange(j.nama, "Hadir")} className={`flex-1 sm:flex-none px-6 sm:px-5 md:px-5 py-3.5 md:py-2.5 rounded-xl text-sm font-black transition-all duration-300 active:scale-95 ${absenDraft[j.nama] === "Hadir" ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.6)] scale-[1.05]" : "bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"}`}>Hadir</button>
+                                                                <button onClick={() => handleAbsenChange(j.nama, "Alpa")} className={`flex-1 sm:flex-none px-6 sm:px-5 md:px-5 py-3.5 md:py-2.5 rounded-xl text-sm font-black transition-all duration-300 active:scale-95 ${absenDraft[j.nama] === "Alpa" ? "bg-gradient-to-r from-rose-400 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.6)] scale-[1.05]" : "bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"}`}>Alpa</button>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
                                             </div>
                                             <div className="p-5 bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row justify-between items-center gap-5">
                                                 <div className="flex items-center gap-3 w-full sm:w-auto bg-white dark:bg-slate-900 px-5 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -1681,16 +1720,31 @@ function App() {
                                         </div>
                                     </div>
                                     <div className="divide-y divide-slate-100 dark:divide-white/5 max-h-[60vh] overflow-y-auto no-scrollbar bg-white dark:bg-[#0b1120]">
-                                        {jemaat.filter(j => (j.nama || "").toLowerCase().includes((searchSermonJemaat || "").toLowerCase())).map(j => (
-                                            <div key={j.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors gap-4 sm:gap-2">
-                                                <span className="font-bold text-slate-900 dark:text-white text-base md:text-sm flex-1 pr-4 leading-snug">{j.nama}</span>
-                                                <div className="flex gap-2 shrink-0 bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl md:bg-transparent md:p-0">
-                                                    <button onClick={() => handleAbsenChange(j.nama, "Hadir")} className={`flex-1 sm:flex-none px-6 sm:px-5 md:px-5 py-3.5 md:py-2.5 rounded-xl text-sm font-black transition-all duration-300 active:scale-95 ${absenDraft[j.nama] === "Hadir" ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.6)] scale-[1.05]" : "bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"}`}>Hadir</button>
-                                                    <button onClick={() => handleAbsenChange(j.nama, "Alpa")} className={`flex-1 sm:flex-none px-6 sm:px-5 md:px-5 py-3.5 md:py-2.5 rounded-xl text-sm font-black transition-all duration-300 active:scale-95 ${absenDraft[j.nama] === "Alpa" ? "bg-gradient-to-r from-rose-400 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.6)] scale-[1.05]" : "bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"}`}>Alpa</button>
-                                                </div>
+                                        {jemaat.length === 0 ? (
+                                            <div className="divide-y divide-slate-100 dark:divide-white/5 p-4 space-y-3">
+                                                {[1, 2, 3, 4, 5, 6].map(n => (
+                                                    <div key={n} className="flex items-center justify-between py-3 gap-4">
+                                                        <div className="skullet-bone h-4 w-48 rounded-md"></div>
+                                                        <div className="flex gap-2">
+                                                            <div className="skullet-bone h-9 w-20 rounded-xl"></div>
+                                                            <div className="skullet-bone h-9 w-20 rounded-xl"></div>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))}
-                                        {jemaat.filter(j => (j.nama || "").toLowerCase().includes((searchSermonJemaat || "").toLowerCase())).length === 0 && <p className="text-slate-500 text-center py-12 text-sm">Tidak ada hasil ditemukan.</p>}
+                                        ) : jemaat.filter(j => (j.nama || "").toLowerCase().includes((searchSermonJemaat || "").toLowerCase())).length === 0 ? (
+                                            <p className="text-slate-500 text-center py-12 text-sm">Tidak ada hasil ditemukan.</p>
+                                        ) : (
+                                            jemaat.filter(j => (j.nama || "").toLowerCase().includes((searchSermonJemaat || "").toLowerCase())).map(j => (
+                                                <div key={j.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors gap-4 sm:gap-2">
+                                                    <span className="font-bold text-slate-900 dark:text-white text-base md:text-sm flex-1 pr-4 leading-snug">{j.nama}</span>
+                                                    <div className="flex gap-2 shrink-0 bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl md:bg-transparent md:p-0">
+                                                        <button onClick={() => handleAbsenChange(j.nama, "Hadir")} className={`flex-1 sm:flex-none px-6 sm:px-5 md:px-5 py-3.5 md:py-2.5 rounded-xl text-sm font-black transition-all duration-300 active:scale-95 ${absenDraft[j.nama] === "Hadir" ? "bg-gradient-to-r from-emerald-400 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.6)] scale-[1.05]" : "bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"}`}>Hadir</button>
+                                                        <button onClick={() => handleAbsenChange(j.nama, "Alpa")} className={`flex-1 sm:flex-none px-6 sm:px-5 md:px-5 py-3.5 md:py-2.5 rounded-xl text-sm font-black transition-all duration-300 active:scale-95 ${absenDraft[j.nama] === "Alpa" ? "bg-gradient-to-r from-rose-400 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.6)] scale-[1.05]" : "bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"}`}>Alpa</button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
                                     <div className="p-5 bg-slate-50 dark:bg-slate-950/60 flex flex-col sm:flex-row justify-between items-center gap-5 border-t border-slate-200 dark:border-white/10">
                                         <div className="flex items-center gap-3 w-full sm:w-auto bg-white dark:bg-slate-900 px-5 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">

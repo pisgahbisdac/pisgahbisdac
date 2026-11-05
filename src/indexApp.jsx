@@ -7,7 +7,7 @@ import { UniversalSearchModal } from './components/portal/UniversalSearchModal';
 import { StoryShareModal } from './components/portal/StoryShareModal';
 import { generateStoryImage } from './utils/storyImageGenerator';
 import { checkAndTriggerSabbathReminder, requestNotificationPermission } from './utils/sabbathReminderService';
-import { SongPreviewModal, LobbyTvModal, HomeCard } from './components/portal/portalShared';
+import { SongPreviewModal, LobbyTvModal, HomeCard, SkulletBone, SkulletText, SkulletScheduleRows, SkulletBirthdayRows, SkulletPrayerRows } from './components/portal/portalShared';
 import { fetchPortalMainFromSupabase, fetchCrossModulePortalWidgets, syncPortalMainToSupabase, applyPortalWriteToSupabase } from './utils/supabasePortalAdapter';
 
 // searchlaporan: redirect ke laporan.html (Cek Transaksi)
@@ -4408,7 +4408,11 @@ const BirthdayAndCalendarWidget = () => {
 
             {activeMode === 'calendar' ? (
                 <div className="mt-4 flex-1 flex flex-col">
-                    {filteredCalendar.length === 0 ? (
+                    {calendarItems.length === 0 ? (
+                        <div className="flex-1">
+                            <SkulletBirthdayRows count={4} />
+                        </div>
+                    ) : filteredCalendar.length === 0 ? (
                         <div className="p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold flex-1 flex items-center justify-center">
                             Belum ada agenda kalender kegiatan pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                         </div>
@@ -4478,7 +4482,11 @@ const BirthdayAndCalendarWidget = () => {
                     )}
                 </div>
             ) : (
-                sortedBirthdays.length === 0 ? (
+                birthdays.length === 0 ? (
+                    <div className="mt-4 flex-1">
+                        <SkulletBirthdayRows count={4} />
+                    </div>
+                ) : sortedBirthdays.length === 0 ? (
                     <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold flex-1 flex items-center justify-center">
                         Belum ada data ulang tahun jemaat pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                     </div>
