@@ -24977,12 +24977,12 @@ const App = () => {
                                         }
                                     },
                                     {
-                                        id: 'alkitab',
-                                        label: 'Alkitab',
-                                        icon: 'Cross',
+                                        id: 'roh_nubuat',
+                                        label: 'Roh Nubuat',
+                                        icon: 'Book',
                                         onClick: () => {
                                             setMobileNavPopup(null);
-                                            setActiveTab('alkitab');
+                                            setActiveTab('belajar_perpustakaan');
                                         }
                                     },
                                     {
@@ -24996,7 +24996,7 @@ const App = () => {
                                     },
                                     {
                                         id: 'other',
-                                        label: 'other',
+                                        label: 'Lainnya',
                                         icon: 'Grid',
                                         onClick: () => {
                                             setMobileNavPopup(null);
@@ -25033,12 +25033,12 @@ const App = () => {
                                         }
                                     },
                                     {
-                                        id: 'kertas_acara',
-                                        label: 'Kertas Acara',
-                                        icon: 'FileText',
+                                        id: 'alkitab',
+                                        label: 'Alkitab',
+                                        icon: 'Cross',
                                         onClick: () => {
                                             setMobileNavPopup(null);
-                                            setActiveTab('susunan_ibadah');
+                                            setActiveTab('alkitab');
                                         }
                                     },
                                     {
@@ -25100,9 +25100,9 @@ const App = () => {
                             ].map(item => {
                                 let isActive = false;
                                 if (item.id === 'belajar') {
-                                    isActive = mobileNavPopup === 'belajar' || (!mobileNavPopup && (activeTab.startsWith('belajar') || activeTab === 'alkitab'));
+                                    isActive = mobileNavPopup === 'belajar' || (!mobileNavPopup && (activeTab.startsWith('belajar') && activeTab !== 'alkitab'));
                                 } else if (item.id === 'ibadah') {
-                                    isActive = mobileNavPopup === 'ibadah' || (!mobileNavPopup && (activeTab === 'jadwal' || activeTab === 'susunan_ibadah' || activeTab === 'live' || activeTab === 'warta'));
+                                    isActive = mobileNavPopup === 'ibadah' || (!mobileNavPopup && (activeTab === 'jadwal' || activeTab === 'alkitab' || activeTab === 'susunan_ibadah' || activeTab === 'live' || activeTab === 'warta' || activeTab === 'lagu_sion'));
                                 } else if (item.id === 'home') {
                                     isActive = !mobileNavPopup && (activeTab === 'home' || activeTab === '' || !activeTab);
                                 } else if (item.id === 'persembahan') {
