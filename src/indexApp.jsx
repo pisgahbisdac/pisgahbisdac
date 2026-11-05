@@ -23734,6 +23734,15 @@ const App = () => {
     const [appNotification, setAppNotification] = React.useState(null);
 
     React.useEffect(() => {
+        // Mencegah browser me-restore posisi scroll lama (tengah/bawah) saat refresh
+        if ('scrollRestoration' in history) {
+            try { history.scrollRestoration = 'manual'; } catch (e) { }
+        }
+        scrollToTop();
+        requestAnimationFrame(() => scrollToTop());
+        setTimeout(() => scrollToTop(), 50);
+        setTimeout(() => scrollToTop(), 150);
+
         // Pastikan preloader awal dibersihkan segera saat App termount
         const preloader = document.getElementById('app-preloader') || document.querySelector('.preloader-bg');
         if (preloader && preloader.parentNode) {
@@ -23979,6 +23988,7 @@ const App = () => {
         window.history.replaceState({ isAppRoot: true }, '', currentUrl);
         // State 'dummy': state aktif kita. Saat tombol back ditekan, state 'dummy' akan di-pop.
         window.history.pushState({ dummy: true }, '', currentUrl);
+        scrollToTop();
 
         const handlePopState = (event) => {
             setMobileNavPopup(null);

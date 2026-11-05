@@ -10,6 +10,28 @@
     <link rel="apple-touch-icon" href="./icons/PisgahColor.png">
     <meta name="theme-color" content="#151924">
 
+    <script>
+        // Mencegah browser me-restore posisi scroll lama ke tengah/bawah saat refresh
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+
+        window.addEventListener('beforeunload', function () {
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+            window.scrollTo(0, 0);
+        });
+
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted && 'scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+            window.scrollTo(0, 0);
+        });
+    </script>
+
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
