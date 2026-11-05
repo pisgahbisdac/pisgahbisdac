@@ -726,6 +726,7 @@ export async function fetchCrossModulePortalWidgets() {
                         birthDay: d,
                         birthDate: j.tgl_lahir,
                         kategori: j.sub_kelas_nama || j.kelas_nama || 'Anggota Jemaat',
+                        wa: '',
                         fromHadir: true
                     };
                 });

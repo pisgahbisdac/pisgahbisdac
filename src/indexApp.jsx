@@ -8,6 +8,7 @@ import { StoryShareModal } from './components/portal/StoryShareModal';
 import { generateStoryImage } from './utils/storyImageGenerator';
 import { checkAndTriggerSabbathReminder, requestNotificationPermission } from './utils/sabbathReminderService';
 import { SongPreviewModal, LobbyTvModal, HomeCard } from './components/portal/portalShared';
+import { fetchPortalMainFromSupabase, fetchCrossModulePortalWidgets, syncPortalMainToSupabase, applyPortalWriteToSupabase } from './utils/supabasePortalAdapter';
 
 // searchlaporan: redirect ke laporan.html (Cek Transaksi)
 
@@ -4123,7 +4124,39 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
 // ============================================================
 // DATA & WIDGET ULANG TAHUN JEMAAT & KALENDER KEGIATAN TAHUNAN
 // ============================================================
-const INITIAL_MEMBER_BIRTHDAYS = [];
+const INITIAL_MEMBER_BIRTHDAYS = [
+    { id: 'hadir_bday_J5273', nama: 'Alice Varessa Valentine Perham', birthDay: 14, birthMonth: 2, birthDate: '2010-02-14', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J9460', nama: 'Andrew Aprilio Tanaka', birthDay: 12, birthMonth: 4, birthDate: '2015-04-12', kategori: 'Powerpoint', wa: '' },
+    { id: 'hadir_bday_J13647', nama: 'Angel', birthDay: 7, birthMonth: 1, birthDate: '2014-01-07', kategori: 'Powerpoint', wa: '' },
+    { id: 'hadir_bday_J26208', nama: 'Aurel Asima Arneta Pandiangan', birthDay: 5, birthMonth: 3, birthDate: '2009-03-05', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J30395', nama: 'Austin Adiputra Halomoan Pandiangan', birthDay: 1, birthMonth: 4, birthDate: '2005-04-01', kategori: 'Dewasa 1', wa: '' },
+    { id: 'hadir_bday_J34582', nama: 'Chiko', birthDay: 22, birthMonth: 10, birthDate: '2018-10-22', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J38769', nama: 'Claire Isobel Perham', birthDay: 8, birthMonth: 7, birthDate: '2015-07-08', kategori: 'Powerpoint', wa: '' },
+    { id: 'hadir_bday_J47143', nama: 'Daniel Ken Royce Walanda', birthDay: 11, birthMonth: 9, birthDate: '2013-09-11', kategori: 'Powerpoint', wa: '' },
+    { id: 'hadir_bday_J51330', nama: 'Elvano J Axel Sagala', birthDay: 3, birthMonth: 9, birthDate: '2021-09-03', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J55517', nama: 'Ethan Santoso Kasiin', birthDay: 14, birthMonth: 1, birthDate: '2014-01-14', kategori: 'Powerpoint', wa: '' },
+    { id: 'hadir_bday_J59704', nama: 'Hans Jasper Parhusip', birthDay: 24, birthMonth: 11, birthDate: '2019-11-24', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J68078', nama: 'Herbert JS Sagala', birthDay: 3, birthMonth: 8, birthDate: '1988-08-03', kategori: 'Dewasa 1', wa: '' },
+    { id: 'hadir_bday_J76452', nama: 'Hymnseirah Achiera Pepa', birthDay: 18, birthMonth: 1, birthDate: '2021-01-18', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J93200', nama: 'Imanuela Shekinah Tamada Siagian', birthDay: 25, birthMonth: 2, birthDate: '2022-02-25', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J101574', nama: 'Jessica Viona Andries', birthDay: 26, birthMonth: 5, birthDate: '2011-05-26', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J109948', nama: 'Joyce Briana Hanna Turnbull', birthDay: 18, birthMonth: 12, birthDate: '2024-12-18', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J118322', nama: 'Kanza', birthDay: 11, birthMonth: 10, birthDate: '2011-10-11', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J122509', nama: 'Karsten Yusuf Parhusip', birthDay: 30, birthMonth: 10, birthDate: '2015-10-30', kategori: 'Powerpoint', wa: '' },
+    { id: 'hadir_bday_J130883', nama: 'Keny', birthDay: 24, birthMonth: 9, birthDate: '2007-09-24', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J135070', nama: 'Keysia', birthDay: 24, birthMonth: 8, birthDate: '2010-08-24', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J139257', nama: 'Liam Jonathan Pepa', birthDay: 21, birthMonth: 2, birthDate: '2022-02-21', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J147631', nama: 'Moreno', birthDay: 17, birthMonth: 12, birthDate: '2008-12-17', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J151818', nama: 'Natasha Ayuna Tanaka', birthDay: 2, birthMonth: 8, birthDate: '2016-08-02', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J156005', nama: 'Neneng', birthDay: 30, birthMonth: 1, birthDate: '2009-01-30', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J164379', nama: 'Olivia', birthDay: 4, birthMonth: 6, birthDate: '2024-06-04', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J172753', nama: 'Rainbow', birthDay: 24, birthMonth: 7, birthDate: '2017-07-24', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J176940', nama: 'Raphael Haydn Syaikun', birthDay: 10, birthMonth: 7, birthDate: '2010-07-10', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J202062', nama: 'Sabrina D Napitupulu', birthDay: 23, birthMonth: 12, birthDate: '1987-12-23', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J210436', nama: 'Tobey Aaron Andries', birthDay: 30, birthMonth: 3, birthDate: '2021-03-30', kategori: 'Beginner-Primary', wa: '' },
+    { id: 'hadir_bday_J214623', nama: 'Valerie Evangel Bianca Walanda', birthDay: 15, birthMonth: 7, birthDate: '2011-07-15', kategori: 'Pendalaman 1', wa: '' },
+    { id: 'hadir_bday_J222997', nama: 'Yerich Hezekiah Pandiangan', birthDay: 11, birthMonth: 12, birthDate: '2013-12-11', kategori: 'Powerpoint', wa: '' }
+];
 const LEGACY_DUMMY_BDAY_IDS = new Set(['bday_1', 'bday_2', 'bday_3', 'bday_4']);
 
 const INITIAL_ANNUAL_CALENDAR = [
@@ -4141,8 +4174,9 @@ const loadMemberBirthdays = () => {
         const raw = localStorage.getItem(MEMBER_BIRTHDAYS_STORAGE_KEY);
         if (raw !== null) {
             const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-                return parsed.filter(item => item && !LEGACY_DUMMY_BDAY_IDS.has(item.id));
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                const filtered = parsed.filter(item => item && !LEGACY_DUMMY_BDAY_IDS.has(item.id));
+                if (filtered.length > 0) return filtered;
             }
         }
     } catch (e) { }
@@ -4163,6 +4197,9 @@ const saveMemberBirthdays = (list, syncToBackend = false, token = '') => {
                 method: 'POST',
                 body: JSON.stringify({ action: 'saveMemberBirthdays', password: pwd, birthdays: safeList })
             }).catch(e => console.warn('Gagal sinkron ultah jemaat ke Google Sheets:', e));
+        }
+        if (syncToBackend) {
+            applyPortalWriteToSupabase('saveMemberBirthdays', { birthdays: safeList }).catch(() => {});
         }
     } catch (e) { }
 };
@@ -24293,12 +24330,46 @@ const App = () => {
                         }
                         if (cached.pengumumanObj) setPengumuman(cached.pengumumanObj);
                         if (cached.kontakGerejaObj) setKontakGereja(cached.kontakGerejaObj);
+                        if (cached.daftarUltah && Array.isArray(cached.daftarUltah) && cached.daftarUltah.length > 0) {
+                            saveMemberBirthdays(cached.daftarUltah, false);
+                        }
                         setIsAppLoading(false);
                         hasCache = true;
                     } catch (e) { console.warn("Gagal membaca cache"); }
                 }
             } else {
                 hasCache = true;
+            }
+
+            // HYBRID DUAL-DATABASE: Muat data dari Supabase secara instan (<1 detik vs GAS yang lambat)
+            try {
+                const [sbMainResult, crossResult] = await Promise.allSettled([
+                    fetchPortalMainFromSupabase(),
+                    fetchCrossModulePortalWidgets()
+                ]);
+
+                if (sbMainResult.status === 'fulfilled' && sbMainResult.value?.data) {
+                    const sbData = sbMainResult.value.data;
+                    if (sbData.dataPejabat && !hasCache) setDataPejabat(sbData.dataPejabat);
+                    if (sbData.jadwalDB && !hasCache) setJadwalDB(sbData.jadwalDB);
+                    if (sbData.daftarWarta && !hasCache) setDaftarWarta(sbData.daftarWarta);
+                    if (sbData.daftarUltah && Array.isArray(sbData.daftarUltah) && sbData.daftarUltah.length > 0) {
+                        saveMemberBirthdays(sbData.daftarUltah, false);
+                    }
+                    if (sbData.daftarDoa && Array.isArray(sbData.daftarDoa) && sbData.daftarDoa.length > 0) {
+                        savePrayerRequests(sbData.daftarDoa, false);
+                    }
+                    if (sbData.daftarKalender && Array.isArray(sbData.daftarKalender) && sbData.daftarKalender.length > 0) {
+                        saveAnnualCalendar(sbData.daftarKalender, false);
+                    }
+                    if (!hasCache) setIsAppLoading(false);
+                }
+
+                if (crossResult.status === 'fulfilled' && crossResult.value?.hadirBirthdays?.length > 0) {
+                    saveMemberBirthdays(crossResult.value.hadirBirthdays, false);
+                }
+            } catch (sbFastErr) {
+                console.warn('[Portal] Supabase fast load error:', sbFastErr);
             }
 
             try {
@@ -24421,6 +24492,8 @@ const App = () => {
                 if (data.daftarUltah && Array.isArray(data.daftarUltah) && data.daftarUltah.length > 0) {
                     saveMemberBirthdays(data.daftarUltah, false);
                 }
+                // Sinkronisasi otomatis ke Supabase (agar cache Supabase selalu up-to-date)
+                syncPortalMainToSupabase(data, 'gas-fetch-sync').catch(() => {});
                 if (data.konfirmasiPetugas && typeof data.konfirmasiPetugas === 'object' && Object.keys(data.konfirmasiPetugas).length > 0) {
                     try {
                         localStorage.setItem(OFFICER_ATTENDANCE_STORAGE_KEY, JSON.stringify(data.konfirmasiPetugas));
@@ -24497,6 +24570,7 @@ const App = () => {
                     daftarWarta: data.daftarWarta,
                     daftarBuku: fetchedBuku.length > 0 ? fetchedBuku : daftarBuku, // Simpan ke cache
                     customSongs: fetchedCustomSongs.length > 0 ? fetchedCustomSongs : customSongs,
+                    daftarUltah: (data.daftarUltah && Array.isArray(data.daftarUltah) && data.daftarUltah.length > 0) ? data.daftarUltah : undefined,
                     pengumumanObj: newPengumumanObj,
                     kontakGerejaObj: newKontakGerejaObj,
                     _cachedAt: Date.now()
