@@ -3469,9 +3469,9 @@ export const OfficerAttendanceModal = ({ modalData, onClose, dataPejabat = [] })
                         <button
                             type="button"
                             onClick={() => handleSave(true)}
-                            className="w-full py-2.5 px-4 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/40 font-extrabold text-xs sm:text-sm transition cursor-pointer flex items-center justify-center gap-2"
+                            className="w-full py-2.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white font-extrabold text-xs sm:text-sm transition cursor-pointer flex items-center justify-center gap-2 shadow-xs active:scale-98"
                         >
-                            <Icon name="WhatsApp" className="w-4 h-4" />
+                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                             <span>Simpan & Kabari Sekretaris via WA</span>
                         </button>
                         {modalData.existing && (
@@ -3991,10 +3991,10 @@ export const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) =
                     <button
                         type="button"
                         onClick={handleShareWednesdayRecapWA}
-                        className="px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        className="px-3.5 py-2 sm:py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                         title="Bagikan Daftar Pokok Doa ke Grup WA Ibadah Rabu"
                     >
-                        <Icon name="WhatsApp" className="w-4 h-4" />
+                        <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                         <span>Rekap WA</span>
                     </button>
                 </div>
@@ -4018,7 +4018,7 @@ export const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) =
                         onClick={() => handleSendPrivateToPastorWA(submitSuccessMsg.prayer)}
                         className="px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-black flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs"
                     >
-                        <Icon name="WhatsApp" className="w-3.5 h-3.5" />
+                        <Icon name="WhatsApp" className="w-3.5 h-3.5 text-white" />
                         <span>Teruskan Langsung ke WA Gembala/Majelis</span>
                     </button>
                 </div>
@@ -4728,9 +4728,9 @@ export const BirthdayAndCalendarWidget = () => {
                                     <button
                                         type="button"
                                         onClick={() => handleSendBirthdayWA(b)}
-                                        className="w-full py-1.5 px-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                                        className="w-full py-2 px-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                                     >
-                                        <Icon name="WhatsApp" className="w-3.5 h-3.5" />
+                                        <Icon name="WhatsApp" className="w-3.5 h-3.5 text-white" />
                                         <span>🎉 Kirim Ucapan WA</span>
                                     </button>
                                 </div>
@@ -4805,10 +4805,10 @@ export const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = []
                     <button
                         type="button"
                         onClick={() => shareSabbathDutyRecapToWhatsApp({ jadwalDB })}
-                        className="px-3.5 py-2.5 sm:py-3 rounded-2xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 shrink-0"
+                        className="px-3.5 py-2.5 sm:py-3 rounded-2xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 shrink-0"
                         title="Bagikan format rekap seluruh petugas Sabat pekan ini ke WhatsApp Majelis"
                     >
-                        <Icon name="WhatsApp" className="w-4 h-4" />
+                        <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                         <span>WA</span>
                     </button>
                     <div className="relative flex-1 sm:w-60 md:w-64 max-w-full">

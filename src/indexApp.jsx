@@ -3883,10 +3883,10 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                     <button
                         type="button"
                         onClick={handleShareWednesdayRecapWA}
-                        className="px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        className="px-3.5 py-2 sm:py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                         title="Bagikan Daftar Pokok Doa ke Grup WA Ibadah Rabu"
                     >
-                        <Icon name="WhatsApp" className="w-4 h-4" />
+                        <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                         <span>Rekap WA</span>
                     </button>
                 </div>
@@ -4537,9 +4537,9 @@ const BirthdayAndCalendarWidget = () => {
                                     <button
                                         type="button"
                                         onClick={() => handleSendBirthdayWA(b)}
-                                        className="w-full py-1.5 px-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                                        className="w-full py-2 px-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                                     >
-                                        <Icon name="WhatsApp" className="w-3.5 h-3.5" />
+                                        <Icon name="WhatsApp" className="w-3.5 h-3.5 text-white" />
                                         <span>🎉 Kirim Ucapan WA</span>
                                     </button>
                                 </div>
@@ -4624,10 +4624,10 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => 
                     <button
                         type="button"
                         onClick={() => shareSabbathDutyRecapToWhatsApp({ jadwalDB })}
-                        className="px-3.5 py-2.5 sm:py-3 rounded-2xl bg-[#25D366]/15 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 shrink-0"
+                        className="px-3.5 py-2.5 sm:py-3 rounded-2xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 shrink-0"
                         title="Bagikan format rekap seluruh petugas Sabat pekan ini ke WhatsApp Majelis"
                     >
-                        <Icon name="WhatsApp" className="w-4 h-4" />
+                        <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                         <span>WA</span>
                     </button>
                     <div className="relative flex-1 sm:w-60 md:w-64 max-w-full">
@@ -4663,10 +4663,10 @@ const QuickDutyFinderWidget = ({ jadwalDB, setActiveTab, dataPejabat = [] }) => 
                             <button
                                 type="button"
                                 onClick={() => shareMyScheduleToWhatsApp(searchQuery, dutiesFound)}
-                                className="px-3.5 py-1.5 rounded-xl bg-[#25D366]/20 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                                className="px-3.5 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                                 title="Kirim daftar jadwal penugasan saya ke WhatsApp"
                             >
-                                <Icon name="WhatsApp" className="w-3.5 h-3.5" />
+                                <Icon name="WhatsApp" className="w-3.5 h-3.5 text-white" />
                                 <span>Kirim Jadwal Saya ke WA</span>
                             </button>
                         </div>
@@ -6959,7 +6959,7 @@ const renderPerjamuanGroup = (title, members, dateStr = '', dataPejabat = [], at
                                         });
                                     }}
                                     title={`Kirim Pengingat WA ke ${m.nama}`}
-                                    className="w-7 h-7 rounded-lg bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer shadow-xs"
+                                    className="w-8 h-8 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer shadow-xs"
                                 >
                                     <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                                 </button>
@@ -7197,7 +7197,7 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                                     dataPejabat
                                 })}
                                 title={`Kirim Pengingat WhatsApp ke ${p.nama}`}
-                                className="w-7 h-7 rounded-lg bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer shadow-xs"
+                                className="w-8 h-8 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white flex items-center justify-center transition-all shrink-0 active:scale-90 cursor-pointer shadow-xs"
                             >
                                 <Icon name="WhatsApp" className="w-4 h-4 text-white" />
                             </button>
@@ -7278,10 +7278,10 @@ const Jadwal = ({ jadwalDB, showPerjamuan, perjamuanYMD, activePerjamuan, perjam
                                         const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
                                         window.open(waUrl, '_blank');
                                     }}
-                                    className="px-3 py-1 rounded-lg bg-[#25D366]/20 hover:bg-[#25D366] text-[#128C7E] dark:text-emerald-400 hover:text-white border border-[#25D366]/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                                    className="px-3.5 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                                     title="Kirim daftar jadwal saya ke WhatsApp"
                                 >
-                                    <Icon name="WhatsApp" className="w-3.5 h-3.5" />
+                                    <Icon name="WhatsApp" className="w-3.5 h-3.5 text-white" />
                                     <span>Kirim Jadwal ke WA</span>
                                 </button>
                             )}
