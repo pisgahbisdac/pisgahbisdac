@@ -74,7 +74,7 @@
 
     <div id="root">
         <!-- Skullet First-Paint Skeleton Preloader: Menampilkan layout wireframe presensi jemaat instan -->
-        <div class="min-h-screen p-4 sm:p-6 md:p-8 flex flex-col max-w-7xl mx-auto transition-colors duration-300">
+        <div class="sk-h-root">
             <style>
                 @keyframes sk-hadir-shimmer {
                     0% { transform: translateX(-100%); }
@@ -83,6 +83,16 @@
                 @keyframes sk-hadir-pulse {
                     0%, 100% { transform: scale(1); opacity: 1; }
                     50% { transform: scale(0.95); opacity: 0.75; }
+                }
+                .sk-h-root {
+                    min-height: 100vh;
+                    padding: 16px 20px 48px;
+                    display: flex;
+                    flex-direction: column;
+                    max-width: 1280px;
+                    margin: 0 auto;
+                    box-sizing: border-box;
+                    font-family: 'Inter', system-ui, -apple-system, sans-serif;
                 }
                 .sk-h-bone {
                     position: relative;
@@ -98,64 +108,112 @@
                     background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
                     animation: sk-hadir-shimmer 1.8s ease-in-out infinite;
                 }
-                @media (prefers-color-scheme: dark) {
-                    .sk-h-bone { background: rgba(30, 41, 59, 0.65); }
-                    .sk-h-bone::after {
-                        background: linear-gradient(90deg, transparent 0%, rgba(197, 168, 128, 0.15) 50%, transparent 100%);
+                html.dark .sk-h-bone { background: rgba(30, 41, 59, 0.65); }
+                html.dark .sk-h-bone::after {
+                    background: linear-gradient(90deg, transparent 0%, rgba(197, 168, 128, 0.15) 50%, transparent 100%);
+                }
+
+                .sk-h-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding-bottom: 20px;
+                    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+                }
+                html.dark .sk-h-header {
+                    border-bottom-color: rgba(30, 41, 59, 0.8);
+                }
+
+                .sk-h-stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 12px;
+                    margin: 24px 0;
+                }
+                @media (min-width: 768px) {
+                    .sk-h-stats-grid {
+                        grid-template-columns: repeat(4, 1fr);
+                        gap: 16px;
                     }
                 }
-                .dark .sk-h-bone { background: rgba(30, 41, 59, 0.65); }
-                .dark .sk-h-bone::after {
-                    background: linear-gradient(90deg, transparent 0%, rgba(197, 168, 128, 0.15) 50%, transparent 100%);
+                .sk-h-stat-card {
+                    padding: 16px;
+                    border-radius: 16px;
+                    border: 1px solid rgba(226, 232, 240, 0.8);
+                    background: rgba(255, 255, 255, 0.7);
+                    box-sizing: border-box;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                }
+                html.dark .sk-h-stat-card {
+                    border-color: rgba(30, 41, 59, 0.8);
+                    background: rgba(15, 23, 42, 0.5);
+                }
+
+                .sk-h-table-card {
+                    padding: 20px;
+                    border-radius: 24px;
+                    border: 1px solid rgba(226, 232, 240, 0.8);
+                    background: rgba(255, 255, 255, 0.7);
+                    box-sizing: border-box;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 14px;
+                    flex: 1;
+                }
+                html.dark .sk-h-table-card {
+                    border-color: rgba(30, 41, 59, 0.8);
+                    background: rgba(15, 23, 42, 0.5);
                 }
             </style>
 
             <!-- 1. Header Bar Wireframe -->
-            <div class="flex items-center justify-between pb-6 border-b border-slate-200/70 dark:border-slate-800/80">
-                <div class="flex items-center gap-3">
-                    <div style="width: 44px; height: 44px;" class="sk-h-bone rounded-2xl flex items-center justify-center shrink-0">
+            <div class="sk-h-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 44px; height: 44px;" class="sk-h-bone" style="border-radius: 14px; display: flex; align-items: center; justify-content: center;">
                         <img src="./icons/PisgahColor.png" style="width: 28px; height: 28px; animation: sk-hadir-pulse 2s ease-in-out infinite;" alt="Logo GMAHK">
                     </div>
-                    <div class="space-y-1.5">
-                        <div class="sk-h-bone" style="width: 200px; height: 18px;"></div>
-                        <div class="sk-h-bone" style="width: 130px; height: 12px;"></div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div class="sk-h-bone" style="width: 190px; height: 18px;"></div>
+                        <div class="sk-h-bone" style="width: 120px; height: 12px;"></div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="sk-h-bone" style="width: 100px; height: 36px; border-radius: 9999px;"></div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="sk-h-bone" style="width: 95px; height: 36px; border-radius: 9999px;"></div>
                 </div>
             </div>
 
             <!-- 2. Stat Cards Row Wireframe -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 my-6">
-                <div class="p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-2">
+            <div class="sk-h-stats-grid">
+                <div class="sk-h-stat-card">
                     <div class="sk-h-bone" style="width: 70px; height: 12px;"></div>
                     <div class="sk-h-bone" style="width: 50px; height: 26px;"></div>
                 </div>
-                <div class="p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-2">
+                <div class="sk-h-stat-card">
                     <div class="sk-h-bone" style="width: 80px; height: 12px;"></div>
                     <div class="sk-h-bone" style="width: 50px; height: 26px;"></div>
                 </div>
-                <div class="p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-2">
+                <div class="sk-h-stat-card">
                     <div class="sk-h-bone" style="width: 75px; height: 12px;"></div>
                     <div class="sk-h-bone" style="width: 50px; height: 26px;"></div>
                 </div>
-                <div class="p-4 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-2">
+                <div class="sk-h-stat-card">
                     <div class="sk-h-bone" style="width: 90px; height: 12px;"></div>
                     <div class="sk-h-bone" style="width: 50px; height: 26px;"></div>
                 </div>
             </div>
 
             <!-- 3. Presensi Table Wireframe -->
-            <div class="p-5 rounded-3xl border border-slate-200/70 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 space-y-3.5 flex-1">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div class="sk-h-table-card">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid rgba(226, 232, 240, 0.6);">
                     <div class="sk-h-bone" style="width: 160px; height: 18px;"></div>
-                    <div class="flex gap-2">
+                    <div style="display: flex; gap: 8px;">
                         <div class="sk-h-bone" style="width: 70px; height: 30px; border-radius: 9999px;"></div>
                         <div class="sk-h-bone" style="width: 70px; height: 30px; border-radius: 9999px;"></div>
                     </div>
                 </div>
-                <div class="space-y-2.5 pt-1">
+                <div style="display: flex; flex-direction: column; gap: 10px; padding-top: 4px;">
                     <div class="sk-h-bone" style="width: 100%; height: 50px;"></div>
                     <div class="sk-h-bone" style="width: 100%; height: 50px;"></div>
                     <div class="sk-h-bone" style="width: 100%; height: 50px;"></div>

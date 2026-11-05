@@ -89,99 +89,316 @@
 <body
     class="bg-gray-50 dark:bg-[#0b1a30] text-navy-900 dark:text-gray-100 font-sans antialiased overflow-x-clip transition-colors duration-300">
     <div id="root">
-        <!-- Skullet First-Paint Skeleton Preloader: Menampilkan layout wireframe instan sejak milidetik pertama -->
-        <div id="app-preloader" class="min-h-screen bg-gray-50 dark:bg-[#0b1a30] p-4 sm:p-6 md:p-8 flex flex-col max-w-7xl mx-auto transition-colors duration-300">
+        <!-- Skullet First-Paint Skeleton Preloader: Menampilkan layout wireframe instan yang identik 100% dengan Beranda Portal (Hero Banner + 8 Menu Dock + Pengumuman) -->
+        <div id="app-preloader" class="sk-root">
             <style>
-                @keyframes sk-fp-shimmer {
+                @keyframes sk-shimmer {
                     0% { transform: translateX(-100%); }
                     100% { transform: translateX(100%); }
                 }
-                @keyframes sk-fp-pulse {
-                    0%, 100% { transform: scale(1); opacity: 1; }
-                    50% { transform: scale(0.95); opacity: 0.75; }
+                @keyframes sk-pulse {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.82; transform: scale(0.96); }
+                }
+                .sk-root {
+                    min-height: 100vh;
+                    background-color: #f9fafb;
+                    padding: 12px 16px 48px;
+                    max-width: 1280px;
+                    margin: 0 auto;
+                    box-sizing: border-box;
+                    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                }
+                html.dark .sk-root {
+                    background-color: #0b1a30;
                 }
                 .sk-bone {
                     position: relative;
                     overflow: hidden;
-                    background: rgba(226, 232, 240, 0.75);
-                    border-radius: 14px;
+                    background-color: rgba(203, 213, 225, 0.7);
+                    border-radius: 12px;
                 }
                 .sk-bone::after {
                     content: "";
                     position: absolute;
                     inset: 0;
                     transform: translateX(-100%);
-                    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
-                    animation: sk-fp-shimmer 1.8s ease-in-out infinite;
+                    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%);
+                    animation: sk-shimmer 1.8s ease-in-out infinite;
                 }
-                @media (prefers-color-scheme: dark) {
-                    .sk-bone { background: rgba(30, 41, 59, 0.65); }
-                    .sk-bone::after {
-                        background: linear-gradient(90deg, transparent 0%, rgba(197, 168, 128, 0.15) 50%, transparent 100%);
+                html.dark .sk-bone {
+                    background-color: rgba(30, 41, 59, 0.75);
+                }
+                html.dark .sk-bone::after {
+                    background: linear-gradient(90deg, transparent 0%, rgba(197, 168, 128, 0.16) 50%, transparent 100%);
+                }
+
+                /* 1. Header Bar */
+                .sk-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 8px 4px 18px;
+                    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+                }
+                html.dark .sk-header {
+                    border-bottom-color: rgba(30, 41, 59, 0.8);
+                }
+                .sk-brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .sk-logo-wrap {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(226, 232, 240, 0.8);
+                    animation: sk-pulse 2s ease-in-out infinite;
+                }
+                html.dark .sk-logo-wrap {
+                    background: rgba(30, 41, 59, 0.8);
+                }
+                .sk-nav {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                @media (max-width: 768px) {
+                    .sk-nav-desktop { display: none !important; }
+                }
+
+                /* 2. Hero Section */
+                .sk-hero {
+                    position: relative;
+                    margin-top: 20px;
+                    border-radius: 32px;
+                    overflow: hidden;
+                    background: linear-gradient(135deg, #2b3d26 0%, #1e2d1a 50%, #131d10 100%);
+                    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25);
+                    border: 4px solid #E2E8D8;
+                    height: 420px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 32px 20px 72px;
+                    box-sizing: border-box;
+                    text-align: center;
+                }
+                html.dark .sk-hero {
+                    background: linear-gradient(135deg, #0e1e36 0%, #0b172a 50%, #060e1b 100%);
+                    border-color: #1e293b;
+                    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+                }
+                @media (max-width: 768px) {
+                    .sk-hero {
+                        height: 360px;
+                        padding-bottom: 60px;
+                        border-radius: 28px;
                     }
                 }
-                .dark .sk-bone { background: rgba(30, 41, 59, 0.65); }
-                .dark .sk-bone::after {
-                    background: linear-gradient(90deg, transparent 0%, rgba(197, 168, 128, 0.15) 50%, transparent 100%);
+
+                /* 3. Overlapping Dock (8 Icons) */
+                .sk-dock-wrapper {
+                    position: relative;
+                    margin: -44px auto 0;
+                    width: 96%;
+                    max-width: 1180px;
+                    z-index: 20;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+                .sk-floating-btn {
+                    width: 160px;
+                    height: 40px;
+                    border-radius: 9999px;
+                    background-color: #4A7045;
+                    margin-bottom: -20px;
+                    z-index: 30;
+                    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+                }
+                html.dark .sk-floating-btn {
+                    background-color: #c98e21;
+                }
+                .sk-dock-card {
+                    width: 100%;
+                    background-color: #E2E8D8;
+                    border-radius: 36px;
+                    padding: 30px 14px 16px;
+                    border: 4px solid #ffffff;
+                    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+                    box-sizing: border-box;
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 12px;
+                }
+                html.dark .sk-dock-card {
+                    background-color: #111C2E;
+                    border-color: #1E293B;
+                    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+                }
+                @media (min-width: 769px) {
+                    .sk-dock-card {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 34px 24px 18px;
+                        gap: 8px;
+                    }
+                }
+                .sk-dock-item {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .sk-dock-icon {
+                    width: 46px;
+                    height: 46px;
+                    border-radius: 14px;
+                    background-color: #ffffff;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+                }
+                html.dark .sk-dock-icon {
+                    background-color: #1E293B;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+                }
+                @media (min-width: 769px) {
+                    .sk-dock-icon {
+                        width: 52px;
+                        height: 52px;
+                        border-radius: 16px;
+                    }
+                }
+
+                /* 4. Bottom Section / Announcement Card */
+                .sk-bottom-card {
+                    margin-top: 32px;
+                    background-color: #ffffff;
+                    border: 2px solid #E2E8D8;
+                    border-radius: 32px;
+                    padding: 24px 28px;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+                    box-sizing: border-box;
+                }
+                html.dark .sk-bottom-card {
+                    background-color: #111C2E;
+                    border-color: #1E293B;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+                }
+                .sk-bottom-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 16px;
                 }
             </style>
 
             <!-- 1. Header Bar Wireframe -->
-            <div class="flex items-center justify-between pb-6 border-b border-slate-200/60 dark:border-navy-800">
-                <div class="flex items-center gap-3">
-                    <div style="width: 44px; height: 44px;" class="sk-bone rounded-2xl flex items-center justify-center shrink-0">
-                        <img src="./icons/PisgahColor.png" style="width: 28px; height: 28px; animation: sk-fp-pulse 2s ease-in-out infinite;" alt="Logo GMAHK">
+            <div class="sk-header">
+                <div class="sk-brand">
+                    <div class="sk-logo-wrap">
+                        <img src="./icons/PisgahColor.png" style="width: 26px; height: 26px; object-fit: contain;" alt="Logo GMAHK">
                     </div>
-                    <div class="space-y-1.5">
-                        <div class="sk-bone" style="width: 170px; height: 16px;"></div>
-                        <div class="sk-bone" style="width: 110px; height: 11px;"></div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <div class="sk-bone" style="width: 150px; height: 16px; border-radius: 6px;"></div>
+                        <div class="sk-bone" style="width: 90px; height: 10px; border-radius: 4px;"></div>
                     </div>
                 </div>
-                <div class="hidden sm:flex items-center gap-2">
-                    <div class="sk-bone" style="width: 80px; height: 34px; border-radius: 9999px;"></div>
-                    <div class="sk-bone" style="width: 80px; height: 34px; border-radius: 9999px;"></div>
-                    <div class="sk-bone" style="width: 80px; height: 34px; border-radius: 9999px;"></div>
+                <div class="sk-nav">
+                    <div class="sk-nav-desktop sk-bone" style="width: 68px; height: 32px; border-radius: 9999px;"></div>
+                    <div class="sk-nav-desktop sk-bone" style="width: 72px; height: 32px; border-radius: 9999px;"></div>
+                    <div class="sk-nav-desktop sk-bone" style="width: 68px; height: 32px; border-radius: 9999px;"></div>
+                    <div class="sk-nav-desktop sk-bone" style="width: 68px; height: 32px; border-radius: 9999px;"></div>
+                    <div class="sk-bone" style="width: 34px; height: 34px; border-radius: 9999px;"></div>
+                    <div class="sk-bone" style="width: 90px; height: 34px; border-radius: 9999px;"></div>
+                    <div class="sk-bone" style="width: 34px; height: 34px; border-radius: 9999px;"></div>
                 </div>
             </div>
 
-            <!-- 2. Hero Banner Wireframe -->
-            <div class="my-6 p-6 rounded-3xl border border-slate-200/70 dark:border-navy-800 bg-white/60 dark:bg-navy-900/40 shadow-xs space-y-3">
-                <div class="flex items-center justify-between">
-                    <div class="sk-bone" style="width: 140px; height: 22px; border-radius: 9999px;"></div>
-                    <div class="sk-bone" style="width: 70px; height: 14px;"></div>
+            <!-- 2. Hero Banner Wireframe (Identik dengan Gambar 2) -->
+            <div class="sk-hero">
+                <!-- Badge Atas -->
+                <div class="sk-bone" style="width: 130px; height: 22px; border-radius: 9999px; margin-bottom: 16px; background-color: rgba(255,255,255,0.25);"></div>
+                <!-- Judul Besar Hero: "Bertumbuh Dalam Firman" -->
+                <div class="sk-bone" style="width: 80%; max-width: 480px; height: 40px; border-radius: 12px; margin-bottom: 12px; background-color: rgba(255,255,255,0.45);"></div>
+                <!-- Subjudul Hero: "The Sabbath that the Church of God Keeps" -->
+                <div class="sk-bone" style="width: 90%; max-width: 540px; height: 22px; border-radius: 8px; margin-bottom: 14px; background-color: rgba(255,255,255,0.3);"></div>
+                <!-- Deskripsi Hero -->
+                <div class="sk-bone" style="width: 70%; max-width: 420px; height: 14px; border-radius: 6px; background-color: rgba(255,255,255,0.2);"></div>
+
+                <!-- Indikator Slide Bulat / Titik -->
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 32px;">
+                    <div class="sk-bone" style="width: 40px; height: 8px; border-radius: 9999px; background-color: #D19B45;"></div>
+                    <div class="sk-bone" style="width: 8px; height: 8px; border-radius: 9999px; background-color: rgba(255,255,255,0.4);"></div>
+                    <div class="sk-bone" style="width: 8px; height: 8px; border-radius: 9999px; background-color: rgba(255,255,255,0.4);"></div>
+                    <div class="sk-bone" style="width: 8px; height: 8px; border-radius: 9999px; background-color: rgba(255,255,255,0.4);"></div>
                 </div>
-                <div class="sk-bone" style="width: 65%; height: 24px;"></div>
-                <div class="sk-bone" style="width: 45%; height: 14px;"></div>
             </div>
 
-            <!-- 3. Two Symmetrical Cards Wireframe (Kotak Doa & Kalender/Ultah) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 flex-1 content-start">
-                <!-- Left Card Skeleton -->
-                <div class="p-5 rounded-3xl border border-slate-200/70 dark:border-navy-800 bg-white/60 dark:bg-navy-900/40 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div class="sk-bone" style="width: 150px; height: 18px;"></div>
-                        <div class="sk-bone" style="width: 70px; height: 28px; border-radius: 9999px;"></div>
-                    </div>
-                    <div class="space-y-3 pt-2">
-                        <div class="sk-bone" style="width: 100%; height: 60px;"></div>
-                        <div class="sk-bone" style="width: 100%; height: 60px;"></div>
-                        <div class="sk-bone" style="width: 100%; height: 60px;"></div>
-                    </div>
-                </div>
+            <!-- 3. Overlapping Dock (8 Menu Ikon Identik dengan Gambar 2) -->
+            <div class="sk-dock-wrapper">
+                <!-- Floating Button: "Ibadah Sekarang >" -->
+                <div class="sk-floating-btn sk-bone"></div>
 
-                <!-- Right Card Skeleton -->
-                <div class="p-5 rounded-3xl border border-slate-200/70 dark:border-navy-800 bg-white/60 dark:bg-navy-900/40 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div class="sk-bone" style="width: 160px; height: 18px;"></div>
-                        <div class="sk-bone" style="width: 120px; height: 28px; border-radius: 9999px;"></div>
+                <!-- Dock 8 Menu -->
+                <div class="sk-dock-card">
+                    <!-- 1. Sekolah Sabat -->
+                    <div class="sk-dock-item">
+                        <div class="sk-dock-icon sk-bone"></div>
+                        <div class="sk-bone" style="width: 60px; height: 10px; border-radius: 4px;"></div>
                     </div>
-                    <div class="grid grid-cols-2 gap-3 pt-2">
-                        <div class="sk-bone" style="width: 100%; height: 75px;"></div>
-                        <div class="sk-bone" style="width: 100%; height: 75px;"></div>
-                        <div class="sk-bone" style="width: 100%; height: 75px;"></div>
-                        <div class="sk-bone" style="width: 100%; height: 75px;"></div>
+                    <!-- 2. Lagu Sion -->
+                    <div class="sk-dock-item">
+                        <div class="sk-dock-icon sk-bone"></div>
+                        <div class="sk-bone" style="width: 50px; height: 10px; border-radius: 4px;"></div>
+                    </div>
+                    <!-- 3. Alkitab -->
+                    <div class="sk-dock-item">
+                        <div class="sk-dock-icon sk-bone"></div>
+                        <div class="sk-bone" style="width: 45px; height: 10px; border-radius: 4px;"></div>
+                    </div>
+                    <!-- 4. Susunan Ibadah -->
+                    <div class="sk-dock-item">
+                        <div class="sk-dock-icon sk-bone"></div>
+                        <div class="sk-bone" style="width: 68px; height: 10px; border-radius: 4px;"></div>
+                    </div>
+                    <!-- 5. Keanggotaan -->
+                    <div class="sk-dock-item">
+                        <div class="sk-dock-icon sk-bone"></div>
+                        <div class="sk-bone" style="width: 62px; height: 10px; border-radius: 4px;"></div>
+                    </div>
+                    <!-- 6. Persembahan -->
+                    <div class="sk-dock-item">
+                        <div class="sk-dock-icon sk-bone"></div>
+                        <div class="sk-bone" style="width: 60px; height: 10px; border-radius: 4px;"></div>
+                    </div>
+                    <!-- 7. Sistem Gereja -->
+                    <div class="sk-dock-item">
+                        <div class="sk-dock-icon sk-bone"></div>
+                        <div class="sk-bone" style="width: 62px; height: 10px; border-radius: 4px;"></div>
+                    </div>
+                    <!-- 8. Kontak -->
+                    <div class="sk-dock-item">
+                        <div class="sk-dock-icon sk-bone"></div>
+                        <div class="sk-bone" style="width: 45px; height: 10px; border-radius: 4px;"></div>
                     </div>
                 </div>
+            </div>
+
+            <!-- 4. Bottom Section: Pengumuman Jemaat Card -->
+            <div class="sk-bottom-card">
+                <div class="sk-bottom-header">
+                    <div class="sk-bone" style="width: 150px; height: 22px; border-radius: 9999px;"></div>
+                    <div class="sk-bone" style="width: 70px; height: 14px; border-radius: 4px;"></div>
+                </div>
+                <div class="sk-bone" style="width: 60%; max-width: 320px; height: 26px; border-radius: 8px; margin-bottom: 14px;"></div>
+                <div class="sk-bone" style="width: 100%; height: 75px; border-radius: 16px;"></div>
             </div>
 
             <!-- Rescue button jika koneksi atau Service Worker lama bermasalah -->
