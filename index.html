@@ -32,6 +32,34 @@
     </style>
 
     <script>
+        // Mencegah browser me-restore posisi scroll lama (tengah/bawah) saat halaman di-refresh
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+
+        window.addEventListener('beforeunload', function () {
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+            window.scrollTo(0, 0);
+        });
+
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted && 'scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+            window.scrollTo(0, 0);
+        });
+
+        window.addEventListener('DOMContentLoaded', function () {
+            window.scrollTo(0, 0);
+        });
+
+        window.addEventListener('load', function () {
+            window.scrollTo(0, 0);
+        });
+
         // Set tema awal sebelum React render untuk mencegah FOUC (Flash of Unstyled Content)
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
@@ -84,7 +112,7 @@
          - heic2any (~1,3 MB) kini dimuat on-demand hanya ketika admin mengunggah foto HEIC/HEIF
            (lihat loadHeic2any() di src/components/portal/AdminDashboardView.jsx). -->
 
-  <script type="module" crossorigin src="/assets/main-D9HatbKZ.js"></script>
+  <script type="module" crossorigin src="/assets/main-CQ9lExXg.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/index-BADbQ4-h.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-react-ByBz4OXm.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-supabase-MbRB0llW.js">
