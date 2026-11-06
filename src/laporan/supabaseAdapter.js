@@ -32,43 +32,69 @@ export async function supabaseGet(action, params = {}) {
       }
 
       case 'getIncomeList': {
-        let q = supabase.from('income').select('transaction_id, date, month, year, income_type, nama_pemberi, unit_name, receipt_no, amount, alloc_daerah, alloc_jemaat, alloc_bangun, note, created_by, created_at, approved_by');
-        if (params.year) q = q.eq('year', params.year);
-        if (params.month) q = q.eq('month', params.month);
+        let allIncome = [];
+        let from = 0;
+        const step = 1000;
+        while (true) {
+          let q = supabase
+            .from('income')
+            .select('transaction_id, date, month, year, income_type, nama_pemberi, unit_name, receipt_no, amount, alloc_daerah, alloc_jemaat, alloc_bangun, note, created_by, created_at, approved_by')
+            .order('date', { ascending: false })
+            .range(from, from + step - 1);
+          if (params.year) q = q.eq('year', params.year);
+          if (params.month) q = q.eq('month', params.month);
+
+          const { data, error } = await q;
+          if (error) throw error;
+          if (!data || data.length === 0) break;
+          allIncome = allIncome.concat(data);
+          if (data.length < step) break;
+          from += step;
+        }
 
         let p = supabase.from('income').select('transaction_id').not('receipt_photo', 'is', null).neq('receipt_photo', '');
         if (params.year) p = p.eq('year', params.year);
         if (params.month) p = p.eq('month', params.month);
 
-        const [resData, resPhotos] = await Promise.all([q, p]);
-        if (resData.error) throw resData.error;
-
+        const resPhotos = await p;
         const photoMap = {};
         if (resPhotos.data) resPhotos.data.forEach(r => photoMap[r.transaction_id] = true);
 
-        const data = resData.data || [];
-        data.forEach(r => { r.receipt_photo = photoMap[r.transaction_id] ? true : false; });
-        return { success: true, data };
+        allIncome.forEach(r => { r.receipt_photo = photoMap[r.transaction_id] ? true : false; });
+        return { success: true, data: allIncome };
       }
 
       case 'getExpenseList': {
-        let q = supabase.from('expense').select('transaction_id, date, month, year, department, source_balance, receipt_no, amount, nama_penerima, note, created_by, created_at, approved_by');
-        if (params.year) q = q.eq('year', params.year);
-        if (params.month) q = q.eq('month', params.month);
+        let allExpense = [];
+        let from = 0;
+        const step = 1000;
+        while (true) {
+          let q = supabase
+            .from('expense')
+            .select('transaction_id, date, month, year, department, source_balance, receipt_no, amount, nama_penerima, note, created_by, created_at, approved_by')
+            .order('date', { ascending: false })
+            .range(from, from + step - 1);
+          if (params.year) q = q.eq('year', params.year);
+          if (params.month) q = q.eq('month', params.month);
+
+          const { data, error } = await q;
+          if (error) throw error;
+          if (!data || data.length === 0) break;
+          allExpense = allExpense.concat(data);
+          if (data.length < step) break;
+          from += step;
+        }
 
         let p = supabase.from('expense').select('transaction_id').not('receipt_photo', 'is', null).neq('receipt_photo', '');
         if (params.year) p = p.eq('year', params.year);
         if (params.month) p = p.eq('month', params.month);
 
-        const [resData, resPhotos] = await Promise.all([q, p]);
-        if (resData.error) throw resData.error;
-
+        const resPhotos = await p;
         const photoMap = {};
         if (resPhotos.data) resPhotos.data.forEach(r => photoMap[r.transaction_id] = true);
 
-        const data = resData.data || [];
-        data.forEach(r => { r.receipt_photo = photoMap[r.transaction_id] ? true : false; });
-        return { success: true, data };
+        allExpense.forEach(r => { r.receipt_photo = photoMap[r.transaction_id] ? true : false; });
+        return { success: true, data: allExpense };
       }
 
       case 'getBalances': {
@@ -573,26 +599,70 @@ export async function supabasePost(action, payload = {}) {
       case 'approveTransaction': {
         if (!isAdmin) return { success: false, message: 'Akses ditolak. Hanya Pendeta, Ketua Jemaat, atau Admin yang berhak menyetujui transaksi.' };
         const table = payload.type === 'income' ? 'income' : 'expense';
-        const targetId = payload.transaction_id || payload.id;
+        const targetId = String(payload.transaction_id || payload.id || '').trim();
         if (!targetId) return { success: false, message: 'ID transaksi tidak valid.' };
 
-        const { data: trx, error: fetchErr } = await supabase.from(table).select('approved_by').eq('transaction_id', targetId).single();
+        // Cari transaksi berdasarkan transaction_id atau receipt_no
+        let { data: trxList, error: fetchErr } = await supabase
+          .from(table)
+          .select('transaction_id, receipt_no, approved_by')
+          .or(`transaction_id.eq."${targetId}",receipt_no.eq."${targetId}"`);
         if (fetchErr) throw fetchErr;
 
-        let effectiveRole = "Admin";
-        if (role.includes('Pendeta')) effectiveRole = "Pendeta";
-        else if (role.includes('Ketua Jemaat')) effectiveRole = "Ketua Jemaat";
-
-        let currentApproved = trx.approved_by || '';
-        if (currentApproved.includes(effectiveRole)) {
-          return { success: true, message: 'Anda sudah menyetujui transaksi ini.' };
+        if (!trxList || trxList.length === 0) {
+          return { success: false, message: 'Data transaksi tidak ditemukan.' };
         }
 
-        let newApproved = currentApproved ? (currentApproved + ',' + effectiveRole) : effectiveRole;
+        // Tentukan peran yang ditambahkan dari user yang sedang aktif
+        const rolesToAdd = [];
+        if (userRoles.includes('Admin')) {
+          rolesToAdd.push('Admin');
+        }
+        if (userRoles.includes('Ketua Jemaat')) {
+          rolesToAdd.push('Ketua Jemaat');
+        }
+        if (userRoles.includes('Pendeta')) {
+          rolesToAdd.push('Pendeta');
+        }
+        if (rolesToAdd.length === 0) {
+          rolesToAdd.push('Admin');
+        }
 
-        const { error } = await supabase.from(table).update({ approved_by: newApproved }).eq('transaction_id', targetId);
-        if (error) throw error;
-        writeLog(username, 'APPROVE', `Menyetujui ${table} ID: ${targetId}`);
+        // Kumpulkan semua transaksi yang berbagi receipt_no yang sama (untuk transaksi kolektif / multi-item)
+        const receiptNo = trxList[0].receipt_no;
+        if (receiptNo && receiptNo !== '-' && receiptNo !== 'SALDO_AWAL') {
+          const { data: siblingList } = await supabase
+            .from(table)
+            .select('transaction_id, receipt_no, approved_by')
+            .eq('receipt_no', receiptNo);
+          if (siblingList && siblingList.length > 0) {
+            trxList = siblingList;
+          }
+        }
+
+        for (const item of trxList) {
+          const currentParts = (item.approved_by || '').split(',').map(s => s.trim()).filter(Boolean);
+          rolesToAdd.forEach(r => {
+            if (!currentParts.includes(r)) currentParts.push(r);
+          });
+          const newApproved = currentParts.join(',');
+
+          if (item.transaction_id) {
+            const { error: updErr } = await supabase
+              .from(table)
+              .update({ approved_by: newApproved })
+              .eq('transaction_id', item.transaction_id);
+            if (updErr) throw updErr;
+          } else if (item.receipt_no) {
+            const { error: updErr } = await supabase
+              .from(table)
+              .update({ approved_by: newApproved })
+              .eq('receipt_no', item.receipt_no);
+            if (updErr) throw updErr;
+          }
+        }
+
+        writeLog(username, 'APPROVE', `Menyetujui ${table} ID/Kuitansi: ${targetId} (${trxList.length} item)`);
         return { success: true, message: 'Berhasil disetujui.' };
       }
 

@@ -2647,11 +2647,12 @@ function groupTransactions(arr) {
       const key = txType + '_' + x.receipt_no;
 
       if (!map[key]) {
-        map[key] = { ...x, amount: 0, _items: [] };
+        map[key] = { ...x, amount: 0, _items: [], _all_approved_by: [] };
         grouped.push(map[key]);
       }
       map[key].amount += parseFloat(x.amount || 0);
       map[key]._items.push(x.income_type || x.department || 'Item');
+      map[key]._all_approved_by.push(x.approved_by || '');
     } else {
       grouped.push(x);
     }
@@ -2661,6 +2662,13 @@ function groupTransactions(arr) {
       const lbl = `Kolektif (${x._items.length} item)`;
       if (x.type === 'income' || x.kind === 'income' || x.isInc || x.income_type) x.income_type = lbl;
       if (x.type === 'expense' || x.kind === 'expense' || x.department) x.department = lbl;
+
+      if (x._all_approved_by && x._all_approved_by.length > 0) {
+        const commonApprovals = ['Admin', 'Ketua Jemaat', 'Pendeta'].filter(role =>
+          x._all_approved_by.every(app => String(app || '').includes(role))
+        );
+        x.approved_by = commonApprovals.join(',');
+      }
     }
   });
   return grouped;
@@ -4179,7 +4187,6 @@ function renderHistory() {
   const rolePerms = currentUser ? getRolePerms(currentUser?.role || '') : null;
   const canApprove = rolePerms && rolePerms.menus && rolePerms.menus.riwayat && rolePerms.menus.riwayat.approve;
   const isApprover = currentUser && (canApprove || hasRole(currentUser, 'Admin'));
-  const roleNeeded = currentUser ? currentUser.role : '';
 
   let pendingToApprove = [];
   if (isApprover) {
@@ -4189,10 +4196,7 @@ function renderHistory() {
 
       const deleteId = x.transaction_id || x.receipt_no || '';
       if (!deleteId) return false;
-      const isFullyApproved = x.approved_by && (x.approved_by.includes('Admin') || (x.approved_by.includes('Ketua Jemaat') && x.approved_by.includes('Pendeta')));
-      if (isFullyApproved) return false;
-      if (!x.approved_by || !x.approved_by.includes(roleNeeded)) return true;
-      return false;
+      return isTxPendingForUser(x, currentUser);
     });
   }
 
@@ -5116,6 +5120,7 @@ async function approveBulkTx() {
 
   if (btn) { btn.disabled = false; btn.innerHTML = `${safeIcon('check', 'lucide-sm')} <span style="margin-left:4px;">Approve Semua</span>`; }
   await handleManualSync();
+  renderHistory();
 }
 
 // [Master Data CRUD extracted to ./modules/masterDataService.js]

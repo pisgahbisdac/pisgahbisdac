@@ -1245,32 +1245,44 @@ function approveTransaction(data, user) {
   const sheet = ss.getSheetByName(sheetName);
   const rows  = sheet.getDataRange().getValues();
 
-  const searchColIdx = 0;
+  const searchColIdx = 0; // transaction_id
+  const receiptColIdx = data.type === 'income' ? 7 : 6; // receipt_no
   const targetColIdx = data.type === 'income' ? 19 : 16; // 1-based index (S for income, P for expense)
   
-  let effectiveRole = "Admin";
-  if (hasRole(user.role, 'Pendeta')) effectiveRole = "Pendeta";
-  else if (hasRole(user.role, 'Ketua Jemaat')) effectiveRole = "Ketua Jemaat";
+  const rolesToAdd = [];
+  if (hasRole(user.role, 'Admin')) rolesToAdd.push('Admin');
+  if (hasRole(user.role, 'Ketua Jemaat')) rolesToAdd.push('Ketua Jemaat');
+  if (hasRole(user.role, 'Pendeta')) rolesToAdd.push('Pendeta');
+  if (rolesToAdd.length === 0) rolesToAdd.push('Admin');
+
+  const targetId = (data.transaction_id || data.id || '').toString();
+  let targetReceipt = '';
 
   for (let i = 1; i < rows.length; i++) {
-    if (rows[i][searchColIdx].toString() === data.transaction_id.toString()) {
-      let approvedBy = rows[i][targetColIdx - 1] || '';
-      
-      if (approvedBy.includes(effectiveRole)) {
-        return { success: true, message: 'Anda sudah menyetujui transaksi ini.' };
-      }
-      
-      let newApprovedBy = approvedBy;
-      if (newApprovedBy) {
-        newApprovedBy += ',' + effectiveRole;
-      } else {
-        newApprovedBy = effectiveRole;
-      }
-      
-      sheet.getRange(i + 1, targetColIdx).setValue(newApprovedBy);
-      writeLog(user.username, 'APPROVE_' + data.type.toUpperCase(), data.transaction_id);
-      return { success: true, message: 'Transaksi berhasil disetujui.' };
+    if (rows[i][searchColIdx].toString() === targetId || rows[i][receiptColIdx].toString() === targetId) {
+      targetReceipt = rows[i][receiptColIdx].toString();
+      break;
     }
+  }
+
+  let updatedCount = 0;
+  for (let i = 1; i < rows.length; i++) {
+    const matchId = rows[i][searchColIdx].toString() === targetId;
+    const matchReceipt = targetReceipt && targetReceipt !== '-' && targetReceipt !== 'SALDO_AWAL' && rows[i][receiptColIdx].toString() === targetReceipt;
+    if (matchId || matchReceipt) {
+      let approvedBy = (rows[i][targetColIdx - 1] || '').toString();
+      let parts = approvedBy.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+      rolesToAdd.forEach(function(r) {
+        if (parts.indexOf(r) === -1) parts.push(r);
+      });
+      sheet.getRange(i + 1, targetColIdx).setValue(parts.join(','));
+      updatedCount++;
+    }
+  }
+
+  if (updatedCount > 0) {
+    writeLog(user.username, 'APPROVE_' + data.type.toUpperCase(), targetId + ' (' + updatedCount + ' item)');
+    return { success: true, message: 'Transaksi berhasil disetujui.' };
   }
   return { success: false, message: 'Data tidak ditemukan.' };
 }
