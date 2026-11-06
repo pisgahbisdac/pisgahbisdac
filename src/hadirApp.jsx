@@ -638,6 +638,24 @@ function App() {
         });
     };
 
+    const handleShareDoaWA = (d) => {
+        if (!d) return;
+        const lines = (d.permohonan || "").split(/\n| \| /).filter(l => l.trim());
+        const formatted = lines.length > 1
+            ? lines.map((l, i) => `  ${i + 1}. ${l.trim()}`).join('\n')
+            : `"${d.permohonan || ''}"`;
+        const tgl = d.tanggal ? d.tanggal.split('-').reverse().join('/') : 'Hari ini';
+        const text =
+            `*🙏 POKOK PERMOHONAN DOA JEMAAT*\n` +
+            `*GMAHK Jemaat Pisgah BISDAC - Batam*\n\n` +
+            `👤 *Nama:* ${d.nama || 'Jemaat'}\n` +
+            `📅 *Tanggal:* ${tgl}\n\n` +
+            `*Permohonan Pokok Doa:*\n${formatted}\n\n` +
+            `_"Karena itu hendaklah kamu saling mengaku dosamu dan saling mendoakan, supaya kamu sembuh. Doa orang yang benar, bila dengan yakin didoakan, sangat besar kuasanya."_ (Yakobus 5:16)\n\n` +
+            `Sistem Kehadiran & Doa GMAHK Pisgah BISDAC`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
     const handleMarkAllSabbat = (status) => {
         const activeSubNama = currentUserRole === "user" ? loggedInUser.subKelasNama : selectedSubKelasNama;
         const updatedDraft = { ...absenDraft };
@@ -1333,7 +1351,24 @@ function App() {
                                                             {(d.permohonan || "").split(/\n| \| /).filter(line => line.trim()).map((line, i) => <li key={i}>{line.trim()}</li>)}
                                                         </ul>
                                                     </div>
-                                                    {currentUserRole !== "public" && <button onClick={() => handleDeleteDoa(d.id)} className="text-rose-600 dark:text-rose-400 hover:text-white dark:hover:text-white hover:bg-rose-500 transition p-2.5 md:p-1.5 rounded-lg bg-rose-100 dark:bg-rose-500/10 md:bg-transparent shrink-0"><i className="fa-solid fa-trash text-sm md:text-xs"></i></button>}
+                                                    <div className="flex items-center gap-1.5 shrink-0">
+                                                        <button
+                                                            onClick={() => handleShareDoaWA(d)}
+                                                            title="Bagikan Pokok Doa ini ke WhatsApp"
+                                                            className="text-emerald-600 dark:text-emerald-400 hover:text-white dark:hover:text-white hover:bg-[#25D366] transition p-2.5 md:p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 md:bg-transparent"
+                                                        >
+                                                            <i className="fa-brands fa-whatsapp text-sm md:text-xs"></i>
+                                                        </button>
+                                                        {currentUserRole !== "public" && (
+                                                            <button
+                                                                onClick={() => handleDeleteDoa(d.id)}
+                                                                title="Hapus Pokok Doa"
+                                                                className="text-rose-600 dark:text-rose-400 hover:text-white dark:hover:text-white hover:bg-rose-500 transition p-2.5 md:p-1.5 rounded-lg bg-rose-100 dark:bg-rose-500/10 md:bg-transparent"
+                                                            >
+                                                                <i className="fa-solid fa-trash text-sm md:text-xs"></i>
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>

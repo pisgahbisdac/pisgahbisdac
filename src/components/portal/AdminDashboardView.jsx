@@ -1039,6 +1039,34 @@ export const AdminPastoralAndCalendarPanel = () => {
         savePrayerRequests(next, true);
     };
 
+    const handleShareSinglePrayerWA = (p) => {
+        if (!p) return;
+        const items = parsePrayerContent(p.content);
+        let formattedContent = `"${p.content}"`;
+        if (items.length > 1 || (items.length === 1 && items[0].num)) {
+            formattedContent = items.map(it => {
+                if (it.isHeader) return `*${it.text}*`;
+                return `${it.num ? `${it.num}.` : '•'} ${it.text}`;
+            }).join('\n');
+        }
+        const catObj = PRAYER_CATEGORIES.find(c => c.id === p.category);
+        const catIcon = catObj?.icon || '🙏';
+        const isPriv = p.privacy === 'private';
+        const dateStr = p.createdAt ? formatIndoDateShort(toYMD(new Date(p.createdAt))) : 'Hari ini';
+
+        const text =
+            (isPriv ? `*🔒 POKOK DOA KHUSUS (PASTORAL/PRIVAT)*\n` : `*🙏 POKOK DOA JEMAAT*\n`) +
+            `*GMAHK Jemaat Pisgah BISDAC - Batam*\n\n` +
+            `👤 *Dari:* ${p.senderName || 'Jemaat'}\n` +
+            `🏷️ *Kategori:* ${catIcon} ${p.category || 'Umum'}${isPriv ? ' _(Rahasia/Privat)_' : ''}\n` +
+            `📅 *Tanggal:* ${dateStr}\n\n` +
+            `*Permohonan Pokok Doa:*\n${formattedContent}\n\n` +
+            `_(Telah didukung dalam doa: ${p.prayedCount || 1}x)_\n\n` +
+            `_"Karena itu hendaklah kamu saling mengaku dosamu dan saling mendoakan, supaya kamu sembuh. Doa orang yang benar, bila dengan yakin didoakan, sangat besar kuasanya."_ (Yakobus 5:16)\n\n` +
+            `Kirim & dukung pokok doa jemaat di:\n${getCleanShareUrl('jadwal')}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
     const handleAddBirthday = (e) => {
         e.preventDefault();
         if (!newBdayName.trim()) return;
@@ -1367,6 +1395,15 @@ export const AdminPastoralAndCalendarPanel = () => {
                                         👤 {p.senderName}
                                     </div>
                                     <div className="flex items-center gap-1.5">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleShareSinglePrayerWA(p)}
+                                            className="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-[#25D366] text-emerald-700 hover:text-white border border-emerald-200 hover:border-[#25D366] text-xs font-bold transition flex items-center gap-1 cursor-pointer active:scale-95"
+                                            title="Bagikan Pokok Doa ini ke WhatsApp"
+                                        >
+                                            <Icon name="WhatsApp" className="w-3.5 h-3.5" />
+                                            <span>Share</span>
+                                        </button>
                                         <button
                                             type="button"
                                             onClick={() => handleToggleAnswered(p.id)}

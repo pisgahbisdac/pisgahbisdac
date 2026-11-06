@@ -3974,6 +3974,34 @@ export const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) =
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     };
 
+    const handleShareSinglePrayerWA = (p) => {
+        if (!p) return;
+        const items = parsePrayerContent(p.content);
+        let formattedContent = `"${p.content}"`;
+        if (items.length > 1 || (items.length === 1 && items[0].num)) {
+            formattedContent = items.map(it => {
+                if (it.isHeader) return `*${it.text}*`;
+                return `${it.num ? `${it.num}.` : '•'} ${it.text}`;
+            }).join('\n');
+        }
+        const catObj = PRAYER_CATEGORIES.find(c => c.id === p.category);
+        const catIcon = catObj?.icon || '🙏';
+        const isPriv = p.privacy === 'private';
+        const dateStr = p.createdAt ? formatIndoDateShort(toYMD(new Date(p.createdAt))) : 'Hari ini';
+
+        const text =
+            (isPriv ? `*🔒 POKOK DOA KHUSUS (PASTORAL/PRIVAT)*\n` : `*🙏 POKOK DOA JEMAAT*\n`) +
+            `*GMAHK Jemaat Pisgah BISDAC - Batam*\n\n` +
+            `👤 *Dari:* ${p.senderName || 'Jemaat'}\n` +
+            `🏷️ *Kategori:* ${catIcon} ${p.category || 'Umum'}${isPriv ? ' _(Rahasia/Privat)_' : ''}\n` +
+            `📅 *Tanggal:* ${dateStr}\n\n` +
+            `*Permohonan Pokok Doa:*\n${formattedContent}\n\n` +
+            `_(Telah didukung dalam doa: ${p.prayedCount || 1}x)_\n\n` +
+            `_"Karena itu hendaklah kamu saling mengaku dosamu dan saling mendoakan, supaya kamu sembuh. Doa orang yang benar, bila dengan yakin didoakan, sangat besar kuasanya."_ (Yakobus 5:16)\n\n` +
+            `Kirim & dukung pokok doa jemaat di:\n${getCleanShareUrl('jadwal')}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
     return (
         <HomeCard
             badgeText="🙏 Persekutuan Doa Rabu & Pastoral"
@@ -4202,7 +4230,7 @@ export const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) =
                                 </div>
 
                                 <div className="pt-2.5 border-t border-[#E2E8D8]/80 dark:border-navy-800 flex items-center justify-between gap-2">
-                                    <div className="min-w-0">
+                                    <div className="min-w-0 flex-1">
                                         <div className="text-xs font-extrabold text-[#2C3F21] dark:text-gold-400 truncate">
                                             {item.senderName}
                                         </div>
@@ -4210,17 +4238,30 @@ export const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) =
                                             {formatIndoDateShort(toYMD(new Date(item.createdAt || Date.now())))}
                                         </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => handlePraySupport(item.id)}
-                                        className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 shrink-0 transition cursor-pointer active:scale-95 ${hasPrayed ? 'bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-950 shadow-xs' : 'bg-white dark:bg-navy-800 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045]'}`}
-                                    >
-                                        <span>🙏</span>
-                                        <span>{hasPrayed ? 'Turut Mendoakan' : 'Saya Ikut Doakan'}</span>
-                                        <span className="px-1.5 py-0.2 rounded-full bg-black/10 dark:bg-white/15 text-[10px] font-black">
-                                            {item.prayedCount || 1}
-                                        </span>
-                                    </button>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleShareSinglePrayerWA(item)}
+                                            className="px-2 sm:px-2.5 py-1.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#128C7E] dark:text-[#25D366] hover:text-white dark:hover:text-white border border-[#25D366]/30 hover:border-[#25D366] transition flex items-center gap-1 text-[11px] font-bold cursor-pointer active:scale-95 shadow-2xs"
+                                            title="Bagikan Pokok Doa ini ke WhatsApp"
+                                            aria-label="Bagikan ke WhatsApp"
+                                        >
+                                            <Icon name="WhatsApp" className="w-3.5 h-3.5" />
+                                            <span className="hidden min-[380px]:inline">Bagikan</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handlePraySupport(item.id)}
+                                            className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 shrink-0 transition cursor-pointer active:scale-95 ${hasPrayed ? 'bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-950 shadow-xs' : 'bg-white dark:bg-navy-800 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045]'}`}
+                                        >
+                                            <span>🙏</span>
+                                            <span className="hidden sm:inline">{hasPrayed ? 'Turut Mendoakan' : 'Saya Ikut Doakan'}</span>
+                                            <span className="sm:hidden">{hasPrayed ? 'Didoakan' : 'Doakan'}</span>
+                                            <span className="px-1.5 py-0.2 rounded-full bg-black/10 dark:bg-white/15 text-[10px] font-black">
+                                                {item.prayedCount || 1}
+                                            </span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         );
