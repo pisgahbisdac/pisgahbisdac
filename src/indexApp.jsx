@@ -1001,6 +1001,7 @@ const Icon = ({ name, className }) => {
         Rupiah: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><text x="12" y="15.5" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="currentColor" stroke="none" fontFamily="system-ui, -apple-system, sans-serif">Rp</text></svg>,
         BarChart: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 3v18h18" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></svg>,
         Book: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" /><path d="M6 2v20" /></svg>,
+        ArrowDownUp: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>,
         BookOpen: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>,
         Warta: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" /><path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14" /><path d="M8 6v8" /></svg>,
         Video: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 8-6 4 6 4V8Z" /><rect width="14" height="12" x="2" y="6" rx="2" ry="2" /></svg>,
@@ -6715,8 +6716,8 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
     // Mode daftar buku
     return (
         <div className="space-y-6 sm:space-y-8 animate-fade-in relative pb-16">
-            {/* STICKY TOP BAR: TOMBOL KEMBALI + FILTER KATEGORI + URUTAN */}
-            <div className="sticky top-16 md:top-[4.5rem] z-[35] rounded-2xl px-3 sm:px-4 py-2.5 liquid-glass-header transition-all print:hidden no-print flex items-center gap-2 sm:gap-3 shadow-sm border border-navy-100/50 dark:border-navy-700/50">
+            {/* STICKY TOP BAR: TOMBOL KEMBALI + FILTER KATEGORI */}
+            <div className="sticky top-16 md:top-[4.5rem] z-[35] rounded-2xl px-3 sm:px-4 py-2.5 liquid-glass-header transition-all print:hidden no-print flex items-center gap-2.5 sm:gap-3 shadow-sm border border-navy-100/50 dark:border-navy-700/50">
                 <button
                     onClick={() => {
                         if (window.history.length > 1) {
@@ -6759,23 +6760,6 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                         );
                     })}
                 </div>
-
-                <div className="h-6 w-px bg-navy-200/60 dark:bg-navy-700/60 shrink-0 hidden sm:block" />
-
-                {/* Dropdown Pengurutan Buku */}
-                <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-xs font-bold text-navy-500 dark:text-navy-400 hidden lg:inline">Urutan:</span>
-                    <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="px-2.5 sm:px-3 py-1.5 bg-white/80 dark:bg-navy-900 border border-navy-200/80 dark:border-navy-700 rounded-xl text-xs font-bold text-navy-800 dark:text-gold-400 outline-none focus:border-gold-500 shadow-2xs cursor-pointer"
-                    >
-                        <option value="newest">✨ Terbaru (Paling Atas)</option>
-                        <option value="title_asc">Judul (A - Z)</option>
-                        <option value="title_desc">Judul (Z - A)</option>
-                        <option value="author">Penulis (A - Z)</option>
-                    </select>
-                </div>
             </div>
 
             {/* Kotak Konten Utama Perpustakaan Buku */}
@@ -6784,32 +6768,52 @@ const Detailperpustakaan = ({ setActiveTab, dataPejabat, initialBook, onBookOpen
                 <div className="glass-box rounded-[1.5rem] shadow-sm border border-navy-100/60 overflow-hidden">
                     <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop" loading="lazy" alt="Buku" className="w-full h-[14rem] object-cover" />
                     <div className="p-6">
-                        <h1 className="text-[1.75rem] font-extrabold text-navy-900 mb-2">Perpustakaan Buku</h1>
-                        <p className="text-navy-500 font-medium text-sm leading-relaxed">Baca dan unduh buku-buku rohani langsung di sini. Pilih buku untuk membacanya.</p>
+                        <h1 className="text-[1.75rem] font-extrabold text-navy-900 dark:text-white mb-2">Perpustakaan Buku</h1>
+                        <p className="text-navy-500 dark:text-navy-300 font-medium text-sm leading-relaxed">Baca dan unduh buku-buku rohani langsung di sini. Pilih buku untuk membacanya.</p>
                     </div>
                 </div>
 
-                {/* Search Bar Buku */}
-                <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
-                        <Icon name="Search" className="w-4 h-4" />
+                {/* Bar Pencarian & Pengurutan Buku */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+                    <div className="relative flex-1">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-navy-400 pointer-events-none">
+                            <Icon name="Search" className="w-4 h-4" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Cari judul, pengarang, atau deskripsi..."
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className="w-full pl-11 pr-10 py-3 bg-white dark:bg-navy-900 border border-navy-100/80 dark:border-navy-700/80 rounded-2xl text-sm font-semibold text-navy-900 dark:text-white placeholder-navy-300 dark:placeholder-navy-500 outline-none focus:border-gold-500 shadow-sm transition-all"
+                        />
+                        {searchQuery && (
+                            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-navy-100 dark:bg-navy-800 text-navy-500 dark:text-navy-400 hover:bg-navy-200 transition flex items-center justify-center">
+                                <Icon name="X" className="w-3.5 h-3.5" />
+                            </button>
+                        )}
                     </div>
-                    <input
-                        type="text"
-                        placeholder="Cari judul, pengarang, atau deskripsi..."
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-10 py-3 bg-white border border-navy-100/80 rounded-2xl text-sm font-semibold text-navy-900 placeholder-navy-300 outline-none focus:border-gold-500 shadow-sm transition-all"
-                    />
-                    {searchQuery && (
-                        <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-navy-100 text-navy-500 hover:bg-navy-200 transition flex items-center justify-center">
-                            <Icon name="X" className="w-3.5 h-3.5" />
-                        </button>
-                    )}
+
+                    {/* Dropdown Pengurutan Buku (Rapi, Terstruktur & Proporsional di Mobile Maupun Desktop) */}
+                    <div className="flex items-center justify-between sm:justify-start gap-2 bg-white dark:bg-navy-900 px-3.5 py-2.5 sm:py-3 border border-navy-100/80 dark:border-navy-700/80 rounded-2xl shadow-sm shrink-0">
+                        <div className="flex items-center gap-1.5 text-navy-500 dark:text-navy-400">
+                            <Icon name="ArrowDownUp" className="w-4 h-4 text-gold-500 shrink-0" />
+                            <span className="text-xs font-bold whitespace-nowrap">Urutan:</span>
+                        </div>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="bg-transparent text-xs font-extrabold text-navy-800 dark:text-gold-400 outline-none cursor-pointer pr-1"
+                        >
+                            <option value="newest" className="dark:bg-navy-900">✨ Terbaru</option>
+                            <option value="title_asc" className="dark:bg-navy-900">Judul (A - Z)</option>
+                            <option value="title_desc" className="dark:bg-navy-900">Judul (Z - A)</option>
+                            <option value="author" className="dark:bg-navy-900">Penulis (A - Z)</option>
+                        </select>
+                    </div>
                 </div>
 
                 {/* Status Kategori Aktif & Hasil Filter */}
-                <div className="flex items-center justify-between text-xs font-bold text-navy-500 px-1 pt-1">
+                <div className="flex items-center justify-between text-xs font-bold text-navy-500 dark:text-navy-400 px-1 pt-1">
                     <span>
                         Menampilkan <b>{filteredBooks.length}</b> buku {activeCategory !== 'Semua' ? `dalam kategori "${activeCategory}"` : 'tersedia'}
                         {searchQuery.trim() && ` untuk pencarian "${searchQuery}"`}
