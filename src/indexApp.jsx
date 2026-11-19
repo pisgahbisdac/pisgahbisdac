@@ -1374,16 +1374,13 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
         <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
             {eventsToDisplay.length > 0 && (
                 <>
-                    <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
-                    <h2 className="text-xl md:text-2xl font-extrabold text-[#2C3F21] dark:text-white mb-4">Acara Terdekat</h2>
+                    <h3 className="text-xs font-semibold text-gold-600 dark:text-gold-400 uppercase tracking-[0.2em] mb-1">Agenda Acara</h3>
+                    <h2 className="font-serif font-bold text-2xl md:text-3xl text-stone-900 dark:text-white mb-4">Acara Terdekat</h2>
 
-                    {/* Elevated Dark Card Carousel with Ambient Halo Glow */}
+                    {/* Elevated Dark Card Carousel */}
                     <div className="relative w-full">
-                        {/* Dark Mode Ambient Halo Glow */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-gold-500/20 via-[#D19B45]/20 to-emerald-600/20 rounded-[2.2rem] blur-xl opacity-0 dark:opacity-75 -z-10 transition-opacity duration-700 pointer-events-none"></div>
-
                         <div
-                            className="relative w-full rounded-[2rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-950 shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-800 aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group select-none"
+                            className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden bg-stone-900 dark:bg-navy-950 shadow-xl border border-stone-200/80 dark:border-navy-700/80 aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group select-none"
                             onMouseEnter={() => setIsEventHovered(true)}
                             onMouseLeave={() => setIsEventHovered(false)}
                             onTouchStart={handleEventTouchStart}
@@ -1410,22 +1407,22 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                             <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
                                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                                     {eventsToDisplay[currentEventIdx]?.dateStr && (
-                                        <span className="inline-flex max-w-[calc(100%-85px)] truncate items-center bg-[#D19B45] text-[#2C3F21] text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
-                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                        <span className="inline-flex max-w-[calc(100%-85px)] truncate items-center gap-1.5 bg-gold-500 text-navy-950 text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm">
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 shrink-0 text-navy-950" />
                                             <span className="truncate">{eventsToDisplay[currentEventIdx].dateStr}</span>
                                         </span>
                                     )}
-                                    <span className="inline-flex items-center bg-black/40 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+                                    <span className="inline-flex items-center bg-black/40 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
                                         Acara Mendatang
                                     </span>
                                 </div>
-                                <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight text-white drop-shadow-md line-clamp-3 sm:line-clamp-none">
+                                <h3 className="font-serif font-bold text-2xl sm:text-3xl md:text-4xl leading-tight mb-2 tracking-normal text-white drop-shadow-md line-clamp-3 sm:line-clamp-none">
                                     {eventsToDisplay[currentEventIdx]?.title || ''}
                                 </h3>
                                 {eventsToDisplay[currentEventIdx]?.location && (
-                                    <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-95 drop-shadow">
-                                        <Icon name="MapPin" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0 text-[#D19B45] dark:text-gold-400" />
+                                    <p className="text-xs sm:text-sm md:text-base text-stone-200 flex items-center font-medium opacity-95 drop-shadow">
+                                        <Icon name="MapPin" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0 text-gold-400" />
                                         <span className="truncate">{eventsToDisplay[currentEventIdx].location}</span>
                                     </p>
                                 )}
@@ -1433,25 +1430,25 @@ const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleNext, ca
                                 {/* Action Buttons: Google Calendar & WhatsApp & Slide Indicator */}
                                 <div className="flex items-center justify-between gap-3 mt-4 pt-1 flex-wrap">
                                     <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
+                                            className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white transition-all active:scale-95 shadow-sm cursor-pointer"
+                                            title="Bagikan Acara ke WhatsApp"
+                                        >
+                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
+                                            <span>Bagikan WA</span>
+                                        </button>
                                         <a
                                             href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 transition-all active:scale-95 shadow-sm"
+                                            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur-md text-white border border-white/20 transition-all active:scale-95 shadow-xs"
                                             title="Simpan Acara ke Google Calendar"
                                         >
-                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 text-gold-300" />
-                                            + Kalender
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-300" />
+                                            <span>+ Kalender</span>
                                         </a>
-                                        <button
-                                            type="button"
-                                            onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
-                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white transition-all active:scale-95 shadow-xs"
-                                            title="Bagikan Acara ke WhatsApp"
-                                        >
-                                            <Icon name="WhatsApp" className="w-3.5 h-3.5 mr-1.5 text-white" />
-                                            Bagikan WA
-                                        </button>
                                     </div>
 
                                     {/* Event Dots & Pause Button */}
@@ -5376,23 +5373,23 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
                         {/* ACARA TERDEKAT */}
                         {eventsToDisplay.length > 0 && (
-                            <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
+                            <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-white dark:bg-navy-900 p-5 sm:p-6 shadow-[0_10px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-stone-200/90 dark:border-navy-700/80 flex flex-col justify-between group">
                                 <div className="flex items-center justify-between gap-3 mb-3">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D19B45]/15 text-[#9A6B1A] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#D19B45]/30">
-                                        <Icon name="Calendar" className="w-3.5 h-3.5" /> Jangan Lewatkan
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/15 text-gold-700 dark:text-gold-300 font-bold text-[11px] uppercase tracking-wider border border-gold-500/25">
+                                        <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-600 dark:text-gold-400" /> Agenda Khusus
                                     </span>
-                                    <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                                    <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
                                         {currentEventIdx + 1} dari {eventsToDisplay.length} Acara
                                     </span>
                                 </div>
 
                                 <div className="mb-3">
-                                    <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight">
+                                    <h3 className="font-serif font-bold text-xl md:text-2xl text-stone-900 dark:text-white tracking-tight">
                                         Acara Terdekat
                                     </h3>
                                 </div>
 
-                                <div className="relative w-full rounded-[1.5rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-950 shadow-md flex-1 flex flex-col justify-end p-5 text-white group text-left min-h-[240px]">
+                                <div className="relative w-full rounded-2xl overflow-hidden bg-stone-900 dark:bg-navy-950 shadow-md flex-1 flex flex-col justify-end p-4 sm:p-5 md:p-6 text-white group text-left min-h-[260px] border border-stone-800/80">
                                     {eventsToDisplay[currentEventIdx]?.imageUrl ? (
                                         <>
                                             <img
@@ -5404,7 +5401,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                                 referrerPolicy="no-referrer"
                                                 onError={(e) => handleImageErrorFallback(e, eventsToDisplay[currentEventIdx].imageUrl)}
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20"></div>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/25"></div>
                                         </>
                                     ) : (
                                         <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none group-hover:scale-105 transition-transform duration-700">
@@ -5413,39 +5410,29 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                     )}
 
                                     <div className="relative z-10 w-full">
-                                        <span className="inline-block max-w-[calc(100%-75px)] truncate bg-gradient-to-r from-[#D19B45] to-[#B8863B] text-white text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full mb-2 shadow-md">
-                                            {eventsToDisplay[currentEventIdx]?.dateStr || ''}
-                                        </span>
-                                        <h4 className="text-base sm:text-lg md:text-xl font-black leading-snug mb-1.5 tracking-tight drop-shadow-md line-clamp-3 sm:line-clamp-none">
+                                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500 text-navy-950 text-xs font-black uppercase tracking-wider mb-2.5 shadow-sm max-w-[calc(100%-80px)]">
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 shrink-0 text-navy-950" />
+                                            <span className="truncate">{eventsToDisplay[currentEventIdx]?.dateStr || ''}</span>
+                                        </div>
+                                        <h4 className="font-serif font-bold text-lg sm:text-xl md:text-2xl leading-snug mb-2 tracking-normal text-white drop-shadow-md line-clamp-3 sm:line-clamp-none">
                                             {eventsToDisplay[currentEventIdx]?.title || ''}
                                         </h4>
-                                        <p className="text-xs text-gray-200 flex items-center font-medium drop-shadow-sm mb-1">
-                                            <Icon name="MapPin" className="w-3.5 h-3.5 mr-1.5 shrink-0 text-[#D19B45]" />
+                                        <p className="text-xs sm:text-sm text-stone-200 flex items-center font-medium drop-shadow-sm mb-1">
+                                            <Icon name="MapPin" className="w-3.5 h-3.5 mr-1.5 shrink-0 text-gold-400" />
                                             <span className="truncate">{eventsToDisplay[currentEventIdx]?.location || ''}</span>
                                         </p>
 
-                                        {/* Quick Actions: Google Calendar & WhatsApp & Slide Indicator */}
-                                        <div className="mt-4 pt-1 space-y-2.5">
-                                            {/* Action Buttons Grid: 3 Clean Uniform Cards */}
-                                            <div className="grid grid-cols-3 gap-2 w-full">
-                                                <a
-                                                    href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="h-9 sm:h-10 px-1.5 sm:px-2.5 rounded-xl bg-white/20 hover:bg-white/30 active:scale-95 text-white border border-white/25 backdrop-blur-md flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-xs group/btn cursor-pointer"
-                                                    title="Simpan Acara ke Google Calendar"
-                                                >
-                                                    <Icon name="Calendar" className="w-3.5 h-3.5 shrink-0 text-gold-300 group-hover/btn:scale-110 transition-transform" />
-                                                    <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap truncate">+ Kalender</span>
-                                                </a>
+                                        {/* Quick Actions & Navigation: WhatsApp, Status WA, & Google Calendar */}
+                                        <div className="mt-3.5 pt-1 space-y-2.5">
+                                            <div className="flex items-center gap-2 w-full">
                                                 <button
                                                     type="button"
                                                     onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
-                                                    className="h-9 sm:h-10 px-1.5 sm:px-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] active:scale-95 text-white flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-xs cursor-pointer group/btn"
+                                                    className="flex-1 h-9 sm:h-10 px-3 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] active:scale-95 text-white flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
                                                     title="Bagikan Acara ke WhatsApp"
                                                 >
-                                                    <Icon name="WhatsApp" className="w-3.5 h-3.5 shrink-0 text-white group-hover/btn:scale-110 transition-transform" />
-                                                    <span className="text-[11px] sm:text-xs font-bold whitespace-nowrap truncate">Bagikan WA</span>
+                                                    <Icon name="WhatsApp" className="w-4 h-4 shrink-0 text-white" />
+                                                    <span className="text-xs font-bold whitespace-nowrap">Bagikan WA</span>
                                                 </button>
                                                 <button
                                                     type="button"
@@ -5465,24 +5452,34 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                                             console.error('Error generating story image:', e);
                                                         }
                                                     }}
-                                                    className="h-9 sm:h-10 px-1.5 sm:px-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-[#D19B45] hover:from-gold-400 hover:to-gold-500 active:scale-95 text-navy-950 font-black flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-xs cursor-pointer group/btn"
+                                                    className="flex-1 h-9 sm:h-10 px-3 rounded-xl bg-gold-500 hover:bg-gold-400 active:scale-95 text-navy-950 font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
                                                     title="Buat Kartu Gambar HD untuk Status WhatsApp & Story IG"
                                                 >
-                                                    <Icon name="Camera" className="w-3.5 h-3.5 shrink-0 text-navy-950 group-hover/btn:scale-110 transition-transform" />
-                                                    <span className="text-[11px] sm:text-xs font-black whitespace-nowrap truncate">Status WA</span>
+                                                    <Icon name="Camera" className="w-4 h-4 shrink-0 text-navy-950" />
+                                                    <span className="text-xs font-bold whitespace-nowrap">Status WA</span>
                                                 </button>
+                                                <a
+                                                    href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 text-white border border-white/20 backdrop-blur-md flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                                                    title="Simpan Acara ke Google Calendar"
+                                                >
+                                                    <Icon name="Calendar" className="w-4 h-4 shrink-0 text-gold-300" />
+                                                    <span className="hidden sm:inline text-xs font-semibold whitespace-nowrap">+ Kalender</span>
+                                                </a>
                                             </div>
 
                                             {/* Centered Slide Dots Indicator */}
                                             {eventsToDisplay.length > 1 && (
                                                 <div className="flex items-center justify-center pt-0.5">
-                                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/15 shadow-sm">
+                                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/55 backdrop-blur-md border border-white/15 shadow-sm">
                                                         {eventsToDisplay.map((_, idx) => (
                                                             <button
                                                                 key={idx}
                                                                 type="button"
                                                                 onClick={() => setCurrentEventIdx(idx)}
-                                                                className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-5 bg-[#D19B45]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
+                                                                className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentEventIdx ? 'w-5 bg-gold-400' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
                                                                 aria-label={`Ke acara ${idx + 1}`}
                                                             />
                                                         ))}
@@ -5492,24 +5489,25 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         </div>
                                     </div>
 
+                                    {/* Top Right Navigation Arrows */}
                                     <div className="absolute top-3.5 right-3.5 flex gap-1.5 z-20">
                                         <button
                                             type="button"
                                             onClick={() => setCurrentEventIdx(prev => (prev === 0 ? eventsToDisplay.length - 1 : prev - 1))}
-                                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 flex items-center justify-center transition-all backdrop-blur-md border border-white/20 text-white shadow-md"
+                                            className="w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 active:scale-95 flex items-center justify-center transition backdrop-blur-md border border-white/20 text-white shadow-md cursor-pointer"
                                             title="Acara Sebelumnya"
                                             aria-label="Acara Sebelumnya"
                                         >
-                                            <Icon name="ChevronLeft" className="w-3.5 h-3.5" />
+                                            <Icon name="ChevronLeft" className="w-4 h-4" />
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setCurrentEventIdx(prev => (prev === eventsToDisplay.length - 1 ? 0 : prev + 1))}
-                                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/40 hover:bg-black/70 active:scale-95 flex items-center justify-center transition-all backdrop-blur-md border border-white/20 text-white shadow-md"
+                                            className="w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 active:scale-95 flex items-center justify-center transition backdrop-blur-md border border-white/20 text-white shadow-md cursor-pointer"
                                             title="Acara Selanjutnya"
                                             aria-label="Acara Selanjutnya"
                                         >
-                                            <Icon name="ChevronRight" className="w-3.5 h-3.5" />
+                                            <Icon name="ChevronRight" className="w-4 h-4" />
                                         </button>
                                     </div>
                                 </div>
@@ -5517,15 +5515,15 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         )}
 
                         {/* VISI MISI */}
-                        <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-7 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group">
+                        <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-white dark:bg-navy-900 p-5 sm:p-6 shadow-[0_10px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-stone-200/90 dark:border-navy-700/80 flex flex-col justify-between group">
                             <div className="flex items-center justify-between gap-3 mb-3">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#4A7045]/10 to-[#D19B45]/15 text-[#2C3F21] dark:text-gold-300 font-extrabold uppercase tracking-widest text-[10px] border border-[#4A7045]/20 dark:border-gold-400/20">
-                                    <Icon name="Church" className="w-3.5 h-3.5 text-[#D19B45] dark:text-gold-400" /> Jemaat Pisgah BISDAC
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 dark:bg-navy-800 text-stone-700 dark:text-gold-300 font-bold uppercase tracking-wider text-[11px] border border-stone-200/80 dark:border-navy-700">
+                                    <Icon name="Church" className="w-3.5 h-3.5 text-[#4A7045] dark:text-gold-400" /> Jemaat Pisgah BISDAC
                                 </span>
                             </div>
 
                             <div className="mb-3">
-                                <h3 className="text-xl md:text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#2C3F21] via-[#4A7045] to-[#D19B45] dark:from-gold-300 dark:to-gold-500 tracking-tight leading-tight">
+                                <h3 className="font-serif font-bold text-xl md:text-2xl text-stone-900 dark:text-white tracking-tight leading-tight">
                                     Visi & Misi Gereja Advent
                                 </h3>
                             </div>

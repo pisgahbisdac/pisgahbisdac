@@ -1459,16 +1459,13 @@ export const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleN
         <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
             {eventsToDisplay.length > 0 && (
                 <>
-                    <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
-                    <h2 className="text-xl md:text-2xl font-extrabold text-[#2C3F21] dark:text-white mb-4">Acara Terdekat</h2>
+                    <h3 className="text-xs font-semibold text-gold-600 dark:text-gold-400 uppercase tracking-[0.2em] mb-1">Agenda Acara</h3>
+                    <h2 className="font-serif font-bold text-2xl md:text-3xl text-stone-900 dark:text-white mb-4">Acara Terdekat</h2>
 
-                    {/* Elevated Dark Card Carousel with Ambient Halo Glow */}
+                    {/* Elevated Dark Card Carousel */}
                     <div className="relative w-full">
-                        {/* Dark Mode Ambient Halo Glow */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-gold-500/20 via-[#D19B45]/20 to-emerald-600/20 rounded-[2.2rem] blur-xl opacity-0 dark:opacity-75 -z-10 transition-opacity duration-700 pointer-events-none"></div>
-
                         <div
-                            className="relative w-full rounded-[2rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-950 shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-800 aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group select-none"
+                            className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden bg-stone-900 dark:bg-navy-950 shadow-xl border border-stone-200/80 dark:border-navy-700/80 aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group select-none"
                             onMouseEnter={() => setIsEventHovered(true)}
                             onMouseLeave={() => setIsEventHovered(false)}
                             onTouchStart={handleEventTouchStart}
@@ -1495,22 +1492,22 @@ export const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleN
                             <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
                                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                                     {eventsToDisplay[currentEventIdx]?.dateStr && (
-                                        <span className="inline-flex max-w-[calc(100%-85px)] truncate items-center bg-[#D19B45] text-[#2C3F21] text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
-                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                        <span className="inline-flex max-w-[calc(100%-85px)] truncate items-center gap-1.5 bg-gold-500 text-navy-950 text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm">
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 shrink-0 text-navy-950" />
                                             <span className="truncate">{eventsToDisplay[currentEventIdx].dateStr}</span>
                                         </span>
                                     )}
-                                    <span className="inline-flex items-center bg-black/40 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+                                    <span className="inline-flex items-center bg-black/40 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
                                         Acara Mendatang
                                     </span>
                                 </div>
-                                <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight text-white drop-shadow-md line-clamp-3 sm:line-clamp-none">
+                                <h3 className="font-serif font-bold text-2xl sm:text-3xl md:text-4xl leading-tight mb-2 tracking-normal text-white drop-shadow-md line-clamp-3 sm:line-clamp-none">
                                     {eventsToDisplay[currentEventIdx]?.title || ''}
                                 </h3>
                                 {eventsToDisplay[currentEventIdx]?.location && (
-                                    <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-95 drop-shadow">
-                                        <Icon name="MapPin" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0 text-[#D19B45] dark:text-gold-400" />
+                                    <p className="text-xs sm:text-sm md:text-base text-stone-200 flex items-center font-medium opacity-95 drop-shadow">
+                                        <Icon name="MapPin" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0 text-gold-400" />
                                         <span className="truncate">{eventsToDisplay[currentEventIdx].location}</span>
                                     </p>
                                 )}
@@ -1518,25 +1515,25 @@ export const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleN
                                 {/* Action Buttons: Google Calendar & WhatsApp & Slide Indicator */}
                                 <div className="flex items-center justify-between gap-3 mt-4 pt-1 flex-wrap">
                                     <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
+                                            className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white transition-all active:scale-95 shadow-sm cursor-pointer"
+                                            title="Bagikan Acara ke WhatsApp"
+                                        >
+                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
+                                            <span>Bagikan WA</span>
+                                        </button>
                                         <a
                                             href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 transition-all active:scale-95 shadow-sm"
+                                            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur-md text-white border border-white/20 transition-all active:scale-95 shadow-xs"
                                             title="Simpan Acara ke Google Calendar"
                                         >
-                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 text-gold-300" />
-                                            + Kalender
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-300" />
+                                            <span>+ Kalender</span>
                                         </a>
-                                        <button
-                                            type="button"
-                                            onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
-                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white transition-all active:scale-95 shadow-xs"
-                                            title="Bagikan Acara ke WhatsApp"
-                                        >
-                                            <Icon name="WhatsApp" className="w-3.5 h-3.5 mr-1.5 text-white" />
-                                            Bagikan WA
-                                        </button>
                                     </div>
 
                                     {/* Event Dots & Pause Button */}
