@@ -5065,23 +5065,18 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
     const renderFeatureItem = (item) => {
         const content = (
             <>
-                <div className="w-11 h-11 md:w-14 md:h-14 rounded-[1rem] bg-white dark:bg-navy-700 group-hover:bg-[#4A7045] dark:group-hover:bg-gold-500 flex items-center justify-center transition-all duration-300 shadow-sm border border-[#E2E8D8] dark:border-navy-600 group-hover:border-[#4A7045] dark:group-hover:border-gold-500 group-active:scale-95">
-                    <Icon name={item.icon} className="w-5 h-5 md:w-6 md:h-6 text-[#4A7045] dark:text-gold-400 group-hover:text-white dark:group-hover:text-navy-900 transition-colors duration-300" />
+                <div className="w-11 h-11 md:w-13 md:h-13 rounded-2xl bg-stone-50 dark:bg-navy-800/90 group-hover:bg-[#4A7045] dark:group-hover:bg-gold-500 flex items-center justify-center transition-all duration-300 shadow-2xs border border-stone-200/80 dark:border-navy-700/80 group-hover:border-[#4A7045] dark:group-hover:border-gold-500 group-active:scale-95">
+                    <Icon name={item.icon} className="w-5 h-5 md:w-6 md:h-6 text-[#4A7045] dark:text-gold-400 group-hover:text-white dark:group-hover:text-navy-950 transition-colors duration-300" />
                 </div>
-                <div className="w-full flex justify-center mt-1.5 overflow-visible">
-                    <span className="font-bold text-[10px] sm:text-[11px] md:text-[9.5px] lg:text-[11px] xl:text-[12px] text-[#2C3F21] dark:text-navy-100 leading-tight text-center break-normal hyphens-none whitespace-normal">
-                        {item.label.split(' ').map((word, wIdx, arr) => (
-                            <React.Fragment key={wIdx}>
-                                <span className="whitespace-nowrap inline-block">{word}</span>
-                                {wIdx < arr.length - 1 && ' '}
-                            </React.Fragment>
-                        ))}
+                <div className="w-full flex justify-center mt-2 overflow-visible">
+                    <span className="font-semibold text-[10.5px] sm:text-[11px] md:text-[11.5px] lg:text-[12px] text-stone-700 dark:text-stone-200 group-hover:text-[#4A7045] dark:group-hover:text-gold-300 leading-tight text-center transition-colors">
+                        {item.label}
                     </span>
                 </div>
             </>
         );
 
-        const className = "group flex flex-col items-center justify-start p-1 sm:p-1.5 md:px-0.5 lg:px-1 py-1.5 md:py-2 rounded-2xl hover:bg-[#F4F7EF] dark:hover:bg-navy-800 transition-all duration-300 cursor-pointer w-full md:w-auto md:flex-1 min-w-0 overflow-visible";
+        const className = "group flex flex-col items-center justify-start p-1.5 sm:p-2 rounded-xl hover:bg-stone-50/70 dark:hover:bg-navy-800/50 transition-all duration-200 cursor-pointer w-full md:w-auto md:flex-1 min-w-0";
 
         if (item.isSameTab) return <a key={item.id} href={item.link} onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</a>;
         if (item.isExternal) return <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" onClick={(e) => handleMenuClick(e, item)} className={className}>{content}</a>;
@@ -5090,29 +5085,13 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
     return (
         <div className="animate-fade-in relative z-10 bg-transparent text-[#2C3F21] dark:text-gray-100 font-sans pb-16 transition-colors duration-500">
-            {/* Wrapper to restrict bubbles to only float up from the green Warta box to the Carousel */}
-            <div className="relative overflow-hidden w-full pb-10">
-                {/* Global Floating Bubbles Background for Home Page */}
-                <div className="bubbles-container">
-                    <div className="floating-bubble bubble-1"></div>
-                    <div className="floating-bubble bubble-2"></div>
-                    <div className="floating-bubble bubble-3"></div>
-                    <div className="floating-bubble bubble-4"></div>
-                    <div className="floating-bubble bubble-5"></div>
-                    <div className="floating-bubble bubble-6"></div>
-                    <div className="floating-bubble bubble-7"></div>
-                    <div className="floating-bubble bubble-8"></div>
-                </div>
+            <div className="relative overflow-hidden w-full pb-6">
+                <div className="pt-4 md:pt-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto relative z-10">
 
-                <div className="pt-6 px-4 md:px-8 lg:px-[6vw] w-full mx-auto relative z-10">
-
-                    {/* HERO SECTION WITH AMBIENT HALO GLOW */}
+                    {/* HERO SLIDER SECTION */}
                     <div className="relative w-full">
-                        {/* Dark Mode Ambient Halo Glow */}
-                        <div className="absolute -inset-1.5 bg-gradient-to-r from-emerald-600/20 via-gold-500/20 to-emerald-600/20 rounded-[2.3rem] blur-2xl opacity-0 dark:opacity-75 -z-10 transition-opacity duration-700 pointer-events-none"></div>
-
                         <div
-                            className="relative rounded-[2rem] overflow-hidden shadow-2xl border-4 border-[#E2E8D8] dark:border-navy-700 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-[#E5E9D8] dark:bg-navy-800 transition-colors duration-500 group select-none"
+                            className="relative rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl border border-stone-200/80 dark:border-navy-700/80 aspect-[4/5] sm:aspect-square md:aspect-[4/3] lg:aspect-[21/9] w-full bg-stone-900 dark:bg-navy-900 transition-colors duration-500 group select-none"
                             onMouseEnter={() => setIsHeroHovered(true)}
                             onMouseLeave={() => setIsHeroHovered(false)}
                             onTouchStart={handleHeroTouchStart}
@@ -5160,27 +5139,33 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                 const sSubtitle = (typeof curImg === 'object' && curImg !== null && curImg.subtitle !== undefined) ? curImg.subtitle : slideDefault.subtitle;
                                 const sBadge = (typeof curImg === 'object' && curImg !== null && curImg.badge !== undefined) ? curImg.badge : slideDefault.badge;
                                 return (
-                                    <div key={`hero-text-${currentSlide}`} className="absolute top-[6%] md:top-[8%] lg:top-[11%] left-1/2 -translate-x-1/2 w-full max-w-[90%] md:max-w-3xl flex flex-col items-center text-center z-20 pb-6 md:pb-10 lg:pb-12 pointer-events-none transition-all duration-700 animate-fade-in">
+                                    <div key={`hero-text-${currentSlide}`} className="absolute top-[8%] sm:top-[10%] md:top-[12%] lg:top-[14%] left-1/2 -translate-x-1/2 w-full max-w-[92%] sm:max-w-xl md:max-w-3xl flex flex-col items-center text-center z-20 pb-4 md:pb-8 transition-all duration-700 animate-fade-in pointer-events-none">
                                         {sBadge ? (
-                                            <>
-                                                <div className="hidden md:inline-flex bg-black/35 backdrop-blur-md text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-full items-center mb-5 border border-white/20 shadow-md">
-                                                    <Icon name="Home" className="w-4 h-4 mr-2 text-[#D19B45] dark:text-gold-400" /> {sBadge}
-                                                </div>
-                                                <div className="md:hidden bg-black/35 backdrop-blur-md text-white text-[10px] font-semibold px-3.5 py-1.5 rounded-full inline-flex items-center mb-3 w-max border border-white/20 shadow-md">
-                                                    <Icon name="Home" className="w-3.5 h-3.5 mr-1.5 text-[#D19B45] dark:text-gold-400" /> {sBadge}
-                                                </div>
-                                            </>
+                                            <div className="inline-flex items-center gap-2 mb-3 md:mb-4 px-3.5 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-[10px] sm:text-[11px] md:text-xs font-semibold tracking-[0.18em] uppercase text-gold-300 drop-shadow-sm select-none">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
+                                                <span>{sBadge}</span>
+                                            </div>
                                         ) : null}
                                         {sTitle ? (
-                                            <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-[1.15] mb-3 md:mb-5 tracking-tight drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]">
+                                            <h1 className="font-serif font-medium text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.12] mb-3 md:mb-4 tracking-normal drop-shadow-[0_4px_18px_rgba(0,0,0,0.85)]">
                                                 {sTitle}
                                             </h1>
                                         ) : null}
                                         {sSubtitle ? (
-                                            <p className="text-white/95 text-xs md:text-lg mb-4 md:mb-6 leading-relaxed font-medium max-w-2xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                                            <p className="text-white/90 text-xs sm:text-sm md:text-base lg:text-lg mb-4 md:mb-6 leading-relaxed font-normal max-w-xl md:max-w-2xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                                                 {sSubtitle}
                                             </p>
                                         ) : null}
+                                        <div className="pointer-events-auto mt-1 sm:mt-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setActiveTab('susunan_ibadah')}
+                                                className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-[#4A7045] hover:bg-[#3D5A38] dark:bg-gold-500 dark:hover:bg-gold-400 text-white dark:text-navy-950 font-bold text-xs sm:text-sm tracking-wide shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-2 group cursor-pointer active:scale-95"
+                                            >
+                                                <span>Ibadah Sekarang</span>
+                                                <Icon name="ChevronRight" className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                            </button>
+                                        </div>
                                     </div>
                                 );
                             })()}
@@ -5248,18 +5233,9 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                         </div>
                     </div>
 
-                    {/* OVERLAPPING QUICK ACTIONS PILL WITH SMOOTH TAB */}
-                    <div className="relative z-30 -mt-6 md:-mt-10 lg:-mt-16 mx-auto w-[96%] md:w-[98%] lg:w-full lg:max-w-[1180px] xl:max-w-[1240px] flex flex-col items-center">
-
-                        {/* The Floating Button */}
-                        <div className="absolute -top-[1.25rem] md:-top-[1.5rem] left-1/2 -translate-x-1/2 z-40">
-                            <button onClick={() => setActiveTab('susunan_ibadah')} className="bg-[#4A7045] dark:bg-gold-500 hover:bg-[#3A5836] dark:hover:bg-gold-600 text-white dark:text-navy-900 text-sm md:text-base font-bold py-2 md:py-3.5 px-8 md:px-12 rounded-full transition-colors flex items-center transform hover:-translate-y-0.5 duration-300 w-max shadow-lg">
-                                Ibadah Sekarang <Icon name="ChevronRight" className="w-4 h-4 md:w-5 md:h-5 ml-1.5 md:ml-2" />
-                            </button>
-                        </div>
-
-                        {/* Main Pill */}
-                        <div className="relative w-full bg-[#E2E8D8] dark:bg-navy-800 rounded-[2rem] md:rounded-[2.5rem] p-3 md:px-2 md:py-4 lg:px-4 lg:py-5 pt-7 md:pt-9 lg:pt-10 shadow-xl border-4 border-white dark:border-navy-700 grid grid-cols-4 md:flex md:flex-nowrap items-start justify-center md:justify-between gap-x-1 sm:gap-x-2 gap-y-3 sm:gap-y-4 md:gap-0 transition-colors duration-500 z-10 overflow-visible">
+                    {/* GROUNDED DIRECTORY & SERVICES DOCK */}
+                    <div className="relative z-30 -mt-5 md:-mt-8 lg:-mt-10 mx-auto w-[96%] md:w-[98%] lg:w-full lg:max-w-[1180px] xl:max-w-[1240px]">
+                        <div className="relative w-full bg-white/95 dark:bg-navy-900/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-3 sm:p-4 md:px-3 lg:px-5 py-3 md:py-4 shadow-[0_12px_36px_rgba(0,0,0,0.06)] dark:shadow-[0_12px_36px_rgba(0,0,0,0.4)] border border-stone-200/90 dark:border-navy-700/80 grid grid-cols-4 md:flex md:flex-nowrap items-start justify-center md:justify-between gap-x-1 sm:gap-x-2 gap-y-2.5 sm:gap-y-3 md:gap-0 transition-colors duration-500">
                             {featureItems.map(item => renderFeatureItem(item))}
                         </div>
                         <SistemGerejaModal isOpen={showSistemGerejaModal} onClose={() => setShowSistemGerejaModal(false)} />
