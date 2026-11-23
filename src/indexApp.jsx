@@ -3540,28 +3540,28 @@ const PrayerContentRenderer = ({ content }) => {
     // Jika berupa 1 teks pendek biasa tanpa penomoran
     if (items.length === 1 && !items[0].num && !items[0].isHeader) {
         return (
-            <p className="text-xs sm:text-sm text-[#2C3F21] dark:text-gray-100 leading-relaxed font-medium whitespace-pre-line">
+            <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed font-normal whitespace-pre-line italic">
                 "{items[0].text}"
             </p>
         );
     }
 
     return (
-        <div className="space-y-1.5 my-1 text-xs sm:text-sm text-[#2C3F21] dark:text-gray-100 leading-relaxed font-medium">
+        <div className="space-y-1.5 my-1 text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed font-normal">
             {items.map((it, idx) => {
                 if (it.isHeader) {
                     return (
-                        <p key={idx} className="font-bold text-[#2C3F21] dark:text-gold-300 pt-0.5">
+                        <p key={idx} className="font-semibold text-stone-900 dark:text-gold-300 pt-0.5">
                             {it.text}
                         </p>
                     );
                 }
                 return (
-                    <div key={idx} className="flex items-start gap-2.5 bg-white/60 dark:bg-navy-900/60 p-2 sm:p-2.5 rounded-xl border border-[#E2E8D8]/70 dark:border-navy-800/80 shadow-2xs">
-                        <span className="shrink-0 w-5 h-5 rounded-full bg-[#4A7045]/15 dark:bg-gold-500/20 text-[#4A7045] dark:text-gold-400 border border-[#4A7045]/30 dark:border-gold-500/40 text-[10px] font-black flex items-center justify-center mt-0.5 select-none">
+                    <div key={idx} className="flex items-start gap-2.5 bg-white/70 dark:bg-navy-900/70 p-2 sm:p-2.5 rounded-xl border border-stone-200/80 dark:border-navy-800/80 shadow-2xs">
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-gold-500/15 dark:bg-gold-500/20 text-stone-700 dark:text-gold-300 border border-gold-500/30 text-[10px] font-bold flex items-center justify-center mt-0.5 select-none">
                             {it.num || (idx + 1)}
                         </span>
-                        <span className="flex-1 min-w-0 font-medium">
+                        <span className="flex-1 min-w-0 font-normal">
                             {it.text}
                         </span>
                     </div>
@@ -3893,7 +3893,8 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
 
     return (
         <HomeCard
-            badgeText="🙏 Persekutuan Doa Rabu & Pastoral"
+            badgeIcon="Heart"
+            badgeText="Persekutuan Doa Rabu & Pastoral"
             title="Kotak & Dinding Pokok Doa Jemaat"
             subtitle="Pokok doa jemaat untuk Ibadah Rabu Malam atau secara khusus (privat) oleh Pendeta & Majelis."
             containerClassName="h-full"
@@ -3902,7 +3903,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                     <button
                         type="button"
                         onClick={() => setIsFormOpen(prev => !prev)}
-                        className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-[#4A7045] hover:bg-[#3A5836] dark:bg-gold-500 dark:hover:bg-gold-400 text-white dark:text-navy-950 font-black text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 sm:gap-2 cursor-pointer active:scale-95"
+                        className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-gold-500 dark:hover:bg-gold-400 text-white dark:text-navy-950 font-bold text-xs sm:text-sm shadow-sm transition flex items-center gap-1.5 sm:gap-2 cursor-pointer active:scale-95"
                     >
                         <Icon name={isFormOpen ? "X" : "Plus"} className="w-4 h-4" />
                         <span>{isFormOpen ? 'Tutup Form' : '+ Kirim Pokok Doa'}</span>
@@ -3910,7 +3911,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                     <button
                         type="button"
                         onClick={handleShareWednesdayRecapWA}
-                        className="px-3.5 py-2 sm:py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                        className="px-3.5 py-2 sm:py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                         title="Bagikan Daftar Pokok Doa ke Grup WA Ibadah Rabu"
                     >
                         <Icon name="WhatsApp" className="w-4 h-4 text-white" />
@@ -3920,7 +3921,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
             )}
             footerLeft={<span>Persekutuan Doa Rabu Malam &bull; 19:30 WIB</span>}
             footerRight={(
-                <span className="font-bold text-[#4A7045] dark:text-gold-400">
+                <span className="font-semibold text-stone-900 dark:text-gold-400">
                     {publicPrayers.length} Pokok Doa Aktif
                 </span>
             )}
@@ -4060,7 +4061,7 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                     <button
                         type="button"
                         onClick={() => setCategoryFilter('all')}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${categoryFilter === 'all' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
+                        className={`px-3 py-1.5 rounded-xl text-xs shrink-0 transition cursor-pointer ${categoryFilter === 'all' ? 'bg-stone-900 text-white dark:bg-gold-500 dark:text-navy-950 font-bold shadow-xs' : 'bg-stone-100 hover:bg-stone-200/80 text-stone-600 dark:bg-navy-950 dark:hover:bg-navy-800 dark:text-stone-300 font-medium border border-stone-200/80 dark:border-navy-800'}`}
                     >
                         Semua Doa ({prayers.filter(p => p.privacy !== 'private').length})
                     </button>
@@ -4071,9 +4072,9 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                                 key={c.id}
                                 type="button"
                                 onClick={() => setCategoryFilter(c.id)}
-                                className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${categoryFilter === c.id ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
+                                className={`px-3 py-1.5 rounded-xl text-xs shrink-0 transition cursor-pointer ${categoryFilter === c.id ? 'bg-stone-900 text-white dark:bg-gold-500 dark:text-navy-950 font-bold shadow-xs' : 'bg-stone-100 hover:bg-stone-200/80 text-stone-600 dark:bg-navy-950 dark:hover:bg-navy-800 dark:text-stone-300 font-medium border border-stone-200/80 dark:border-navy-800'}`}
                             >
-                                {c.icon} {c.id} ({count})
+                                {c.id} ({count})
                             </button>
                         );
                     })}
@@ -4082,14 +4083,14 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
 
             {/* Daftar Kartu Pokok Doa Publik */}
             {publicPrayers.length === 0 ? (
-                <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 bg-[#F7F9F3]/60 dark:bg-navy-950/40 flex-1 flex flex-col items-center justify-center">
-                    <p className="text-xs sm:text-sm font-bold text-[#596B4D] dark:text-gray-400">
+                <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-stone-300 dark:border-navy-700 bg-stone-50/60 dark:bg-navy-950/40 flex-1 flex flex-col items-center justify-center">
+                    <p className="text-xs sm:text-sm font-medium text-stone-600 dark:text-stone-400">
                         Belum ada pokok doa publik untuk kategori ini.
                     </p>
                     <button
                         type="button"
                         onClick={() => setIsFormOpen(true)}
-                        className="mt-2 text-xs font-black text-[#4A7045] dark:text-gold-400 hover:underline cursor-pointer"
+                        className="mt-2 text-xs font-bold text-stone-900 dark:text-gold-400 hover:underline cursor-pointer"
                     >
                         + Kirim Pokok Doa Pertama
                     </button>
@@ -4097,33 +4098,33 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
             ) : (
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[580px] sm:max-h-[620px] overflow-y-auto custom-scrollbar pr-1 flex-1 content-start">
                     {publicPrayers.map(item => {
-                        const catObj = PRAYER_CATEGORIES.find(c => c.id === item.category) || PRAYER_CATEGORIES[0];
                         const hasPrayed = prayedIds.includes(item.id);
                         return (
                             <div
                                 key={item.id}
-                                className="p-4 rounded-2xl bg-[#F7F9F3] dark:bg-navy-950/70 border border-[#E2E8D8] dark:border-navy-800 flex flex-col justify-between gap-3 shadow-xs hover:border-[#4A7045]/60 dark:hover:border-gold-500/40 transition"
+                                className="p-4 sm:p-5 rounded-2xl bg-stone-50/80 dark:bg-navy-950/80 border border-stone-200/80 dark:border-navy-800 flex flex-col justify-between gap-3 shadow-xs hover:border-gold-500/40 dark:hover:border-gold-500/40 hover:shadow-sm transition-all"
                             >
                                 <div>
                                     <div className="flex items-center justify-between gap-2 mb-2">
-                                        <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${catObj.badgeClass}`}>
-                                            {catObj.icon} {item.category}
+                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-stone-200/70 dark:bg-navy-900 text-stone-700 dark:text-gold-300 border border-stone-300/60 dark:border-navy-700">
+                                            {item.category}
                                         </span>
                                         {item.isAnswered && (
-                                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-white">
-                                                ✅ Dijawab / Didoakan
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/70 dark:border-emerald-700/60">
+                                                <Icon name="Check" className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                                <span>Telah Didoakan</span>
                                             </span>
                                         )}
                                     </div>
                                     <PrayerContentRenderer content={item.content} />
                                 </div>
 
-                                <div className="pt-2.5 border-t border-[#E2E8D8]/80 dark:border-navy-800 flex items-center justify-between gap-2">
+                                <div className="pt-2.5 border-t border-stone-200/70 dark:border-navy-800 flex items-center justify-between gap-2">
                                     <div className="min-w-0 flex-1">
-                                        <div className="text-xs font-extrabold text-[#2C3F21] dark:text-gold-400 truncate">
+                                        <div className="font-serif font-bold text-sm text-stone-900 dark:text-gold-300 truncate tracking-tight">
                                             {item.senderName}
                                         </div>
-                                        <div className="text-[10px] text-[#596B4D] dark:text-gray-400">
+                                        <div className="text-[10px] text-stone-500 dark:text-stone-400">
                                             {formatIndoDateShort(toYMD(new Date(item.createdAt || Date.now())))}
                                         </div>
                                     </div>
@@ -4141,12 +4142,12 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                                         <button
                                             type="button"
                                             onClick={() => handlePraySupport(item.id)}
-                                            className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 shrink-0 transition cursor-pointer active:scale-95 ${hasPrayed ? 'bg-[#4A7045] dark:bg-gold-500 text-white dark:text-navy-950 shadow-xs' : 'bg-white dark:bg-navy-800 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 hover:border-[#4A7045]'}`}
+                                            className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 shrink-0 transition cursor-pointer active:scale-95 ${hasPrayed ? 'bg-stone-900 dark:bg-gold-500 text-white dark:text-navy-950 shadow-xs' : 'bg-white dark:bg-navy-800 text-stone-800 dark:text-gold-300 border border-stone-300/80 dark:border-navy-700 hover:border-gold-500'}`}
                                         >
-                                            <span>🙏</span>
+                                            <Icon name="Heart" className={`w-3.5 h-3.5 ${hasPrayed ? 'fill-current text-white dark:text-navy-950' : 'text-stone-500 dark:text-gold-400'}`} />
                                             <span className="hidden sm:inline">{hasPrayed ? 'Turut Mendoakan' : 'Saya Ikut Doakan'}</span>
                                             <span className="sm:hidden">{hasPrayed ? 'Didoakan' : 'Doakan'}</span>
-                                            <span className="px-1.5 py-0.2 rounded-full bg-black/10 dark:bg-white/15 text-[10px] font-black">
+                                            <span className="px-1.5 py-0.2 rounded-full bg-black/10 dark:bg-white/15 text-[10px] font-bold">
                                                 {item.prayedCount || 1}
                                             </span>
                                         </button>
@@ -4400,26 +4401,28 @@ const BirthdayAndCalendarWidget = () => {
             subtitle="Agenda program kegiatan jemaat dan ucapan syukur hari ulang tahun anggota."
             containerClassName="h-full"
             headerRightContent={(
-                <div className="flex items-center bg-[#F4F7EF] dark:bg-navy-950 p-1 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 self-start md:self-auto">
+                <div className="flex items-center bg-stone-100 dark:bg-navy-950 p-1 rounded-xl border border-stone-200/80 dark:border-navy-800 self-start md:self-auto">
                     <button
                         type="button"
                         onClick={() => setActiveMode('calendar')}
-                        className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'calendar' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-[#596B4D] dark:text-navy-300'}`}
+                        className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'calendar' ? 'bg-stone-900 text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-stone-600 dark:text-stone-300'}`}
                     >
-                        <span>📅 Kalender ({threeMonthsCalendar.length})</span>
+                        <Icon name="Calendar" className="w-3.5 h-3.5" />
+                        <span>Kalender ({threeMonthsCalendar.length})</span>
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveMode('birthday')}
-                        className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'birthday' ? 'bg-[#2C3F21] text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-[#596B4D] dark:text-navy-300'}`}
+                        className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${activeMode === 'birthday' ? 'bg-stone-900 text-white dark:bg-gold-500 dark:text-navy-950 shadow-xs' : 'text-stone-600 dark:text-stone-300'}`}
                     >
-                        <span>🎂 Ulang Tahun ({threeMonthsBirthdays.length})</span>
+                        <Icon name="Gift" className="w-3.5 h-3.5" />
+                        <span>Ulang Tahun ({threeMonthsBirthdays.length})</span>
                     </button>
                 </div>
             )}
             footerLeft={<span>Rentang: {BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]} – {BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}</span>}
             footerRight={(
-                <span className="font-bold text-[#4A7045] dark:text-gold-400">
+                <span className="font-semibold text-stone-900 dark:text-gold-400">
                     {activeMode === 'calendar' ? `${filteredCalendar.length} Kegiatan` : `${sortedBirthdays.length} Jemaat`}
                 </span>
             )}
@@ -4431,14 +4434,14 @@ const BirthdayAndCalendarWidget = () => {
                     {[
                         { id: 'all', label: `3 Bulan (${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]})` },
                         { id: 'prev', label: `Bulan Lalu (${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]})` },
-                        { id: 'current', label: `⭐ Bulan Ini (${BIBLE_YEAR_MONTH_NAMES[currentMonth - 1]})` },
+                        { id: 'current', label: `Bulan Ini (${BIBLE_YEAR_MONTH_NAMES[currentMonth - 1]})` },
                         { id: 'next', label: `Bulan Depan (${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]})` }
                     ].map(f => (
                         <button
                             key={f.id}
                             type="button"
                             onClick={() => setMonthFilter(f.id)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition cursor-pointer ${monthFilter === f.id ? 'bg-[#4A7045] text-white dark:bg-gold-500 dark:text-navy-950 font-black' : 'bg-[#F4F7EF] dark:bg-navy-800 text-[#596B4D] dark:text-navy-300'}`}
+                            className={`px-3 py-1.5 rounded-xl text-xs shrink-0 transition cursor-pointer ${monthFilter === f.id ? 'bg-stone-900 text-white dark:bg-gold-500 dark:text-navy-950 font-bold shadow-xs' : 'bg-stone-100 hover:bg-stone-200/80 text-stone-600 dark:bg-navy-950 dark:hover:bg-navy-800 dark:text-stone-300 font-medium border border-stone-200/80 dark:border-navy-800'}`}
                         >
                             {f.label}
                         </button>
@@ -4453,7 +4456,7 @@ const BirthdayAndCalendarWidget = () => {
                             <SkulletBirthdayRows count={4} />
                         </div>
                     ) : filteredCalendar.length === 0 ? (
-                        <div className="p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold flex-1 flex items-center justify-center">
+                        <div className="p-8 text-center rounded-2xl border border-dashed border-stone-300 dark:border-navy-700 text-stone-600 dark:text-stone-400 text-xs sm:text-sm font-medium flex-1 flex items-center justify-center">
                             Belum ada agenda kalender kegiatan pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                         </div>
                     ) : (
@@ -4465,50 +4468,50 @@ const BirthdayAndCalendarWidget = () => {
                                 return (
                                     <div
                                         key={ev.id}
-                                        className="p-4 rounded-2xl border flex flex-col justify-between gap-3 transition bg-[#F7F9F3] dark:bg-navy-950/70 border-[#E2E8D8] dark:border-navy-800 hover:border-[#4A7045] dark:hover:border-gold-500/50"
+                                        className="p-4 rounded-2xl border flex flex-col justify-between gap-3 transition bg-stone-50/80 dark:bg-navy-950/80 border-stone-200/80 dark:border-navy-800 hover:border-gold-500/40 dark:hover:border-gold-500/40 hover:shadow-sm"
                                     >
                                         <div>
                                             <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
                                                 <div className="flex items-center gap-1.5">
-                                                    <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#4A7045]/15 text-[#2C3F21] dark:bg-gold-500/15 dark:text-gold-400">
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-stone-200/70 dark:bg-navy-900 text-stone-700 dark:text-gold-300 border border-stone-300/60 dark:border-navy-700">
                                                         TW {ev.quarter || 1} • {ev.category}
                                                     </span>
                                                     {isThisMonth ? (
-                                                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/70 dark:border-emerald-700/60">
                                                             Bulan Ini
                                                         </span>
                                                     ) : isNextMonth ? (
-                                                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-700 dark:text-sky-300">
+                                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300/70 dark:border-sky-700/60">
                                                             Bulan Depan
                                                         </span>
                                                     ) : (
-                                                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-gray-200 dark:bg-navy-800 text-gray-600 dark:text-gray-400">
+                                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-md bg-stone-200/70 dark:bg-navy-900 text-stone-600 dark:text-stone-400 border border-stone-300/60 dark:border-navy-800">
                                                             Bulan Lalu
                                                         </span>
                                                     )}
                                                 </div>
-                                                <span className="text-[11px] font-bold text-[#9A6B1A] dark:text-gold-300">
+                                                <span className="text-[11px] font-bold text-gold-700 dark:text-gold-400">
                                                     {formatIndoDateShort(ev.dateYMD)}
                                                 </span>
                                             </div>
-                                            <h4 className="text-sm sm:text-base font-black text-[#2C3F21] dark:text-white leading-snug">
+                                            <h4 className="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-white leading-snug">
                                                 {ev.title}
                                             </h4>
                                             {ev.desc && (
-                                                <p className="text-xs text-[#596B4D] dark:text-gray-400 mt-1 line-clamp-2">
+                                                <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 line-clamp-2">
                                                     {ev.desc}
                                                 </p>
                                             )}
                                         </div>
-                                        <div className="pt-2.5 border-t border-[#E2E8D8]/80 dark:border-navy-800 flex items-center justify-between gap-2">
-                                            <span className="text-[11px] text-[#596B4D] dark:text-gray-400 truncate flex items-center gap-1">
-                                                <Icon name="MapPin" className="w-3 h-3 text-[#D19B45] shrink-0" />
+                                        <div className="pt-2.5 border-t border-stone-200/70 dark:border-navy-800 flex items-center justify-between gap-2">
+                                            <span className="text-[11px] text-stone-500 dark:text-stone-400 truncate flex items-center gap-1">
+                                                <Icon name="MapPin" className="w-3 h-3 text-gold-600 shrink-0" />
                                                 <span className="truncate">{ev.location || 'GMAHK Pisgah'}</span>
                                             </span>
                                             <button
                                                 type="button"
                                                 onClick={() => handleAddCalendarItemToGCal(ev)}
-                                                className="px-3 py-1.5 rounded-xl bg-white dark:bg-navy-800 hover:bg-[#4A7045] hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-[#2C3F21] dark:text-gold-300 border border-[#C5D5BC] dark:border-navy-700 text-[11px] font-extrabold shrink-0 transition cursor-pointer flex items-center gap-1"
+                                                className="px-3 py-1.5 rounded-xl bg-white dark:bg-navy-800 hover:bg-stone-900 hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-stone-700 dark:text-gold-300 border border-stone-300/80 dark:border-navy-700 text-[11px] font-bold shrink-0 transition cursor-pointer flex items-center gap-1"
                                                 title="Simpan ke Google Calendar HP"
                                             >
                                                 <Icon name="CalendarPlus" className="w-3.5 h-3.5" />
@@ -4527,7 +4530,7 @@ const BirthdayAndCalendarWidget = () => {
                         <SkulletBirthdayRows count={4} />
                     </div>
                 ) : sortedBirthdays.length === 0 ? (
-                    <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-[#C5D5BC] dark:border-navy-700 text-[#596B4D] dark:text-gray-400 text-xs sm:text-sm font-bold flex-1 flex items-center justify-center">
+                    <div className="mt-4 p-8 text-center rounded-2xl border border-dashed border-stone-300 dark:border-navy-700 text-stone-600 dark:text-stone-400 text-xs sm:text-sm font-medium flex-1 flex items-center justify-center">
                         Belum ada data ulang tahun jemaat pada periode {monthFilter === 'prev' ? BIBLE_YEAR_MONTH_NAMES[prevMonth - 1] : monthFilter === 'current' ? BIBLE_YEAR_MONTH_NAMES[currentMonth - 1] : monthFilter === 'next' ? BIBLE_YEAR_MONTH_NAMES[nextMonth - 1] : `${BIBLE_YEAR_MONTH_NAMES[prevMonth - 1]}–${BIBLE_YEAR_MONTH_NAMES[nextMonth - 1]}`}.
                     </div>
                 ) : (
@@ -4542,12 +4545,13 @@ const BirthdayAndCalendarWidget = () => {
                             return (
                                 <div
                                     key={b.id}
-                                    className={`p-3 sm:p-3.5 rounded-2xl border flex flex-col justify-between gap-2.5 transition ${isToday ? 'bg-gradient-to-br from-amber-100/90 via-amber-50 to-white dark:from-gold-500/20 dark:via-navy-900 dark:to-navy-950 border-amber-400 dark:border-gold-400 shadow-md ring-2 ring-amber-400/40' : 'bg-[#F7F9F3] dark:bg-navy-950/70 border-[#E2E8D8] dark:border-navy-800 hover:border-[#4A7045] dark:hover:border-gold-500/50'}`}
+                                    className={`p-3 sm:p-3.5 rounded-2xl border flex flex-col justify-between gap-2.5 transition ${isToday ? 'bg-gradient-to-br from-amber-50 via-white to-amber-50/50 dark:from-navy-900 dark:via-navy-950 dark:to-navy-900 border-gold-400 dark:border-gold-500/60 shadow-sm ring-1 ring-gold-400/40' : 'bg-stone-50/80 dark:bg-navy-950/80 border-stone-200/80 dark:border-navy-800 hover:border-gold-500/40 dark:hover:border-gold-500/40'}`}
                                 >
                                     <div>
                                         <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                                            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${isToday ? 'bg-amber-500 text-white shadow-xs' : 'bg-gold-500/20 text-amber-800 dark:text-gold-300'}`}>
-                                                🎂 {b.birthDay} {monthName}
+                                            <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${isToday ? 'bg-gold-500 text-navy-950 font-black shadow-xs' : 'bg-stone-200/70 dark:bg-navy-900 text-stone-700 dark:text-gold-300 border border-stone-300/60 dark:border-navy-700'}`}>
+                                                <Icon name="Gift" className="w-3 h-3 text-gold-600 dark:text-gold-400" />
+                                                <span>{b.birthDay} {monthName}</span>
                                             </span>
                                             {isToday ? (
                                                 <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs animate-pulse">
@@ -4567,20 +4571,20 @@ const BirthdayAndCalendarWidget = () => {
                                                 </span>
                                             )}
                                         </div>
-                                        <h4 className="text-sm font-black text-[#2C3F21] dark:text-white truncate">
+                                        <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-gold-300 truncate">
                                             {b.nama}
                                         </h4>
-                                        <p className="text-[11px] text-[#596B4D] dark:text-gray-400 font-semibold mt-0.5 truncate">
+                                        <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium mt-0.5 truncate">
                                             {b.kategori || 'Anggota Jemaat'}
                                         </p>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => handleSendBirthdayWA(b)}
-                                        className="w-full py-2 px-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                                        className="w-full py-2 px-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                                     >
                                         <Icon name="WhatsApp" className="w-3.5 h-3.5 text-white" />
-                                        <span>🎉 Kirim Ucapan WA</span>
+                                        <span>Kirim Ucapan WA</span>
                                     </button>
                                 </div>
                             );
@@ -5245,28 +5249,28 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                     {hasTopRow && (
                         <div className={`grid grid-cols-1 ${hasPengumuman && hasPwaBanner ? 'lg:grid-cols-2' : ''} gap-6 items-stretch`}>
                             {hasPengumuman && (
-                                <div className="relative overflow-hidden rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 flex flex-col justify-between group h-full">
+                                <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-7 shadow-[0_10px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-stone-200/90 dark:border-navy-700/80 flex flex-col justify-between group h-full">
                                     <div>
                                         <div className="flex items-center justify-between gap-3 mb-2">
-                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30">
-                                                <Icon name="Megaphone" className="w-3.5 h-3.5" /> Pengumuman Jemaat
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/15 text-gold-800 dark:text-gold-300 font-bold text-[11px] uppercase tracking-wider border border-gold-500/25">
+                                                <Icon name="Megaphone" className="w-3.5 h-3.5 text-gold-600 dark:text-gold-400" /> Pengumuman Jemaat
                                             </span>
-                                            <span className="text-[11px] text-[#596B4D] dark:text-gray-400 font-medium">
+                                            <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
                                                 Pekan Ini
                                             </span>
                                         </div>
 
-                                        <h3 className="text-xl md:text-2xl font-black text-[#2C3F21] dark:text-white tracking-tight mb-4">
+                                        <h3 className="font-serif font-bold text-xl md:text-2xl text-stone-900 dark:text-white tracking-tight mb-3">
                                             {pengumuman.header || "Pengumuman Pekan Ini"}
                                         </h3>
 
                                         <div className="relative">
                                             <div
-                                                className={`bg-[#F7F9F3] dark:bg-navy-950/60 p-4 rounded-2xl border border-[#E2E8D8] dark:border-navy-800 text-[#596B4D] dark:text-gray-300 text-xs md:text-sm leading-relaxed font-medium transition-all duration-300 ${isPengumumanLong ? (isPengumumanExpanded ? 'max-h-[500px] overflow-y-auto custom-scrollbar' : 'max-h-[140px] overflow-hidden') : ''}`}
+                                                className={`bg-stone-50 dark:bg-navy-950/60 p-4 rounded-xl border border-stone-200/80 dark:border-navy-800 text-stone-700 dark:text-stone-300 text-xs md:text-sm leading-relaxed font-normal transition-all duration-300 ${isPengumumanLong ? (isPengumumanExpanded ? 'max-h-[500px] overflow-y-auto custom-scrollbar' : 'max-h-[140px] overflow-hidden') : ''}`}
                                                 dangerouslySetInnerHTML={{ __html: pengumuman.isi }}
                                             ></div>
                                             {isPengumumanLong && !isPengumumanExpanded && (
-                                                <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#F7F9F3] dark:from-navy-950 to-transparent pointer-events-none rounded-b-2xl"></div>
+                                                <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-stone-50 dark:from-navy-950 to-transparent pointer-events-none rounded-b-xl"></div>
                                             )}
                                         </div>
 
@@ -5275,7 +5279,7 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                                 <button
                                                     type="button"
                                                     onClick={() => setIsPengumumanExpanded(prev => !prev)}
-                                                    className="px-4 py-1.5 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 hover:bg-[#4A7045]/20 dark:hover:bg-gold-500/25 text-[#2C3F21] dark:text-gold-400 font-extrabold text-xs transition flex items-center gap-1.5 cursor-pointer border border-[#4A7045]/30 dark:border-gold-500/40"
+                                                    className="px-4 py-1.5 rounded-full bg-stone-100 dark:bg-navy-800 hover:bg-stone-200 dark:hover:bg-navy-700 text-stone-700 dark:text-gold-300 font-semibold text-xs transition flex items-center gap-1.5 cursor-pointer border border-stone-200/80 dark:border-navy-700"
                                                 >
                                                     <span>{isPengumumanExpanded ? 'Tutup Pengumuman' : 'Baca Selengkapnya'}</span>
                                                     <Icon name={isPengumumanExpanded ? 'ChevronUp' : 'ChevronDown'} className="w-3.5 h-3.5" />
@@ -5284,12 +5288,12 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                         )}
                                     </div>
 
-                                    <div className="pt-3 mt-4 border-t border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between text-[11px] text-[#596B4D] dark:text-gray-400">
+                                    <div className="pt-3.5 mt-4 border-t border-stone-200/80 dark:border-navy-800 flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400">
                                         <span>GMAHK Jemaat Pisgah BISDAC</span>
                                         <button
                                             type="button"
                                             onClick={() => setActiveTab('warta')}
-                                            className="font-bold text-[#4A7045] dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                            className="font-bold text-gold-600 dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
                                         >
                                             <span>Buka Portal Warta</span>
                                             <Icon name="ChevronRight" className="w-3 h-3" />
@@ -5324,14 +5328,14 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                             return (
                                 <div className="flex flex-col gap-4 w-full h-full justify-between">
                                     {showPerjamuan && (
-                                        <div className={`bg-gradient-to-br from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-6 md:p-8 rounded-[2rem] shadow-xl flex flex-col justify-between gap-4 relative overflow-hidden animate-fade-in border-2 border-[#C18B35] dark:border-gold-400 h-full ${!isPerjamuanEarlier && showPerpuluhan ? 'order-2' : 'order-1'}`}>
+                                        <div className={`bg-gradient-to-br from-[#D19B45] to-[#C18B35] dark:from-gold-500 dark:to-gold-600 p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-xl flex flex-col justify-between gap-4 relative overflow-hidden animate-fade-in border-2 border-[#C18B35] dark:border-gold-400 h-full ${!isPerjamuanEarlier && showPerpuluhan ? 'order-2' : 'order-1'}`}>
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 dark:bg-navy-900/10 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                                             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 dark:bg-navy-900/5 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
                                             <div className="relative z-10 text-white dark:text-navy-900">
                                                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 dark:bg-navy-900/20 text-white dark:text-navy-900 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-white/30">
                                                     <Icon name="Gift" className="w-3.5 h-3.5" /> Sabat Perjamuan
                                                 </div>
-                                                <p className="text-2xl md:text-3xl font-extrabold opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
+                                                <p className="font-serif font-bold text-2xl md:text-3xl opacity-95 tracking-tight">{formatIndoDate(perjamuanYMD)}</p>
                                                 {perjamuanNote && <p className="text-xs md:text-sm font-medium mt-2 opacity-90 whitespace-pre-wrap leading-relaxed">{perjamuanNote}</p>}
                                             </div>
                                             <div className="relative z-10 pt-2 flex justify-end">
@@ -5343,14 +5347,14 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
                                     )}
 
                                     {showPerpuluhan && (
-                                        <div className={`bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-6 md:p-8 rounded-[2rem] shadow-xl border-2 border-[#3A5836] dark:border-navy-700/50 flex flex-col justify-between gap-4 relative overflow-hidden animate-fade-in h-full ${isPerjamuanEarlier && showPerjamuan ? 'order-2' : 'order-1'}`}>
+                                        <div className={`bg-gradient-to-br from-[#4A7045] to-[#3A5836] dark:from-navy-900 dark:to-navy-800 p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-xl border-2 border-[#3A5836] dark:border-navy-700/50 flex flex-col justify-between gap-4 relative overflow-hidden animate-fade-in h-full ${isPerjamuanEarlier && showPerjamuan ? 'order-2' : 'order-1'}`}>
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-gold-400/10 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                                             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 dark:bg-gold-400/5 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
                                             <div className="relative z-10 text-white">
                                                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D19B45]/20 text-[#D19B45] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider mb-2 border border-[#D19B45]/40">
                                                     <Icon name="Gift" className="w-3.5 h-3.5" /> Sabat Perpuluhan
                                                 </div>
-                                                <p className="text-2xl md:text-3xl text-white dark:text-navy-200 font-extrabold tracking-tight">{formatIndoDate(perpuluhanYMD)}</p>
+                                                <p className="font-serif font-bold text-2xl md:text-3xl text-white dark:text-gold-200 tracking-tight">{formatIndoDate(perpuluhanYMD)}</p>
                                                 {perpuluhanNote && <p className="text-xs md:text-sm font-medium mt-2 opacity-90 text-white/90 dark:text-navy-300 whitespace-pre-wrap leading-relaxed">{perpuluhanNote}</p>}
                                             </div>
                                             <div className="relative z-10 pt-2 flex justify-end">
@@ -5576,15 +5580,15 @@ const Home = ({ setActiveTab, youtubeUrl, anthemUrl, anthemUrl2, anthemTitle, an
 
 
                     {/* ROW 5: WARTA JEMAAT, PUSTAKA & VIDEO */}
-                    <div className="rounded-[2rem] bg-white dark:bg-navy-900 p-6 md:p-8 shadow-xl border-2 border-[#E2E8D8] dark:border-navy-700 transition-colors duration-500 relative z-10">
+                    <div className="rounded-2xl md:rounded-3xl bg-white dark:bg-navy-900 p-5 sm:p-6 md:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-stone-200/90 dark:border-navy-700/80 transition-colors duration-500 relative z-10">
                         <div className="w-full mx-auto">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                                 <div>
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A7045]/10 dark:bg-gold-500/15 text-[#2C3F21] dark:text-gold-400 font-extrabold text-[11px] uppercase tracking-wider border border-[#4A7045]/20 dark:border-gold-500/30 mb-2">
-                                        <Icon name="Warta" className="w-3.5 h-3.5" /> Warta & Kabar Jemaat
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-500/15 text-gold-800 dark:text-gold-300 font-bold text-[11px] uppercase tracking-wider border border-gold-500/25 mb-2">
+                                        <Icon name="Warta" className="w-3.5 h-3.5 text-gold-600 dark:text-gold-400" /> Warta & Kabar Jemaat
                                     </span>
-                                    <h2 className="text-2xl md:text-3xl font-black text-[#2C3F21] dark:text-gold-400 tracking-tight transition-colors">Berita Terkini</h2>
-                                    <p className="text-[#596B4D] dark:text-gray-300 font-medium text-xs md:text-sm mt-1 transition-colors">Informasi pelayanan, kegiatan gereja, dan kabar sukacita jemaat pekan ini.</p>
+                                    <h2 className="font-serif font-bold text-2xl md:text-3xl text-stone-900 dark:text-white tracking-tight transition-colors">Berita Terkini</h2>
+                                    <p className="text-stone-600 dark:text-stone-400 font-normal text-xs md:text-sm mt-1 transition-colors">Informasi pelayanan, kegiatan gereja, dan kabar sukacita jemaat pekan ini.</p>
                                 </div>
                                 <button
                                     onClick={() => setActiveTab('warta')}
