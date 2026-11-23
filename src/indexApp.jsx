@@ -5978,94 +5978,112 @@ const SistemGerejaModal = ({ isOpen, onClose }) => {
     const systems = [
         {
             title: "Presensi & Sekolah Sabat",
-            desc: "Pencatatan absensi jemaat, 10 poin keterlibatan kelas, & doa syafaat.",
+            category: "Peribadatan & Jemaat",
+            role: "Majelis & Guru SS",
+            desc: "Pencatatan absensi jemaat, 10 poin keterlibatan kelas, & pokok doa syafaat.",
             icon: "ClipboardCheck",
-            color: "text-emerald-700 dark:text-emerald-400",
-            bg: "bg-emerald-500/15 border-emerald-500/30",
-            link: "./hadir.html"
+            link: "./hadir.html",
+            actionLabel: "Buka Presensi"
         },
         {
-            title: "Laporan Keuangan & Kas",
-            desc: "Kas perbendaharaan, kuitansi digital transaksi, & buletin Sabat.",
+            title: "Laporan Perbendaharaan",
+            category: "Keuangan Gereja",
+            role: "Bendahara Jemaat",
+            desc: "Kas jemaat, kuitansi digital transaksi resmi, & buletin keuangan Sabat.",
             icon: "BarChart",
-            color: "text-amber-800 dark:text-gold-300",
-            bg: "bg-amber-500/15 border-amber-500/30",
-            link: "./laporan.html"
+            link: "./laporan.html",
+            actionLabel: "Buka Keuangan"
         },
         {
             title: "Inventaris Aset Gereja",
-            desc: "Katalog aset barang, label QR Code, & peminjaman inventaris.",
+            category: "Logistik & Sarana",
+            role: "Diakonat & Tim Aset",
+            desc: "Katalog fisik aset gereja, pelabelan QR Code, & peminjaman inventaris.",
             icon: "Package",
-            color: "text-blue-800 dark:text-sky-300",
-            bg: "bg-sky-500/15 border-sky-500/30",
-            link: "./inventaris.html"
+            link: "./inventaris.html",
+            actionLabel: "Buka Inventaris"
         },
         {
             title: "Worship Presenter",
-            desc: "Aplikasi desktop multimedia presentasi lirik lagu & Alkitab.",
+            category: "Multimedia Ibadah",
+            role: "Operator Multimedia",
+            desc: "Aplikasi desktop penampil lirik lagu & ayat Alkitab proyektor kebaktian.",
             icon: "MonitorDown",
-            color: "text-purple-800 dark:text-purple-300",
-            bg: "bg-purple-500/15 border-purple-500/30",
-            link: "./worship-presenter.html"
+            link: "./worship-presenter.html",
+            actionLabel: "Buka Presenter"
         }
     ];
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto animate-fade-in-fast">
-            <div onClick={onClose} className="fixed inset-0 bg-black/60 dark:bg-black/75 transition-opacity" />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in-fast">
+            <div onClick={onClose} className="fixed inset-0 bg-stone-950/70 dark:bg-black/80 backdrop-blur-sm transition-opacity" />
 
-            <div className="relative w-full max-w-lg bg-white dark:bg-navy-900 rounded-3xl shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-700 overflow-hidden z-10 flex flex-col my-auto animate-modal-pop">
-                <div className="p-4 sm:p-5 border-b border-[#E2E8D8] dark:border-navy-800 flex items-center justify-between bg-[#F7F9F3] dark:bg-navy-950">
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-10 h-10 rounded-2xl bg-[#4A7045]/15 dark:bg-gold-500/20 text-[#4A7045] dark:text-gold-400 flex items-center justify-center">
-                            <Icon name="Layers" className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h3 className="font-black text-base text-[#2C3F21] dark:text-white">Sistem & Aplikasi Gereja</h3>
-                            <p className="text-xs font-medium text-[#596B4D] dark:text-gray-400">Pilih modul tata kelola pelayanan jemaat</p>
-                        </div>
+            <div className="relative w-full max-w-xl bg-white dark:bg-navy-900 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] border border-stone-200/90 dark:border-navy-700/80 overflow-hidden z-10 flex flex-col my-auto animate-modal-pop">
+                {/* Header Modal */}
+                <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-stone-200/80 dark:border-navy-800 bg-stone-50/70 dark:bg-navy-950/70 flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-500/15 text-gold-800 dark:text-gold-300 font-bold text-[10px] uppercase tracking-wider border border-gold-500/25 mb-1.5">
+                            <Icon name="Layers" className="w-3 h-3 text-gold-600 dark:text-gold-400" /> Tata Kelola Pelayanan GMAHK
+                        </span>
+                        <h3 className="font-serif font-bold text-xl sm:text-2xl text-stone-900 dark:text-white tracking-tight">
+                            Sistem Informasi Terpadu
+                        </h3>
+                        <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5">
+                            Pilih modul administrasi dan manajemen jemaat untuk memulai pelayanan.
+                        </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-9 h-9 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400 transition cursor-pointer"
+                        className="w-9 h-9 rounded-xl hover:bg-stone-200/60 dark:hover:bg-navy-800 flex items-center justify-center text-stone-500 dark:text-stone-400 transition cursor-pointer shrink-0 mt-0.5"
                         aria-label="Tutup"
                     >
                         <Icon name="X" className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white dark:bg-navy-900">
+                {/* Grid Modul Sistem */}
+                <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-white dark:bg-navy-900">
                     {systems.map((s, idx) => (
                         <a
                             key={idx}
                             href={s.link}
-                            className={`p-3.5 rounded-2xl border transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between group shadow-sm ${s.bg}`}
+                            className="p-4 rounded-2xl bg-stone-50/90 dark:bg-navy-950/80 border border-stone-200/90 dark:border-navy-800/90 hover:border-gold-500/60 dark:hover:border-gold-500/60 hover:shadow-md transition-all flex flex-col justify-between group"
                         >
                             <div>
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className={`w-9 h-9 rounded-xl bg-white dark:bg-navy-800 flex items-center justify-center shadow-xs ${s.color}`}>
+                                <div className="flex items-center justify-between gap-2 mb-2.5">
+                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-navy-900 text-gold-600 dark:text-gold-400 border border-stone-200/80 dark:border-navy-700/80 flex items-center justify-center shadow-2xs group-hover:bg-gold-500 group-hover:text-navy-950 group-hover:border-gold-500 transition-colors">
                                         <Icon name={s.icon} className="w-5 h-5" />
                                     </div>
-                                    <Icon name="ExternalLink" className="w-4 h-4 text-gray-400 group-hover:text-gold-500 transition-colors" />
+                                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-200/70 dark:bg-navy-900 text-stone-600 dark:text-stone-300 border border-stone-300/60 dark:border-navy-700">
+                                        {s.role}
+                                    </span>
                                 </div>
-                                <h4 className="font-extrabold text-sm text-navy-900 dark:text-white group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">
+                                <h4 className="font-serif font-bold text-base text-stone-900 dark:text-white group-hover:text-gold-700 dark:group-hover:text-gold-300 transition-colors tracking-tight">
                                     {s.title}
                                 </h4>
-                                <p className="text-[11px] font-medium text-navy-600 dark:text-gray-300 mt-1 leading-snug">
+                                <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 leading-relaxed">
                                     {s.desc}
                                 </p>
                             </div>
-                            <span className="text-[10px] font-bold text-gold-600 dark:text-gold-400 mt-3 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                                Buka Aplikasi &rarr;
-                            </span>
+
+                            <div className="pt-3 mt-3.5 border-t border-stone-200/80 dark:border-navy-800/80 flex items-center justify-between">
+                                <span className="text-xs font-semibold text-stone-800 dark:text-gold-400 group-hover:text-gold-700 dark:group-hover:text-gold-300 transition-colors">
+                                    {s.actionLabel}
+                                </span>
+                                <div className="w-7 h-7 rounded-lg bg-stone-200/70 dark:bg-navy-800 group-hover:bg-gold-500 group-hover:text-navy-950 text-stone-600 dark:text-stone-300 flex items-center justify-center transition-colors shadow-2xs">
+                                    <Icon name="ExternalLink" className="w-3.5 h-3.5" />
+                                </div>
+                            </div>
                         </a>
                     ))}
                 </div>
 
-                <div className="p-3.5 bg-[#F7F9F3] dark:bg-navy-950 border-t border-[#E2E8D8] dark:border-navy-800 text-center">
-                    <p className="text-[11px] font-semibold text-[#596B4D] dark:text-gray-400">
-                        GMAHK Jemaat Pisgah — Batam International Seventh-day Adventist Church
-                    </p>
+                {/* Footer Modal */}
+                <div className="px-5 py-3 sm:px-6 bg-stone-50/80 dark:bg-navy-950/80 border-t border-stone-200/80 dark:border-navy-800 flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 flex-wrap gap-2">
+                    <span className="flex items-center gap-1 font-medium">
+                        🔒 Akses Resmi Pelayanan Jemaat
+                    </span>
+                    <span>GMAHK Jemaat Pisgah BISDAC</span>
                 </div>
             </div>
         </div>,
