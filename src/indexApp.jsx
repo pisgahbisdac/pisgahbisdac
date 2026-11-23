@@ -4119,34 +4119,33 @@ const PrayerRequestWallWidget = ({ dataPejabat = [], compact = false }) => {
                                     <PrayerContentRenderer content={item.content} />
                                 </div>
 
-                                <div className="pt-2.5 border-t border-stone-200/70 dark:border-navy-800 flex items-center justify-between gap-2">
-                                    <div className="min-w-0 flex-1">
-                                        <div className="font-serif font-bold text-sm text-stone-900 dark:text-gold-300 truncate tracking-tight">
+                                <div className="pt-3 border-t border-stone-200/70 dark:border-navy-800 flex flex-col gap-2.5">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="font-serif font-bold text-sm text-stone-900 dark:text-gold-300 tracking-tight">
                                             {item.senderName}
                                         </div>
-                                        <div className="text-[10px] text-stone-500 dark:text-stone-400">
+                                        <div className="text-[10px] text-stone-500 dark:text-stone-400 shrink-0">
                                             {formatIndoDateShort(toYMD(new Date(item.createdAt || Date.now())))}
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1.5 shrink-0">
+                                    <div className="flex items-center gap-2">
                                         <button
                                             type="button"
                                             onClick={() => handleShareSinglePrayerWA(item)}
-                                            className="px-2 sm:px-2.5 py-1.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#128C7E] dark:text-[#25D366] hover:text-white dark:hover:text-white border border-[#25D366]/30 hover:border-[#25D366] transition flex items-center gap-1 text-[11px] font-bold cursor-pointer active:scale-95 shadow-2xs"
+                                            className="flex-1 py-2 px-2.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#128C7E] dark:text-[#25D366] hover:text-white dark:hover:text-white border border-[#25D366]/30 hover:border-[#25D366] transition flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer active:scale-95 shadow-2xs"
                                             title="Bagikan Pokok Doa ini ke WhatsApp"
                                             aria-label="Bagikan ke WhatsApp"
                                         >
                                             <Icon name="WhatsApp" className="w-3.5 h-3.5" />
-                                            <span className="hidden min-[380px]:inline">Bagikan</span>
+                                            <span>Bagikan</span>
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => handlePraySupport(item.id)}
-                                            className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 shrink-0 transition cursor-pointer active:scale-95 ${hasPrayed ? 'bg-stone-900 dark:bg-gold-500 text-white dark:text-navy-950 shadow-xs' : 'bg-white dark:bg-navy-800 text-stone-800 dark:text-gold-300 border border-stone-300/80 dark:border-navy-700 hover:border-gold-500'}`}
+                                            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-95 ${hasPrayed ? 'bg-stone-900 dark:bg-gold-500 text-white dark:text-navy-950 shadow-xs' : 'bg-white dark:bg-navy-800 text-stone-800 dark:text-gold-300 border border-stone-300/80 dark:border-navy-700 hover:border-gold-500'}`}
                                         >
                                             <Icon name="Heart" className={`w-3.5 h-3.5 ${hasPrayed ? 'fill-current text-white dark:text-navy-950' : 'text-stone-500 dark:text-gold-400'}`} />
-                                            <span className="hidden sm:inline">{hasPrayed ? 'Turut Mendoakan' : 'Saya Ikut Doakan'}</span>
-                                            <span className="sm:hidden">{hasPrayed ? 'Didoakan' : 'Doakan'}</span>
+                                            <span>{hasPrayed ? 'Turut Mendoakan' : 'Saya Ikut Doakan'}</span>
                                             <span className="px-1.5 py-0.2 rounded-full bg-black/10 dark:bg-white/15 text-[10px] font-bold">
                                                 {item.prayedCount || 1}
                                             </span>
@@ -4503,19 +4502,19 @@ const BirthdayAndCalendarWidget = () => {
                                                 </p>
                                             )}
                                         </div>
-                                        <div className="pt-2.5 border-t border-stone-200/70 dark:border-navy-800 flex items-center justify-between gap-2">
-                                            <span className="text-[11px] text-stone-500 dark:text-stone-400 truncate flex items-center gap-1">
+                                        <div className="pt-3 border-t border-stone-200/70 dark:border-navy-800 flex flex-col gap-2">
+                                            <span className="text-[11px] text-stone-500 dark:text-stone-400 flex items-center gap-1">
                                                 <Icon name="MapPin" className="w-3 h-3 text-gold-600 shrink-0" />
                                                 <span className="truncate">{ev.location || 'GMAHK Pisgah'}</span>
                                             </span>
                                             <button
                                                 type="button"
                                                 onClick={() => handleAddCalendarItemToGCal(ev)}
-                                                className="px-3 py-1.5 rounded-xl bg-white dark:bg-navy-800 hover:bg-stone-900 hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-stone-700 dark:text-gold-300 border border-stone-300/80 dark:border-navy-700 text-[11px] font-bold shrink-0 transition cursor-pointer flex items-center gap-1"
+                                                className="w-full py-2 px-3 rounded-xl bg-white dark:bg-navy-800 hover:bg-stone-900 hover:text-white dark:hover:bg-gold-500 dark:hover:text-navy-950 text-stone-700 dark:text-gold-300 border border-stone-300/80 dark:border-navy-700 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
                                                 title="Simpan ke Google Calendar HP"
                                             >
                                                 <Icon name="CalendarPlus" className="w-3.5 h-3.5" />
-                                                <span>+ Kalender HP</span>
+                                                <span>+ Simpan ke Kalender HP</span>
                                             </button>
                                         </div>
                                     </div>

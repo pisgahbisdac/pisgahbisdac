@@ -1082,7 +1082,7 @@ const ICON_RENDERERS = {
     Rupiah: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><text x="12" y="15.5" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="currentColor" stroke="none" fontFamily="system-ui, -apple-system, sans-serif">Rp</text></svg>,
     BarChart: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 3v18h18" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></svg>,
     Book: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" /><path d="M6 2v20" /></svg>,
-    ArrowDownUp: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>,
+    ArrowDownUp: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 16 4 4 4-4" /><path d="M7 20V4" /><path d="m21 8-4-4-4 4" /><path d="M17 4v16" /></svg>,
     BookOpen: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>,
     Warta: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" /><path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14" /><path d="M8 6v8" /></svg>,
     Video: (className) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m22 8-6 4 6 4V8Z" /><rect width="14" height="12" x="2" y="6" rx="2" ry="2" /></svg>,
@@ -1459,16 +1459,13 @@ export const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleN
         <div className="w-full mx-auto px-4 md:px-8 lg:px-[6vw] mt-12 md:mt-16 mb-4">
             {eventsToDisplay.length > 0 && (
                 <>
-                    <h3 className="text-[10px] md:text-xs font-black text-[#D19B45] dark:text-gold-500 uppercase tracking-[0.2em] mb-1">Jangan Lewatkan</h3>
-                    <h2 className="text-xl md:text-2xl font-extrabold text-[#2C3F21] dark:text-white mb-4">Acara Terdekat</h2>
+                    <h3 className="text-xs font-semibold text-gold-600 dark:text-gold-400 uppercase tracking-[0.2em] mb-1">Agenda Acara</h3>
+                    <h2 className="font-serif font-bold text-2xl md:text-3xl text-stone-900 dark:text-white mb-4">Acara Terdekat</h2>
 
-                    {/* Elevated Dark Card Carousel with Ambient Halo Glow */}
+                    {/* Elevated Dark Card Carousel */}
                     <div className="relative w-full">
-                        {/* Dark Mode Ambient Halo Glow */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-gold-500/20 via-[#D19B45]/20 to-emerald-600/20 rounded-[2.2rem] blur-xl opacity-0 dark:opacity-75 -z-10 transition-opacity duration-700 pointer-events-none"></div>
-
                         <div
-                            className="relative w-full rounded-[2rem] overflow-hidden bg-[#2C3F21] dark:bg-navy-950 shadow-2xl border-2 border-[#E2E8D8] dark:border-navy-800 aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group select-none"
+                            className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden bg-stone-900 dark:bg-navy-950 shadow-xl border border-stone-200/80 dark:border-navy-700/80 aspect-[16/10] sm:aspect-video md:aspect-[21/9] flex items-end p-6 md:p-10 text-white group select-none"
                             onMouseEnter={() => setIsEventHovered(true)}
                             onMouseLeave={() => setIsEventHovered(false)}
                             onTouchStart={handleEventTouchStart}
@@ -1495,22 +1492,22 @@ export const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleN
                             <div className="relative z-10 w-full max-w-[90%] sm:max-w-[80%]">
                                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                                     {eventsToDisplay[currentEventIdx]?.dateStr && (
-                                        <span className="inline-flex max-w-[calc(100%-85px)] truncate items-center bg-[#D19B45] text-[#2C3F21] text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
-                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                                        <span className="inline-flex max-w-[calc(100%-85px)] truncate items-center gap-1.5 bg-gold-500 text-navy-950 text-xs sm:text-sm font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm">
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 shrink-0 text-navy-950" />
                                             <span className="truncate">{eventsToDisplay[currentEventIdx].dateStr}</span>
                                         </span>
                                     )}
-                                    <span className="inline-flex items-center bg-black/40 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+                                    <span className="inline-flex items-center bg-black/40 backdrop-blur-md text-white border border-white/20 text-[10px] sm:text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
                                         Acara Mendatang
                                     </span>
                                 </div>
-                                <h3 className="text-xl sm:text-2xl md:text-4xl font-extrabold leading-tight mb-2 tracking-tight text-white drop-shadow-md line-clamp-3 sm:line-clamp-none">
+                                <h3 className="font-serif font-bold text-2xl sm:text-3xl md:text-4xl leading-tight mb-2 tracking-normal text-white drop-shadow-md line-clamp-3 sm:line-clamp-none">
                                     {eventsToDisplay[currentEventIdx]?.title || ''}
                                 </h3>
                                 {eventsToDisplay[currentEventIdx]?.location && (
-                                    <p className="text-xs sm:text-sm md:text-base text-gray-200 dark:text-navy-100 flex items-center font-medium opacity-95 drop-shadow">
-                                        <Icon name="MapPin" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0 text-[#D19B45] dark:text-gold-400" />
+                                    <p className="text-xs sm:text-sm md:text-base text-stone-200 flex items-center font-medium opacity-95 drop-shadow">
+                                        <Icon name="MapPin" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 shrink-0 text-gold-400" />
                                         <span className="truncate">{eventsToDisplay[currentEventIdx].location}</span>
                                     </p>
                                 )}
@@ -1518,25 +1515,25 @@ export const AcaraTerdekat = ({ allDates = [], selectedDate, handlePrev, handleN
                                 {/* Action Buttons: Google Calendar & WhatsApp & Slide Indicator */}
                                 <div className="flex items-center justify-between gap-3 mt-4 pt-1 flex-wrap">
                                     <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
+                                            className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white transition-all active:scale-95 shadow-sm cursor-pointer"
+                                            title="Bagikan Acara ke WhatsApp"
+                                        >
+                                            <Icon name="WhatsApp" className="w-4 h-4 text-white" />
+                                            <span>Bagikan WA</span>
+                                        </button>
                                         <a
                                             href={createGoogleCalendarUrl(eventsToDisplay[currentEventIdx])}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 transition-all active:scale-95 shadow-sm"
+                                            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur-md text-white border border-white/20 transition-all active:scale-95 shadow-xs"
                                             title="Simpan Acara ke Google Calendar"
                                         >
-                                            <Icon name="Calendar" className="w-3.5 h-3.5 mr-1.5 text-gold-300" />
-                                            + Kalender
+                                            <Icon name="Calendar" className="w-3.5 h-3.5 text-gold-300" />
+                                            <span>+ Kalender</span>
                                         </a>
-                                        <button
-                                            type="button"
-                                            onClick={() => shareEventToWhatsApp(eventsToDisplay[currentEventIdx])}
-                                            className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] text-white transition-all active:scale-95 shadow-xs"
-                                            title="Bagikan Acara ke WhatsApp"
-                                        >
-                                            <Icon name="WhatsApp" className="w-3.5 h-3.5 mr-1.5 text-white" />
-                                            Bagikan WA
-                                        </button>
                                     </div>
 
                                     {/* Event Dots & Pause Button */}
@@ -5398,8 +5395,8 @@ export const SongPreviewModal = ({ isOpen, onClose, song, onOpenFull }) => {
                             type="button"
                             onClick={() => playPitch(startingNote.freq, startingNote.note)}
                             className={`px-3 py-1 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 ${activePlayingNote === startingNote.note
-                                    ? 'bg-amber-600 text-white animate-pulse'
-                                    : 'bg-amber-500/20 hover:bg-amber-500 text-amber-900 dark:text-gold-300 hover:text-white border border-amber-500/30'
+                                ? 'bg-amber-600 text-white animate-pulse'
+                                : 'bg-amber-500/20 hover:bg-amber-500 text-amber-900 dark:text-gold-300 hover:text-white border border-amber-500/30'
                                 }`}
                             title={`Bunyikan nada ${startingNote.note}`}
                         >
@@ -5415,15 +5412,15 @@ export const SongPreviewModal = ({ isOpen, onClose, song, onOpenFull }) => {
                             <div
                                 key={idx}
                                 className={`p-4 rounded-2xl border transition-all ${verse.type === 'chorus'
-                                        ? 'bg-amber-500/10 dark:bg-amber-950/30 border-amber-500/30'
-                                        : 'bg-[#F7F9F3] dark:bg-navy-950/60 border-[#E2E8D8]/60 dark:border-navy-800/60'
+                                    ? 'bg-amber-500/10 dark:bg-amber-950/30 border-amber-500/30'
+                                    : 'bg-[#F7F9F3] dark:bg-navy-950/60 border-[#E2E8D8]/60 dark:border-navy-800/60'
                                     }`}
                             >
                                 {verse.label && (
                                     <div className="flex items-center justify-center mb-2">
                                         <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${verse.type === 'chorus'
-                                                ? 'bg-amber-500/25 text-amber-900 dark:text-gold-300 border border-amber-500/30'
-                                                : 'bg-navy-900/10 text-navy-800 dark:bg-white/10 dark:text-gray-300'
+                                            ? 'bg-amber-500/25 text-amber-900 dark:text-gold-300 border border-amber-500/30'
+                                            : 'bg-navy-900/10 text-navy-800 dark:bg-white/10 dark:text-gray-300'
                                             }`}>
                                             {verse.label}
                                         </span>
@@ -5434,8 +5431,8 @@ export const SongPreviewModal = ({ isOpen, onClose, song, onOpenFull }) => {
                                         <p
                                             key={lIdx}
                                             className={`text-sm sm:text-base leading-relaxed ${verse.type === 'chorus'
-                                                    ? 'font-bold text-amber-950 dark:text-amber-100'
-                                                    : 'font-medium text-navy-900 dark:text-gray-100'
+                                                ? 'font-bold text-amber-950 dark:text-amber-100'
+                                                : 'font-medium text-navy-900 dark:text-gray-100'
                                                 }`}
                                         >
                                             {line}
